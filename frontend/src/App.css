@@ -1,0 +1,472 @@
+/* CNIVE - Modern 3D Design System */
+
+/* ===== ROOT VARIABLES ===== */
+:root {
+    --shadow-color: 210deg 50% 20%;
+    --shadow-elevation-low:
+        0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.1),
+        0.4px 0.8px 1px -1.2px hsl(var(--shadow-color) / 0.1),
+        1px 2px 2.5px -2.5px hsl(var(--shadow-color) / 0.1);
+    --shadow-elevation-medium:
+        0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.11),
+        0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.11),
+        2.1px 4.1px 5.2px -1.7px hsl(var(--shadow-color) / 0.11),
+        5px 10px 12.6px -2.5px hsl(var(--shadow-color) / 0.11);
+    --shadow-elevation-high:
+        0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.1),
+        1.5px 2.9px 3.7px -0.4px hsl(var(--shadow-color) / 0.1),
+        2.7px 5.4px 6.8px -0.7px hsl(var(--shadow-color) / 0.1),
+        4.5px 8.9px 11.2px -1.1px hsl(var(--shadow-color) / 0.1),
+        7.1px 14.3px 18px -1.4px hsl(var(--shadow-color) / 0.1),
+        11.2px 22.3px 28.1px -1.8px hsl(var(--shadow-color) / 0.1),
+        17px 34px 42.8px -2.1px hsl(var(--shadow-color) / 0.1),
+        25px 50px 62.9px -2.5px hsl(var(--shadow-color) / 0.1);
+}
+
+/* ===== GLOBAL STYLES ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== 3D CARD EFFECTS ===== */
+.card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        box-shadow 0.4s ease;
+    will-change: transform;
+}
+
+.card-3d:hover {
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateZ(10px);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 10px 20px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ===== GLASSMORPHISM ===== */
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ===== MODERN BUTTONS ===== */
+.btn-3d {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: all 0.3s ease;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.1),
+        0 1px 3px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-3d:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.15),
+        0 6px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-3d:active {
+    transform: translateY(-1px);
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== FLOATING ANIMATION ===== */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float-animation {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* ===== GLOW EFFECTS ===== */
+.glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4),
+        0 0 40px rgba(59, 130, 246, 0.2);
+}
+
+.glow-green {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4),
+        0 0 40px rgba(16, 185, 129, 0.2);
+}
+
+.glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4),
+        0 0 40px rgba(239, 68, 68, 0.2);
+}
+
+.glow-purple {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4),
+        0 0 40px rgba(139, 92, 246, 0.2);
+}
+
+/* ===== ANIMATED GRADIENTS ===== */
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.gradient-animated {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+}
+
+/* ===== PULSE ANIMATION ===== */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+    }
+
+    50% {
+        box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+    }
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ===== SHIMMER LOADING ===== */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* ===== SCALE HOVER ===== */
+.scale-hover {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.scale-hover:hover {
+    transform: scale(1.05);
+}
+
+/* ===== NEON TEXT ===== */
+.neon-text {
+    text-shadow:
+        0 0 5px currentColor,
+        0 0 10px currentColor,
+        0 0 20px currentColor;
+}
+
+/* ===== CARD LIFT EFFECT ===== */
+.card-lift {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card-lift:hover {
+    transform: translateY(-8px);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.3),
+        0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== RIPPLE EFFECT ===== */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::after {
+    width: 200%;
+    height: 200%;
+}
+
+/* ===== SMOOTH SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #2563eb, #7c3aed);
+}
+
+/* ===== NEUMORPHISM ===== */
+.neumorphic-light {
+    background: #e0e5ec;
+    box-shadow:
+        8px 8px 16px rgba(163, 177, 198, 0.6),
+        -8px -8px 16px rgba(255, 255, 255, 0.8);
+}
+
+.neumorphic-dark {
+    background: #1e293b;
+    box-shadow:
+        8px 8px 16px rgba(0, 0, 0, 0.4),
+        -8px -8px 16px rgba(51, 65, 85, 0.4);
+}
+
+/* ===== BORDER GRADIENT ===== */
+.border-gradient {
+    position: relative;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+}
+
+.border-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    margin: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
+}
+
+/* ===== TOOLTIP 3D ===== */
+.tooltip-3d {
+    position: relative;
+}
+
+.tooltip-3d::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px) perspective(500px) rotateX(10deg);
+    padding: 8px 16px;
+    background: rgba(30, 41, 59, 0.95);
+    color: white;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip-3d:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-10px) perspective(500px) rotateX(0deg);
+}
+
+/* ===== INPUT FOCUS ===== */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    border-color: #3b82f6 !important;
+}
+
+/* ===== TRANSITIONS ===== */
+button,
+a,
+input,
+select,
+textarea {
+    transition: all 0.2s ease;
+}
+
+/* ===== SPINNER ===== */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* ===== FADE IN ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.4s ease forwards;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.4s ease forwards;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.scale-in {
+    animation: scaleIn 0.3s ease forwards;
+}
+
+/* ===== STAGGERED CHILDREN ===== */
+.stagger-children>*:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stagger-children>*:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.stagger-children>*:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stagger-children>*:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.stagger-children>*:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.stagger-children>*:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.stagger-children>*:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.stagger-children>*:nth-child(8) {
+    animation-delay: 0.4s;
+}

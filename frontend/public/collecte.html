@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNIVE 2026 - Portail de Saisie FEV Mobile</title>
+  <!-- Tailwind CSS v2.2.19 -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0c1322; /* Fond bleu nuit ultra-sombre */
+      color: #f1f5f9; /* Texte crème clair par défaut */
+    }
+    .gradient-header {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      box-shadow: 0 10px 30px rgba(5, 150, 105, 0.3);
+    }
+    .gradient-btn {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      box-shadow: 0 4px 15px rgba(5, 150, 105, 0.4);
+      transition: all 0.3s ease;
+    }
+    .gradient-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(5, 150, 105, 0.6);
+    }
+    .custom-card {
+      background-color: #151f32; /* Fond de carte bleu-gris sombre */
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    .custom-input {
+      background-color: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+    .custom-input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 115, 81, 0.3);
+      outline: none;
+    }
+    .lbl-high-contrast {
+      color: #cbd5e1 !important; /* Gris clair très lisible */
+      font-weight: 700 !important;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem !important;
+    }
+    .vulnerability-title {
+      color: #ffffff !important; /* Blanc pur pour les titres de critères */
+      font-weight: 700 !important;
+      font-size: 0.95rem !important;
+    }
+    .criterion-box {
+      background-color: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid #10b981;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    /* Slider styling custom */
+    input[type=range] {
+      height: 6px;
+      -webkit-appearance: none;
+      width: 100%;
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      -webkit-appearance: none;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6 min-h-screen pb-24">
+
+  <!-- Header -->
+  <div class="max-w-md mx-auto mb-6">
+    <div class="gradient-header rounded-3xl p-6 text-center text-white relative overflow-hidden">
+      <div class="absolute -right-10 -top-10 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+      <div class="absolute -left-10 -bottom-10 w-24 h-24 bg-white opacity-10 rounded-full"></div>
+      
+      <div class="flex justify-center items-center gap-3 mb-2">
+        <span class="text-3xl">🛡️</span>
+        <h1 class="text-2xl font-black tracking-tight">CNIVE 2026</h1>
+      </div>
+      <p class="text-xs opacity-90 font-semibold uppercase tracking-wider">Portail National de Collecte FEV</p>
+      
+      <!-- Indicator Banner (Online/Offline) -->
+      <div id="connectionStatus" class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white bg-opacity-20">
+        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-pulse" id="statusDot"></span>
+        <span id="statusText">Initialisation...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-md mx-auto">
+    <form id="fevForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+
+      <!-- Établissement -->
+      <div class="custom-card p-5">
+        <label class="block lbl-high-contrast mb-2 uppercase">Votre Établissement</label>
+        <select id="ecole" required class="w-full p-3 custom-input">
+          <option value="" disabled selected>Choisir l'école...</option>
+          <option value="Écoles Sam Sam">Écoles Sam Sam</option>
+          <option value="ECOPN : école Diacksao Fass 2">ECOPN : école Diacksao Fass 2</option>
+          <option value="EDEN : Salif Ndongo B">EDEN : Salif Ndongo B</option>
+        </select>
+      </div>
+
+      <!-- Photo Élève -->
+      <div class="custom-card p-5">
+        <label class="block lbl-high-contrast mb-2 uppercase">Photo de l'Élève (Caméra Mobile)</label>
+        <div class="relative border-2 border-dashed border-gray-600 rounded-2xl p-6 text-center cursor-pointer hover:border-emerald-400 transition" onclick="document.getElementById('photoInput').click()">
+          <input type="file" id="photoInput" accept="image/*" capture="camera" class="hidden" onchange="previewAndCompressPhoto(event)">
+          <div id="photoPlaceholder" class="space-y-2">
+            <span class="text-4xl">📸</span>
+            <p class="text-sm font-semibold text-gray-300">Prendre / Choisir Photo</p>
+            <p class="text-xs text-gray-500">Active l'appareil photo sur smartphone</p>
+          </div>
+          <div id="photoPreviewContainer" class="hidden">
+            <img id="photoImg" src="" class="mx-auto max-h-48 rounded-xl object-contain">
+            <div class="mt-2 flex flex-col gap-1 items-center">
+              <span id="photoSizeBadge" class="text-[10px] font-bold px-2 py-0.5 bg-gray-800 text-emerald-400 rounded-full"></span>
+              <button type="button" onclick="removePhoto(event)" class="mt-1 text-xs bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-lg transition">Changer la Photo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Identité de l'élève -->
+      <div class="custom-card p-5 space-y-4">
+        <h2 class="text-white font-extrabold text-sm uppercase border-b border-gray-700 pb-2 flex items-center gap-2">
+          <span>👤</span> État Civil de l'Élève
+        </h2>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block lbl-high-contrast mb-1">Nom</label>
+            <input type="text" id="nom" required placeholder="DIOP" class="w-full p-3 custom-input">
+          </div>
+          <div>
+            <label class="block lbl-high-contrast mb-1">Prénom</label>
+            <input type="text" id="prenom" required placeholder="Awa" class="w-full p-3 custom-input">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block lbl-high-contrast mb-1">Sexe</label>
+            <select id="sexe" required class="w-full p-3 custom-input">
+              <option value="F">Féminin (F)</option>
+              <option value="M">Masculin (M)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block lbl-high-contrast mb-1">Niveau</label>
+            <select id="niveau" required class="w-full p-3 custom-input">
+              <option value="CI">CI</option>
+              <option value="CP">CP</option>
+              <option value="CE1">CE1</option>
+              <option value="CE2">CE2</option>
+              <option value="CM1">CM1</option>
+              <option value="CM2">CM2</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block lbl-high-contrast mb-1">Naissance</label>
+            <input type="date" id="naissance" required class="w-full p-3 custom-input">
+          </div>
+          <div>
+            <label class="block lbl-high-contrast mb-1">Tél Tuteur</label>
+            <input type="tel" id="telephone" placeholder="77XXXXXXX" required pattern="^(77|78|76|70|75)[0-9]{7}$" class="w-full p-3 custom-input">
+          </div>
+        </div>
+      </div>
+
+      <!-- Critères de Vulnérabilités -->
+      <div class="space-y-4">
+        <h2 class="text-white font-extrabold text-sm uppercase px-1 flex items-center gap-2">
+          <span>📊</span> Échelles FEV de Vulnérabilité (1 à 20)
+        </h2>
+
+        <!-- Dimension 1 -->
+        <div class="custom-card p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="vulnerability-title">💸 Vulnérabilité Économique</span>
+            <span id="val_v_economique" class="font-extrabold text-emerald-400 bg-emerald-950 bg-opacity-40 px-3 py-1 rounded-full text-sm">10</span>
+          </div>
+          <input type="range" id="v_economique" min="1" max="20" value="10" oninput="updateSliderValue('v_economique')" class="w-full">
+          <div id="desc_v_economique" class="criterion-box p-3 text-xs text-gray-200 font-medium"></div>
+        </div>
+
+        <!-- Dimension 2 -->
+        <div class="custom-card p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="vulnerability-title">📚 Vulnérabilité Scolaire</span>
+            <span id="val_v_scolaire" class="font-extrabold text-emerald-400 bg-emerald-950 bg-opacity-40 px-3 py-1 rounded-full text-sm">10</span>
+          </div>
+          <input type="range" id="v_scolaire" min="1" max="20" value="10" oninput="updateSliderValue('v_scolaire')" class="w-full">
+          <div id="desc_v_scolaire" class="criterion-box p-3 text-xs text-gray-200 font-medium"></div>
+        </div>
+
+        <!-- Dimension 3 -->
+        <div class="custom-card p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="vulnerability-title">🏥 Vulnérabilité Sanitaire</span>
+            <span id="val_v_sanitaire" class="font-extrabold text-emerald-400 bg-emerald-950 bg-opacity-40 px-3 py-1 rounded-full text-sm">10</span>
+          </div>
+          <input type="range" id="v_sanitaire" min="1" max="20" value="10" oninput="updateSliderValue('v_sanitaire')" class="w-full">
+          <div id="desc_v_sanitaire" class="criterion-box p-3 text-xs text-gray-200 font-medium"></div>
+        </div>
+
+        <!-- Dimension 4 -->
+        <div class="custom-card p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="vulnerability-title">👨👩👧 Vulnérabilité Familiale</span>
+            <span id="val_v_familiale" class="font-extrabold text-emerald-400 bg-emerald-950 bg-opacity-40 px-3 py-1 rounded-full text-sm">10</span>
+          </div>
+          <input type="range" id="v_familiale" min="1" max="20" value="10" oninput="updateSliderValue('v_familiale')" class="w-full">
+          <div id="desc_v_familiale" class="criterion-box p-3 text-xs text-gray-200 font-medium"></div>
+        </div>
+
+        <!-- Dimension 5 -->
+        <div class="custom-card p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="vulnerability-title">⚖️ Protection De L'Enfant</span>
+            <span id="val_v_protection" class="font-extrabold text-emerald-400 bg-emerald-950 bg-opacity-40 px-3 py-1 rounded-full text-sm">10</span>
+          </div>
+          <input type="range" id="v_protection" min="1" max="20" value="10" oninput="updateSliderValue('v_protection')" class="w-full">
+          <div id="desc_v_protection" class="criterion-box p-3 text-xs text-gray-200 font-medium"></div>
+        </div>
+
+        <!-- Dimension 6 -->
+        <div class="custom-card p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="vulnerability-title">🌊 Environnement</span>
+            <span id="val_v_environnementale" class="font-extrabold text-emerald-400 bg-emerald-950 bg-opacity-40 px-3 py-1 rounded-full text-sm">10</span>
+          </div>
+          <input type="range" id="v_environnementale" min="1" max="20" value="10" oninput="updateSliderValue('v_environnementale')" class="w-full">
+          <div id="desc_v_environnementale" class="criterion-box p-3 text-xs text-gray-200 font-medium"></div>
+        </div>
+      </div>
+
+      <!-- Global Score Preview Card -->
+      <div class="custom-card p-5 bg-opacity-40" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);">
+        <div class="flex justify-between items-center text-center">
+          <div>
+            <p class="text-xs text-gray-400 uppercase font-bold">Score Global</p>
+            <p id="totalScore" class="text-3xl font-black text-white mt-1">60</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase font-bold">Moyenne FEV</p>
+            <p id="averageScore" class="text-3xl font-black text-emerald-300 mt-1">10.0</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase font-bold">Gravité FEV</p>
+            <p id="gravityLevel" class="text-sm font-black px-3 py-1.5 rounded-xl bg-yellow-500 bg-opacity-20 text-yellow-400 mt-1 border border-yellow-500 border-opacity-30">Modérée</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="max-w-md mx-auto">
+        <button type="submit" id="submitBtn" class="w-full py-4 rounded-2xl text-white font-extrabold text-lg gradient-btn flex items-center justify-center gap-3">
+          <span>💾 Enregistrer l'Élève</span>
+        </button>
+      </div>
+
+    </form>
+
+    <!-- Offline Records Section (Dashboard) -->
+    <div id="offlineDashboard" class="mt-8 custom-card p-5 space-y-4">
+      <div class="flex justify-between items-center border-b border-gray-700 pb-3">
+        <h3 class="text-white font-extrabold text-sm uppercase flex items-center gap-2">
+          <span>📂</span> Données Stockées Localement
+        </h3>
+        <span id="offlineCount" class="px-2.5 py-1 bg-emerald-600 text-white rounded-full text-xs font-black">0</span>
+      </div>
+      
+      <div id="offlineEmptyState" class="text-center py-6 text-gray-400 text-sm">
+        <p>Aucune donnée en attente de synchronisation.</p>
+        <p class="text-xs text-gray-500 mt-1">Les données saisies hors-ligne s'afficheront ici.</p>
+      </div>
+      
+      <div id="offlineTableContainer" class="hidden space-y-3">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="text-gray-400 border-b border-gray-800">
+                <th class="py-2 pr-2">ID</th>
+                <th class="py-2 pr-2">Nom & Prénom</th>
+                <th class="py-2 pr-2">École</th>
+                <th class="py-2 pr-2 text-center">Score</th>
+                <th class="py-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="offlineTableBody" class="divide-y divide-gray-800 text-gray-200">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="exportOfflineDataCSV()" class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-extrabold transition text-center">
+            📥 Exporter CSV (Excel)
+          </button>
+          <button type="button" onclick="clearOfflineData()" class="py-2 px-3 bg-red-900 bg-opacity-35 hover:bg-red-800 hover:bg-opacity-50 text-red-300 rounded-xl text-xs font-bold transition">
+            🗑️ Vider
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script Criteria & Handlers -->
+  <script>
+    // Dictionnaire des critères complets (1-20) pour affichage interactif direct
+    const CRITERIA = {
+      v_economique: {
+        1: "Richesse ou aisance financière. Besoins scolaires et alimentaires couverts avec anticipation.",
+        2: "Foyer très stable financièrement. Fournitures complètes et de haute qualité achetées en avance.",
+        3: "Foyer stable. Aucun manque matériel, légers arbitrages budgétaires sans impact sur l'élève.",
+        4: "Revenus réguliers. L'élève possède l'essentiel mais l'achat de certains extras est différé.",
+        5: "Les parents disposent d’une activité régulière et l’élève possède les fournitures nécessaires.",
+        6: "Activité régulière mais revenus justes. Retard mineur sur l'achat d'un ou deux manuels non essentiels.",
+        7: "Revenus instables. L'élève réutilise d'anciennes fournitures, légers retards de fournitures.",
+        8: "Difficultés financières occasionnelles. Un repas sauté par mois dans le ménage, transport parfois difficile.",
+        9: "Retards notables sur les fournitures de base. Difficultés récurrentes pour la cantine.",
+        10: "Retards dans l’achat des fournitures, difficultés occasionnelles pour le transport ou la cantine.",
+        11: "Retards importants et prolongés dans l'achat des fournitures. L'élève doit partager ses cahiers.",
+        12: "Manque chronique de fournitures essentielles. Difficultés fréquentes de transport entraînant des retards scolaires.",
+        13: "L'élève manque de vêtements ou fournitures de base. Cantine scolaire impayée de manière prolongée.",
+        14: "Absences scolaires ponctuelles (1-2 jours/mois) dues à l'impossibilité de payer le transport ou d'acheter des serviettes hygiéniques.",
+        15: "L’élève manque régulièrement de fournitures, s’absente faute de moyens économiques (serviettes hygiéniques...) ou exerce une activité génératrice de revenus.",
+        16: "L'élève passe plusieurs heures par semaine à travailler (vente à la sauvette, etc.) pour aider le foyer.",
+        17: "Insécurité alimentaire modérée dans le ménage. L'élève s'absente fréquemment pour travailler ou par faim.",
+        18: "L'élève est contraint à des travaux pénibles ou de longue durée, compromettant gravement sa scolarité.",
+        19: "Situation de faim régulière. L'élève ne possède plus aucune fourniture et le risque d'abandon est immédiat.",
+        20: "Mendicité, faim fréquente, (abandon scolaire imminent) ou absence totale de prise en charge."
+      },
+      v_scolaire: {
+        1: "Excellent niveau scolaire, assiduité parfaite, participation active et leadership en classe.",
+        2: "Très bon niveau scolaire. Aucun retard ni absence, participation régulière.",
+        3: "Niveau scolaire satisfaisant. Assiduité normale, élève calme et appliqué.",
+        4: "Élève sérieux mais aux résultats moyens. Suivi scolaire normal sans problème d'assiduité.",
+        5: "L’élève suit normalement les cours et participe activement aux activités scolaires (avec/sans résultats satisfaisants).",
+        6: "Quelques retards occasionnels le matin (1-2 fois par mois), résultats scolaires en légère baisse.",
+        7: "Absences très limitées (1-2 jours par trimestre), légères difficultés d'apprentissage.",
+        8: "Baisse temporaire mais visible des résultats scolaires, manque régulier de concentration en classe.",
+        9: "Retards répététés, démotivation passagère, résultats sous la moyenne dans certaines matières clés.",
+        10: "Quelques retards, baisse temporaire des résultats ou absences limitées.",
+        11: "Absences répétées non justifiées (3-4 jours par trimestre), difficultés scolaires importantes.",
+        12: "Retards d'apprentissage accumulés (risque de redoublement faible à modéré), absences fréquentes.",
+        13: "Absentéisme régulier. L'élève montre un désintérêt grandissant pour l'école.",
+        14: "Faibles résultats généralisés, lacunes graves non comblées, absentéisme de plus en plus marqué.",
+        15: "Absences fréquentes, faibles résultats répététés, risque de redoublement ou de décrochage.",
+        16: "Décrochage scolaire partiel (absences prolongées de plusieurs semaines).",
+        17: "Risque d'abandon imminent en raison d'une démotivation totale ou de l'influence négative de pairs déscolarisés.",
+        18: "Exclusions temporaires répétées dues à des problèmes de comportement ou refus fréquents de venir à l'école.",
+        19: "Déscolarisation de fait : l'élève ne vient pratiquement plus à l'école depuis plus d'un mois.",
+        20: "Déscolarisation, abandon scolaire, refus fréquent de venir à l’école (manque de motivation, influence « négative ») ou exclusion répétée."
+      },
+      v_sanitaire: {
+        1: "Santé excellente. Suivi médical régulier et préventif, alimentation saine et diversifiée.",
+        2: "Très bonne santé générale. Visites de contrôle annuelles, aucun problème de croissance.",
+        3: "Bonne santé. Foyer attentif à la nutrition de l'enfant, légers maux saisonniers bien traités.",
+        4: "Santé globale satisfaisante. Accès correct aux soins essentiels en cas de maladie.",
+        5: "L’enfant fréquente régulièrement l’école sans problème majeur de santé ou de nutrition et a accès aux soins ; prise en charge effective en cas de maladie.",
+        6: "Épisodes de maladies légères (grippes, maux de ventre) occasionnels mais rapidement soignés.",
+        7: "Alimentation parfois irrégulière (saut de repas très rare), suivi médical réactif en cas de besoin.",
+        8: "Maladies fréquentes (ex: paludisme saisonnier) prises en charge tardivement.",
+        9: "Signes de fatigue légère ou carences nutritionnelles mineures, suivi médical incomplet.",
+        10: "Maladies fréquentes mais partiellement prises en charge, alimentation irrégulière ou suivi médical partiel.",
+        11: "Absences scolaires régulières pour raisons de santé. Traitement médical incomplet faute de moyens.",
+        12: "Fatigue chronique visible en classe due à une alimentation insuffisante ou déséquilibrée.",
+        13: "Malnutrition modérée naissante ou handicap physique limitant l'activité, peu accompagné.",
+        14: "Affection chronique non stabilisée entraînant des absences répétées (plus de 5 jours par trimestre).",
+        15: "Absences répétées pour raison médicale, fatigue chronique, malnutrition modérée ou handicap peu pris en charge.",
+        16: "Malnutrition modérée sévère avérée, absences très fréquentes pour maladie sans prise en charge médicale.",
+        17: "Maladie chronique grave non suivie médicalement, douleur permanente perturbant l'apprentissage.",
+        18: "Handicap physique ou sensoriel sévère sans aucun accompagnement ni aménagement à l'école.",
+        19: "Signes physiques de malnutrition sévère (émaciation, léthargie) ou absence totale d'accès aux médicaments.",
+        20: "Malnutrition sévère, maladie chronique non suivie, handicap sans accompagnement ou absence totale de soins."
+      },
+      v_familiale: {
+        1: "Foyer très uni et stable. Encadrement scolaire exceptionnel par les deux parents.",
+        2: "Structure familiale stable. Soutien scolaire et affectif régulier des parents.",
+        3: "Famille stable. Très légères difficultés de suivi scolaire dues au manque de temps des parents.",
+        4: "Foyer correct. L'enfant bénéficie d'un encadrement adéquat.",
+        5: "L’enfant est correctement encadré et ses besoins essentiels sont couverts.",
+        6: "L'enfant vit avec ses deux parents mais le suivi scolaire est faible (parents non instruits).",
+        7: "Famille monoparentale qui assure correctement l'essentiel mais avec fatigue.",
+        8: "Famille monoparentale ou tuteur manifestant un faible intérêt pour la scolarité.",
+        9: "L'enfant vit avec un tuteur (oncle, tante) assurant un suivi minimaliste.",
+        10: "L’enfant vit avec le ou les parent(s) survivant ou tuteur assurant partiellement le suivi.",
+        11: "Changements fréquents de lieu de résidence ou de tuteur au cours de l'année scolaire.",
+        12: "Instabilité émotionnelle visible chez l'enfant liée à des tensions familiales.",
+        13: "Difficultés économiques majeures du tuteur impactant le suivi scolaire (l'enfant est délaissé).",
+        14: "Rupture progressive du lien avec les parents biologiques, tuteur distant.",
+        15: "Difficultés économiques, faible suivi scolaire, instabilité émotionnelle ou changements fréquents de tuteur.",
+        16: "Parent survivant ou tuteur en situation de grande détresse (maladie grave, perte d'autonomie).",
+        17: "Enfant confié à un tiers sans lien de parenté et exploité pour des tâches ménagères excessives.",
+        18: "Perte de tutelle parentale imminente (parent incarcéré, déficient...) sans relais familial.",
+        19: "Enfant en rupture familiale partielle, dormant occasionnellement en dehors du foyer.",
+        20: "Enfant orphelin, parents déviants, perte de tutelle parentale, en situation de rue ou négligence sévère."
+      },
+      v_protection: {
+        1: "Environnement familial, scolaire et communautaire exemplaire en matière de bientraitance et d'écoute.",
+        2: "Très haut niveau de protection. Parents très vigilants et cadre de vie sûr.",
+        3: "Protection adéquate. Cadre sûr, sensibilisation de l'enfant aux risques extérieurs.",
+        4: "Protection globalement satisfaisante. Supervision parentale régulière.",
+        5: "L’élève bénéficie d’une protection familiale, scolaire et communautaire adéquate.",
+        6: "Supervision parentale ponctuellement relâchée en fin de journée, quartier sûr.",
+        7: "Exposition occasionnelle à des conflits verbaux dans le voisinage ou le chemin de l'école.",
+        8: "Négligence éducative légère, exposition passive à des risques de rue.",
+        9: "Quartier instable, environnement scolaire sujet à des bagarres régulières.",
+        10: "Négligence, faible supervision ou exposition occasionnelle à des risques.",
+        11: "Harcèlement verbal ou moqueries répétées par d'autres élèves à l'école.",
+        12: "Exposition régulière à la violence verbale ou psychologique au sein du foyer.",
+        13: "Exploitation économique légère (l'élève doit vendre des produits dans la rue après l'école).",
+        14: "Chemin de l'école ou environnement immédiat dangereux (agressions fréquentes).",
+        15: "Cas isolés de harcèlement, Violences répétées, exploitation économique ou quartier dangereux.",
+        16: "Violences physiques régulières au sein du foyer (châtiments corporels sévères).",
+        17: "Menace de mariage précoce ou pratiques néfastes planifiées par la famille.",
+        18: "Danger immédiat d'exploitation sexuelle ou de traite.",
+        19: "Enfant en situation de rue une grande partie de la journée, sans repère protecteur.",
+        20: "Abus sexuels, traite, exploitation sévère, enfant en situation de rue ou danger immédiat."
+      },
+      v_environnementale: {
+        1: "Logement moderne, salubre, hautement sécurisé dans un quartier résidentiel avec assainissement.",
+        2: "Logement de bonne qualité, raccordement complet eau/électricité, aucun risque.",
+        3: "Quartier stable. Logement propre et bien aéré, accès aisé aux commodités.",
+        4: "Quartier stable. Logement décent avec accès aux services de base.",
+        5: "Quartier stable, logement sécurisé et accès normal aux services de base.",
+        6: "Logement exigu ou mal aéré, mais dans un quartier stable.",
+        7: "Problèmes mineurs d'assainissement dans la rue (ordures), accès à l'eau restreint.",
+        8: "Inondations très temporaires de la rue en saison des pluies.",
+        9: "Pollution modérée, humidité importante dans le logement.",
+        10: "Inondations ponctuelles, problèmes d’assainissement ou pollution modérée.",
+        11: "Inondations annuelles récurrentes obligeant à surélever le mobilier. Assainissement défaillant.",
+        12: "Logement précaire situé dans une zone inondable à chaque forte pluie.",
+        13: "Insalubrité majeure de la zone d'habitation, risques sanitaires élevés.",
+        14: "Zone très insécurisée (vols, agressions fréquentes dans le quartier).",
+        15: "Habitat dans une zone insécurisée, inondable, insalubrité importante ou catastrophes.",
+        16: "Logement gravement endommagé par une inondation récente, réparations de fortune.",
+        17: "Risque d'expulsion locative imminent ou insécurité foncière extrême.",
+        18: "Exposition permanente à un danger industriel ou naturel majeur.",
+        19: "Logement totalement insalubre ou détruit, hébergement d'urgence précaire.",
+        20: "Perte de logement après inondation, exposition à des risques majeurs ou déplacement forcé."
+      }
+    };
+
+    let base64PhotoData = "";
+    let photoFilename = "";
+    let isGoogleEnv = false;
+
+    // Initialisation
+    window.onload = function() {
+      checkEnvironment();
+      
+      const sliders = ['v_economique', 'v_scolaire', 'v_sanitaire', 'v_familiale', 'v_protection', 'v_environnementale'];
+      sliders.forEach(id => updateSliderValue(id));
+      calculateTotals();
+      
+      renderOfflineRecords();
+    };
+
+    function checkEnvironment() {
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        isGoogleEnv = true;
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
+        statusText.innerText = "Mode Connecté (Apps Script Web App)";
+      } else {
+        isGoogleEnv = false;
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-yellow-400";
+        statusText.innerText = "Mode Local (Stockage Hors-ligne Actif)";
+      }
+    }
+
+    // Met à jour la valeur et la définition textuelle associée au curseur
+    function updateSliderValue(id) {
+      const slider = document.getElementById(id);
+      const valSpan = document.getElementById('val_' + id);
+      const descDiv = document.getElementById('desc_' + id);
+      
+      const value = slider.value;
+      valSpan.innerText = value;
+      
+      const text = CRITERIA[id][value] || "Aucun critère associé.";
+      descDiv.innerHTML = text;
+      
+      calculateTotals();
+    }
+
+    // Calcule le score global, la moyenne et la gravité FEV en temps réel
+    function calculateTotals() {
+      const sliders = ['v_economique', 'v_scolaire', 'v_sanitaire', 'v_familiale', 'v_protection', 'v_environnementale'];
+      let total = 0;
+      
+      sliders.forEach(id => {
+        total += parseInt(document.getElementById(id).value);
+      });
+      
+      const avg = (total / 6).toFixed(1);
+      
+      document.getElementById('totalScore').innerText = total;
+      document.getElementById('averageScore').innerText = avg;
+      
+      const gravitySpan = document.getElementById('gravityLevel');
+      let text = "";
+      let colorClass = "";
+      let borderClass = "";
+      
+      if (total <= 45) {
+        text = "Très faible / faible";
+        colorClass = "bg-blue-500 bg-opacity-20 text-blue-400";
+        borderClass = "border-blue-500 border-opacity-30";
+      } else if (total <= 75) {
+        text = "Modérée";
+        colorClass = "bg-yellow-500 bg-opacity-20 text-yellow-400";
+        borderClass = "border-yellow-500 border-opacity-30";
+      } else if (total <= 105) {
+        text = "Élevée";
+        colorClass = "bg-orange-500 bg-opacity-20 text-orange-400";
+        borderClass = "border-orange-500 border-opacity-30";
+      } else {
+        text = "Critique";
+        colorClass = "bg-red-500 bg-opacity-20 text-red-400";
+        borderClass = "border-red-500 border-opacity-30";
+      }
+      
+      gravitySpan.innerText = text;
+      gravitySpan.className = `text-sm font-black px-3 py-1.5 rounded-xl border ${colorClass} ${borderClass} mt-1`;
+    }
+
+    // Compression d'image côté client
+    function previewAndCompressPhoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const placeholder = document.getElementById('photoPlaceholder');
+      const container = document.getElementById('photoPreviewContainer');
+      const img = document.getElementById('photoImg');
+      const sizeBadge = document.getElementById('photoSizeBadge');
+      
+      placeholder.innerHTML = `<span class="text-4xl animate-spin inline-block">🔄</span><p class="text-sm font-semibold text-gray-300">Compression de l'image...</p>`;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const tempImg = new Image();
+        tempImg.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = tempImg.width;
+          let height = tempImg.height;
+          
+          const max_size = 600;
+          if (width > height) {
+            if (width > max_size) {
+              height *= max_size / width;
+              width = max_size;
+            }
+          } else {
+            if (height > max_size) {
+              width *= max_size / height;
+              height = max_size;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(tempImg, 0, 0, width, height);
+          
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          img.src = compressedDataUrl;
+          
+          base64PhotoData = compressedDataUrl; // Conserve le préfixe DataURL pour être décodé correctement par Code.gs (Utilities.base64Decode(data.photoData.split(',')[1]))
+          photoFilename = "photo_" + new Date().getTime() + ".jpg";
+          
+          const approxSizeKb = Math.round((base64PhotoData.length * 3 / 4) / 1024);
+          sizeBadge.innerText = `Image compressée : ~${approxSizeKb} Ko`;
+          
+          placeholder.classList.add('hidden');
+          container.classList.remove('hidden');
+        };
+        tempImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removePhoto(event) {
+      if (event && event.stopPropagation) {
+        event.stopPropagation();
+      }
+      document.getElementById('photoInput').value = "";
+      
+      const placeholder = document.getElementById('photoPlaceholder');
+      placeholder.innerHTML = `
+        <span class="text-4xl">📸</span>
+        <p class="text-sm font-semibold text-gray-300">Prendre / Choisir Photo</p>
+        <p class="text-xs text-gray-500">Active l'appareil photo sur smartphone</p>
+      `;
+      placeholder.classList.remove('hidden');
+      document.getElementById('photoPreviewContainer').classList.add('hidden');
+      document.getElementById('photoImg').src = "";
+      base64PhotoData = "";
+      photoFilename = "";
+    }
+
+    // Gestion de la soumission du formulaire alignée sur les clés de votre Code.gs
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "<span>⏳ Enregistrement en cours...</span>";
+      
+      // ALIGNEMENT CRITIQUE DES CLÉS SUR VOTRE SCRIPT Code.gs :
+      const payload = {
+        school: document.getElementById('ecole').value,
+        last_name: document.getElementById('nom').value.trim().toUpperCase(),
+        first_name: document.getElementById('prenom').value.trim(),
+        gender: document.getElementById('sexe').value,
+        birth_date: document.getElementById('naissance').value,
+        grade: document.getElementById('niveau').value,
+        tutor_phone: document.getElementById('telephone').value,
+        economic: parseInt(document.getElementById('v_economique').value),
+        school_score: parseInt(document.getElementById('v_scolaire').value),
+        health_nutrition: parseInt(document.getElementById('v_sanitaire').value),
+        family_social: parseInt(document.getElementById('v_familiale').value),
+        protection: parseInt(document.getElementById('v_protection').value),
+        environmental: parseInt(document.getElementById('v_environnementale').value),
+        photoData: base64PhotoData, // base64 DataURL complet (ex: data:image/jpeg;base64,...)
+        photoName: photoFilename
+      };
+
+      if (isGoogleEnv) {
+        // Appeler la fonction exacte déclarée dans votre Code.gs : savePupilFromMobile
+        google.script.run
+          .withSuccessHandler(function(response) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = "<span>💾 Enregistrer l'Élève</span>";
+            
+            if (response && response.success) {
+              alert("🎉 Élève enregistré avec succès !\nIdentifiant CNIVE généré : " + response.id);
+              resetForm();
+            } else {
+              alert("❌ Erreur lors de l'enregistrement :\n" + (response ? response.message : "Aucune réponse du serveur."));
+            }
+          })
+          .withFailureHandler(function(error) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = "<span>💾 Enregistrer l'Élève</span>";
+            alert("❌ Erreur réseau ou d'exécution :\n" + error.toString());
+          })
+          .savePupilFromMobile(payload);
+          
+      } else {
+        // Mode Local / Bureau (sauvegarde locale dans localStorage)
+        try {
+          const offlineRecords = JSON.parse(localStorage.getItem('cnive_offline_records') || '[]');
+          
+          const nextIdNum = offlineRecords.length + 1;
+          const tempCniveId = `CN-2026-OFFLINE-${String(nextIdNum).padStart(5, '0')}`;
+          
+          const newRecord = {
+            id: tempCniveId,
+            timestamp: new Date().toISOString(),
+            ...payload
+          };
+          
+          offlineRecords.push(newRecord);
+          localStorage.setItem('cnive_offline_records', JSON.stringify(offlineRecords));
+          
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = "<span>💾 Enregistrer l'Élève</span>";
+            alert(`🎉 [Mode Hors-ligne] Fiche élève enregistrée localement !\nIdentifiant temporaire : ${tempCniveId}`);
+            
+            resetForm();
+            renderOfflineRecords();
+          }, 600);
+          
+        } catch (e) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "<span>💾 Enregistrer l'Élève</span>";
+          alert("❌ Erreur de stockage local :\n" + e.toString());
+        }
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('nom').value = "";
+      document.getElementById('prenom').value = "";
+      document.getElementById('telephone').value = "";
+      removePhoto();
+      
+      const sliders = ['v_economique', 'v_scolaire', 'v_sanitaire', 'v_familiale', 'v_protection', 'v_environnementale'];
+      sliders.forEach(id => {
+        document.getElementById(id).value = 10;
+        updateSliderValue(id);
+      });
+      calculateTotals();
+    }
+
+    // --- DASHBOARD HORS-LIGNE ---
+
+    function getOfflineRecords() {
+      return JSON.parse(localStorage.getItem('cnive_offline_records') || '[]');
+    }
+
+    function renderOfflineRecords() {
+      const records = getOfflineRecords();
+      const countSpan = document.getElementById('offlineCount');
+      const emptyState = document.getElementById('offlineEmptyState');
+      const tableContainer = document.getElementById('offlineTableContainer');
+      const tableBody = document.getElementById('offlineTableBody');
+      
+      countSpan.innerText = records.length;
+      
+      if (records.length === 0) {
+        emptyState.classList.remove('hidden');
+        tableContainer.classList.add('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      tableContainer.classList.remove('hidden');
+      
+      tableBody.innerHTML = '';
+      records.forEach((record, index) => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-gray-800 hover:bg-gray-800 hover:bg-opacity-40 transition-colors";
+        
+        const total = record.economic + record.school_score + record.health_nutrition + record.family_social + record.protection + record.environmental;
+        
+        tr.innerHTML = `
+          <td class="py-2.5 font-mono text-gray-400 pr-2">${record.id.slice(-7)}</td>
+          <td class="py-2.5 font-bold text-white pr-2">${record.first_name} ${record.last_name}</td>
+          <td class="py-2.5 text-gray-300 text-[11px] pr-2">${record.school}</td>
+          <td class="py-2.5 text-center font-black text-emerald-400 pr-2">${total}</td>
+          <td class="py-2.5 text-right">
+            <button type="button" onclick="deleteOfflineRecord(${index})" class="text-red-400 hover:text-red-500 font-extrabold px-2 py-1 bg-red-950 bg-opacity-30 rounded-lg transition" title="Supprimer">
+              ✕
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function deleteOfflineRecord(index) {
+      if (confirm("⚠️ Supprimer cette fiche locale ?")) {
+        const records = getOfflineRecords();
+        records.splice(index, 1);
+        localStorage.setItem('cnive_offline_records', JSON.stringify(records));
+        renderOfflineRecords();
+      }
+    }
+
+    function clearOfflineData() {
+      if (confirm("🚨 Vider toutes les données collectées hors-ligne ?")) {
+        localStorage.removeItem('cnive_offline_records');
+        renderOfflineRecords();
+      }
+    }
+
+    function exportOfflineDataCSV() {
+      const records = getOfflineRecords();
+      if (records.length === 0) {
+        alert("Aucune donnée à exporter.");
+        return;
+      }
+      
+      let csvContent = "\uFEFF"; // BOM UTF-8
+      csvContent += "Identifiant temporaire;Date Saisie;Etablissement;Nom;Prenom;Sexe;Date Naissance;Niveau;Telephone;V Economique;V Scolaire;V Sanitaire;V Familiale;V Protection;V Environnementale;Score Global;Moyenne;Classification;Photo Incluse\r\n";
+      
+      records.forEach(r => {
+        const scoreGlobal = r.economic + r.school_score + r.health_nutrition + r.family_social + r.protection + r.environmental;
+        const moyenne = (scoreGlobal / 6).toFixed(1);
+        
+        let classification = "Modérée";
+        if (scoreGlobal <= 45) classification = "Très faible / faible";
+        else if (scoreGlobal <= 75) classification = "Modérée";
+        else if (scoreGlobal <= 105) classification = "Élevée";
+        else classification = "Critique";
+        
+        const photoStatus = r.photoData ? "OUI" : "NON";
+        
+        const row = [
+          r.id,
+          r.timestamp ? r.timestamp.substring(0, 10) : "",
+          `"${r.school.replace(/'/g, '""')}"`,
+          `"${r.last_name.replace(/'/g, '""')}"`,
+          `"${r.first_name.replace(/'/g, '""')}"`,
+          r.gender,
+          r.birth_date,
+          r.grade,
+          r.tutor_phone,
+          r.economic,
+          r.school_score,
+          r.health_nutrition,
+          r.family_social,
+          r.protection,
+          r.environmental,
+          scoreGlobal,
+          moyenne,
+          `"${classification}"`,
+          photoStatus
+        ].join(";");
+        
+        csvContent += row + "\r\n";
+      });
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `CNIVE_Collecte_Export_${new Date().toISOString().substring(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>

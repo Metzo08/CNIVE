@@ -1,0 +1,61 @@
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+frontend/.vite/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python & Backend
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+backend/.pytest_cache/
+.coverage
+htmlcov/
+*.db
+*.sqlite3
+backend/test.db
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Backups & SQL dumps
+backups/
+*.sql.zip
+*.dump
+*.sql
+!docs/*.sql
+
+# Environment variables & Credentials
+.env
+*.env
+backend/.env
+frontend/.env
+!*.env.example
+
+# OS & Editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+*.tar

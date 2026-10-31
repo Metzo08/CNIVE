@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17
+    container_name: cnive_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: senecarte
+      POSTGRES_DB: sen-e-carte
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build: 
+      context: ./backend
+    container_name: cnive_backend
+    environment:
+      - DATABASE_URL=postgresql://postgres:senecarte@db:5432/sen-e-carte
+      - SECRET_KEY=9b7f8e3d2c1a4f6e5d8b7a6c9e0f1d2c3b4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=15
+      - QR_BASE_URL=http://localhost:8001/q/
+      - FRONTEND_URL=http://localhost:5173
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: cnive_frontend
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:8001
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  scroll-behavior: smooth;
+  /* Safe area for notch phones */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Base Styles */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ===== NO SCROLLBAR ===== */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ===== TOUCH TARGETS (min 44px for accessibility) ===== */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ===== BOTTOM NAVIGATION BAR ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1px solid;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  min-width: 44px;
+  flex: 1;
+  padding: 6px 4px;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.bottom-nav-item:active {
+  transform: scale(0.92);
+}
+
+.bottom-nav-label {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-align: center;
+}
+
+/* ===== SAFE AREA HELPERS ===== */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mb-nav {
+  margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ===== STITCH CARD HOVER ===== */
+.stitch-card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.stitch-card-hover:hover {
+    transform: translateY(-8px);
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+}
+
+.stitch-list-item-hover {
+    transition: all 0.2s ease !important;
+}
+
+.stitch-list-item-hover:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
+}
+
+/* Layout Utilities */
+.stitch-main-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 1200px) {
+    .stitch-main-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .stitch-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; display: flex; justify-content: center; padding-top: 20px; } }
+@media print { #print-area { display: flex !important; } }
+
+/* ===== MOBILE-FIRST RESPONSIVE HELPERS ===== */
+/* Ensure modals are properly sized on mobile */
+@media (max-width: 640px) {
+  .modal-mobile-full {
+    border-radius: 1.5rem 1.5rem 0 0 !important;
+    max-height: 92vh !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Responsive table helpers */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+/* Prevent horizontal overflow — except Leaflet elements which need natural widths */
+*:not(.leaflet-container):not(.leaflet-container *):not(.leaflet-popup-content-wrapper):not(.leaflet-popup-content-wrapper *) {
+  max-width: 100%;
+}
+
+/* Explicit Leaflet overrides */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-content,
+.leaflet-popup-content * {
+  max-width: none !important;
+}
+.leaflet-container {
+  max-width: none !important;
+}
+.leaflet-container * {
+  max-width: none !important;
+}
+
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
