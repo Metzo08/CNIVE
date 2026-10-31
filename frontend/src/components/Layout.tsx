@@ -143,57 +143,67 @@ const Layout: React.FC = () => {
                 } ${sidebarCollapsed ? 'lg:w-24' : 'lg:w-[290px] w-[85vw] max-w-[320px]'}`}
                 style={{ backgroundColor: colors.bgSecondary }}
             >
-                {/* En-tête Sidebar & Logos Institutionnels */}
-                <div className="p-4 flex flex-col gap-3">
-                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-                        {(!isCollapsed || mobileMenuOpen) && (
-                            <div className="flex items-center gap-3">
-                                <div className="relative">
-                                    <img src="/logo_gte.jpg" className="w-9 h-9 rounded-xl shadow-md border border-slate-200 dark:border-white/10 object-cover" alt="GTE" />
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex items-center gap-1.5">
-                                        <h1 className="text-xl font-black tracking-tighter" style={{ color: colors.primary }}>
-                                            CNIVE
-                                        </h1>
-                                        <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                            v2.5
-                                        </span>
-                                    </div>
-                                    <span className="text-[9px] font-bold text-slate-400 tracking-wider uppercase">
-                                        Protection Enfance
+                {/* En-tête Sidebar Institutionnel Unique */}
+                <div className="p-3.5 border-b border-slate-200/60 dark:border-white/5">
+                    {(!isCollapsed || mobileMenuOpen) ? (
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5 flex-1 min-w-0 bg-slate-100/70 dark:bg-white/5 p-2 rounded-2xl border border-slate-200/60 dark:border-white/5">
+                                <img 
+                                    src="/logo_ministere.png" 
+                                    className="h-8 w-auto object-contain flex-shrink-0" 
+                                    alt="Ministère de l'Éducation Nationale" 
+                                    onError={(e) => { e.currentTarget.style.display = 'none' }} 
+                                />
+                                <div className="flex flex-col min-w-0 flex-1 leading-tight">
+                                    <span className="text-[8px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">
+                                        République du Sénégal
+                                    </span>
+                                    <span className="text-[10px] font-black text-slate-800 dark:text-slate-100 truncate">
+                                        Éducation Nationale
                                     </span>
                                 </div>
-                            </div>
-                        )}
-                        {isCollapsed && !mobileMenuOpen && (
-                            <img src="/logo_gte.jpg" className="w-9 h-9 rounded-xl shadow-md object-cover" alt="GTE" />
-                        )}
-                        <button 
-                            onClick={() => mobileMenuOpen ? setMobileMenuOpen(false) : setSidebarCollapsed(!sidebarCollapsed)} 
-                            className="p-2 transition-all rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white active:scale-90 touch-target"
-                            title={sidebarCollapsed ? "Agrandir le menu" : "Réduire le menu"}
-                        >
-                            {mobileMenuOpen ? <X size={20}/> : (sidebarCollapsed ? <Menu size={20}/> : <ChevronLeft size={20}/>)}
-                        </button>
-                    </div>
-                    
-                    {(!isCollapsed || mobileMenuOpen) && (
-                        <div className="animate-in fade-in duration-500 space-y-2 pt-1">
-                            <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-2.5 border border-slate-100 dark:border-white/5 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <img src="/logo_ministere.png" className="h-6 w-auto object-contain" alt="Ministère" onError={(e) => e.currentTarget.style.display='none'} />
-                                    <div className="leading-tight">
-                                        <p className="text-[8px] font-black tracking-wider text-slate-400 uppercase">République du Sénégal</p>
-                                        <p className="text-[9px] font-black text-slate-700 dark:text-slate-200">Éducation Nationale</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-1.5 opacity-80">
-                                    <img src="/logo_comite.jpg" className="h-5 w-5 rounded-md object-cover" alt="Comité" onError={(e) => e.currentTarget.style.display='none'} />
-                                    <img src="/logo_nouscims.png" className="h-4 object-contain" alt="Cims" onError={(e) => e.currentTarget.style.display='none'} />
+                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                    <img 
+                                        src="/logo_gte.jpg" 
+                                        className="w-7 h-7 rounded-lg shadow-sm border border-slate-200 dark:border-white/10 object-cover" 
+                                        alt="Groupe Thématique Éducation" 
+                                        title="Groupe Thématique Éducation (GTE)"
+                                        onError={(e) => { e.currentTarget.style.display = 'none' }} 
+                                    />
+                                    <img 
+                                        src="/logo_nouscims.png" 
+                                        className="h-5 w-auto object-contain" 
+                                        alt="Nous Cims" 
+                                        title="Fondation Nous Cims"
+                                        onError={(e) => { e.currentTarget.style.display = 'none' }} 
+                                    />
                                 </div>
                             </div>
+                            <button 
+                                onClick={() => mobileMenuOpen ? setMobileMenuOpen(false) : setSidebarCollapsed(!sidebarCollapsed)} 
+                                className="p-2 transition-all rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white active:scale-90 flex-shrink-0 touch-target"
+                                title="Réduire le menu"
+                            >
+                                {mobileMenuOpen ? <X size={20}/> : <ChevronLeft size={20}/>}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="flex items-center gap-1">
+                                <img 
+                                    src="/logo_gte.jpg" 
+                                    className="w-8 h-8 rounded-xl shadow-md border border-slate-200 dark:border-white/10 object-cover" 
+                                    alt="GTE" 
+                                    title="Groupe Thématique Éducation (GTE)" 
+                                />
+                            </div>
+                            <button 
+                                onClick={() => setSidebarCollapsed(false)} 
+                                className="p-2 transition-all rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white active:scale-90"
+                                title="Agrandir le menu"
+                            >
+                                <Menu size={20}/>
+                            </button>
                         </div>
                     )}
                 </div>

@@ -94,7 +94,21 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
         notify: If True, fire simulated SMS/Email for new alerts.
                 Set to False for lightweight polling (unread-count).
     """
-    global _initial_sync_done
+    global _initial_sync_done, alerts_registry
+
+    # Nettoyage automatique des alertes des élèves/entités supprimés
+    try:
+        existing_pupil_ids = {str(pid[0]) for pid in db.query(models.Pupil.id).all()}
+        existing_interv_ids = {str(iid[0]) for iid in db.query(models.Intervention.id).all()}
+        keys_to_purge = [
+            k for k, a in list(alerts_registry.items())
+            if (a.get("pupil_id") and str(a["pupil_id"]) not in existing_pupil_ids)
+            or (a.get("alert_type") == "intervention" and len(k.split(":")) >= 3 and k.split(":")[2] not in existing_interv_ids)
+        ]
+        for k in keys_to_purge:
+            del alerts_registry[k]
+    except Exception as e:
+        pass
     
     # 1. Check Critical Vulnerabilities
     criticals = db.query(models.VulnerabilityAssessment).filter(
