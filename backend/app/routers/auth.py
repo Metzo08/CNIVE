@@ -106,6 +106,14 @@ def login(
         }
 
     # No MFA - issue regular token
+    school_name = None
+    if user.school_id:
+        school_obj = (
+            db.query(models.School).filter(models.School.id == user.school_id).first()
+        )
+        if school_obj:
+            school_name = school_obj.name
+
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
         data={
@@ -113,6 +121,9 @@ def login(
             "role": user.role.value if user.role else "USER",
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "school_id": str(user.school_id) if user.school_id else None,
+            "school_name": school_name,
+            "grade": getattr(user, "grade", None),
         },
         expires_delta=access_token_expires,
     )

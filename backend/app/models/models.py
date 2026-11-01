@@ -106,6 +106,7 @@ class User(Base):
     school_id = Column(
         UUID(as_uuid=True), ForeignKey("schools.id"), nullable=True, index=True
     )
+    grade = Column(String(20), nullable=True, index=True)
     is_active = Column(Boolean, default=True, index=True)
     mfa_enabled = Column(Boolean, default=False)
     mfa_secret = Column(String(32))

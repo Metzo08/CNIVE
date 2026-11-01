@@ -7,6 +7,7 @@ from database import get_db
 from app.models import models
 from app.utils.qr_service import generate_tracking_qr, generate_referral_qr
 from app.utils.auth import get_current_user, decode_access_token
+from app.utils.scoping import verify_pupil_access
 from app.utils.limiter import limiter
 from sqlalchemy import func, desc
 import uuid
@@ -23,9 +24,29 @@ def list_cards(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """List all generated QR/NFC cards with pagination"""
-    total = db.query(models.Card).count()
-    cards = db.query(models.Card).offset(skip).limit(limit).all()
+    """List all generated QR/NFC cards with pagination, scoped by user school and grade"""
+    card_query = db.query(models.Card).join(
+        models.Pupil, models.Pupil.id == models.Card.pupil_id
+    )
+    if current_user.role == models.UserRole.SCHOOL_DIRECTOR:
+        if current_user.school_id:
+            card_query = card_query.filter(
+                models.Pupil.school_id == current_user.school_id
+            )
+        else:
+            card_query = card_query.filter(models.Pupil.id == None)
+    elif current_user.role == models.UserRole.TEACHER:
+        if current_user.school_id:
+            card_query = card_query.filter(
+                models.Pupil.school_id == current_user.school_id
+            )
+            if getattr(current_user, "grade", None):
+                card_query = card_query.filter(models.Pupil.grade == current_user.grade)
+        else:
+            card_query = card_query.filter(models.Pupil.id == None)
+
+    total = card_query.count()
+    cards = card_query.offset(skip).limit(limit).all()
 
     base_url = os.getenv("QR_BASE_URL", "https://cnive.senecarte.sn/q/")
 
@@ -206,24 +227,31 @@ def get_pupil_qr(
 def get_card_stats(
     db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
-    """Get card statistics"""
+    """Get card statistics scoped by user school and grade"""
+    card_query = db.query(models.Card).join(
+        models.Pupil, models.Pupil.id == models.Card.pupil_id
+    )
+    if current_user.role == models.UserRole.SCHOOL_DIRECTOR:
+        if current_user.school_id:
+            card_query = card_query.filter(
+                models.Pupil.school_id == current_user.school_id
+            )
+        else:
+            card_query = card_query.filter(models.Pupil.id == None)
+    elif current_user.role == models.UserRole.TEACHER:
+        if current_user.school_id:
+            card_query = card_query.filter(
+                models.Pupil.school_id == current_user.school_id
+            )
+            if getattr(current_user, "grade", None):
+                card_query = card_query.filter(models.Pupil.grade == current_user.grade)
+        else:
+            card_query = card_query.filter(models.Pupil.id == None)
 
-    total = db.query(models.Card).count()
-    active = (
-        db.query(models.Card)
-        .filter(models.Card.status == models.CardStatus.ACTIVE)
-        .count()
-    )
-    lost = (
-        db.query(models.Card)
-        .filter(models.Card.status == models.CardStatus.LOST)
-        .count()
-    )
-    pending = (
-        db.query(models.Card)
-        .filter(models.Card.status == models.CardStatus.PENDING)
-        .count()
-    )
+    total = card_query.count()
+    active = card_query.filter(models.Card.status == models.CardStatus.ACTIVE).count()
+    lost = card_query.filter(models.Card.status == models.CardStatus.LOST).count()
+    pending = card_query.filter(models.Card.status == models.CardStatus.PENDING).count()
 
     return {
         "total_cards": total,

@@ -63,8 +63,17 @@ def create_school(
 
 
 @router.get("/", response_model=List[SchoolResponse])
-def get_schools(db: Session = Depends(get_db)):
-    schools = db.query(models.School).all()
+def get_schools(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    query = db.query(models.School)
+    if current_user.role in [models.UserRole.SCHOOL_DIRECTOR, models.UserRole.TEACHER]:
+        if current_user.school_id:
+            query = query.filter(models.School.id == current_user.school_id)
+        else:
+            return []
+    schools = query.all()
     results = []
     for school in schools:
         # Count pupils
@@ -108,7 +117,12 @@ def get_schools(db: Session = Depends(get_db)):
 
 
 @router.get("/count")
-def get_schools_count(db: Session = Depends(get_db)):
+def get_schools_count(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if current_user.role in [models.UserRole.SCHOOL_DIRECTOR, models.UserRole.TEACHER]:
+        return {"count": 1 if current_user.school_id else 0}
     count = db.query(models.School).count()
     return {"count": count}
 

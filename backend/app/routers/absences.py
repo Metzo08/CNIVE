@@ -5,6 +5,7 @@ from app.models import models
 from app.schemas import schemas
 from app.utils.auth import get_current_user
 from app.routers.audit import log_action
+from app.utils.scoping import verify_pupil_access
 from typing import List, Optional
 import uuid
 from datetime import datetime
@@ -22,6 +23,7 @@ def mark_absence(
     pupil = db.query(models.Pupil).filter(models.Pupil.id == absence.pupil_id).first()
     if not pupil:
         raise HTTPException(status_code=404, detail="Élève non trouvé")
+    verify_pupil_access(pupil, current_user)
 
     new_absence = models.Absence(**absence.dict())
     db.add(new_absence)
@@ -49,6 +51,11 @@ def get_pupil_absences(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
+    pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
+    if not pupil:
+        raise HTTPException(status_code=404, detail="Élève non trouvé")
+    verify_pupil_access(pupil, current_user)
+
     return (
         db.query(models.Absence)
         .filter(models.Absence.pupil_id == pupil_id)

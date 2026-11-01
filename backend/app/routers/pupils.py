@@ -7,6 +7,7 @@ from app.models import models
 from app.schemas import schemas
 from app.utils.auth import get_current_user
 from app.routers.audit import log_action
+from app.utils.scoping import apply_pupil_scope, verify_pupil_access
 import uuid
 
 router = APIRouter(prefix="/pupils", tags=["Pupils"])
@@ -37,9 +38,26 @@ def create_pupil(
     current_user: models.User = Depends(get_current_user),
     request: Request = None,
 ):
-    cnive_id = generate_unique_cnive_id(db)
+    pupil_data = pupil.dict()
+    if current_user.role == models.UserRole.SCHOOL_DIRECTOR:
+        if not current_user.school_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Aucun établissement scolaire n'est associé à votre compte directeur.",
+            )
+        pupil_data["school_id"] = current_user.school_id
+    elif current_user.role == models.UserRole.TEACHER:
+        if not current_user.school_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Aucun établissement scolaire n'est associé à votre compte enseignant.",
+            )
+        pupil_data["school_id"] = current_user.school_id
+        if getattr(current_user, "grade", None):
+            pupil_data["grade"] = current_user.grade
 
-    new_pupil = models.Pupil(**pupil.dict(), cnive_id=cnive_id)
+    cnive_id = generate_unique_cnive_id(db)
+    new_pupil = models.Pupil(**pupil_data, cnive_id=cnive_id)
     db.add(new_pupil)
     db.commit()
     db.refresh(new_pupil)
@@ -79,6 +97,7 @@ def get_pupils(
     )
 
     query = db.query(models.Pupil)
+    query = apply_pupil_scope(query, current_user)
 
     if status:
         status_upper = status.upper()
@@ -140,6 +159,7 @@ def get_pupils_count(
     request: Request = None,
 ):
     query = db.query(models.Pupil)
+    query = apply_pupil_scope(query, current_user)
 
     if status:
         status_upper = status.upper()
@@ -200,6 +220,7 @@ def get_pupil(
     pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
     if not pupil:
         raise HTTPException(status_code=404, detail="Pupil not found")
+    verify_pupil_access(pupil, current_user)
 
     # Audit log
     log_action(
@@ -226,6 +247,8 @@ def update_pupil(
     pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
     if not pupil:
         raise HTTPException(status_code=404, detail="Pupil not found")
+    verify_pupil_access(pupil, current_user)
+    verify_pupil_access(pupil, current_user)
 
     for key, value in pupil_update.dict().items():
         if hasattr(pupil, key) and value is not None:
@@ -259,6 +282,8 @@ def update_pupil_photo(
     pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
     if not pupil:
         raise HTTPException(status_code=404, detail="Pupil not found")
+    verify_pupil_access(pupil, current_user)
+    verify_pupil_access(pupil, current_user)
 
     pupil.photo_url = photo_data.get("photo_url")
     db.commit()
@@ -288,6 +313,8 @@ def add_academic_records(
     pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
     if not pupil:
         raise HTTPException(status_code=404, detail="Pupil not found")
+    verify_pupil_access(pupil, current_user)
+    verify_pupil_access(pupil, current_user)
 
     for r in records.records:
         new_record = models.AcademicRecord(
@@ -322,6 +349,7 @@ def anonymize_pupil(
     pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
     if not pupil:
         raise HTTPException(status_code=404, detail="Élève non trouvé")
+    verify_pupil_access(pupil, current_user)
 
     pupil.first_name = "Anonyme"
     pupil.last_name = "Anonyme"

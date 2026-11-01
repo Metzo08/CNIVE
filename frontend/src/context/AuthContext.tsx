@@ -7,6 +7,9 @@ export interface AuthUser {
     role: UserRole
     firstName?: string
     lastName?: string
+    schoolId?: string
+    schoolName?: string
+    grade?: string
 }
 
 export interface AuthContextType {
@@ -50,7 +53,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         email: payload.sub || '',
                         role: payload.role || 'SOCIAL_WORKER',
                         firstName: payload.first_name,
-                        lastName: payload.last_name
+                        lastName: payload.last_name,
+                        schoolId: payload.school_id,
+                        schoolName: payload.school_name,
+                        grade: payload.grade
                     }
                 }
             }
@@ -81,7 +87,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             email: payload.sub || '',
                             role: payload.role || 'SOCIAL_WORKER',
                             firstName: payload.first_name,
-                            lastName: payload.last_name
+                            lastName: payload.last_name,
+                            schoolId: payload.school_id,
+                            schoolName: payload.school_name,
+                            grade: payload.grade
                         })
                     }
                 } else {
@@ -105,7 +114,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 email: payload.sub || '',
                 role: payload.role || 'SOCIAL_WORKER',
                 firstName: payload.first_name,
-                lastName: payload.last_name
+                lastName: payload.last_name,
+                schoolId: payload.school_id,
+                schoolName: payload.school_name,
+                grade: payload.grade
             })
         }
     }

@@ -11,6 +11,7 @@ from app.utils.scoring import (
 )
 from app.utils.auth import get_current_user
 from app.routers.audit import log_action
+from app.utils.scoping import apply_pupil_scope, verify_pupil_access
 import uuid
 import json
 from datetime import date
@@ -94,6 +95,7 @@ def create_assessment(
     )
     if not pupil:
         raise HTTPException(status_code=404, detail="Élève non trouvé")
+    verify_pupil_access(pupil, current_user)
 
     scores_dict = assessment.scores.dict()
     result = assess_vulnerability(scores_dict)
@@ -141,6 +143,11 @@ def get_pupil_latest_assessment(
     current_user: models.User = Depends(get_current_user),
     request: Request = None,
 ):
+    pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
+    if not pupil:
+        raise HTTPException(status_code=404, detail="Élève non trouvé")
+    verify_pupil_access(pupil, current_user)
+
     assessment = (
         db.query(models.VulnerabilityAssessment)
         .filter(models.VulnerabilityAssessment.pupil_id == pupil_id)
@@ -178,7 +185,16 @@ def get_pupil_latest_assessment(
 
 
 @router.get("/{pupil_id}", response_model=List[AssessmentResponse])
-def get_pupil_assessments(pupil_id: uuid.UUID, db: Session = Depends(get_db)):
+def get_pupil_assessments(
+    pupil_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
+    if not pupil:
+        raise HTTPException(status_code=404, detail="Élève non trouvé")
+    verify_pupil_access(pupil, current_user)
+
     return (
         db.query(models.VulnerabilityAssessment)
         .filter(models.VulnerabilityAssessment.pupil_id == pupil_id)
@@ -188,18 +204,42 @@ def get_pupil_assessments(pupil_id: uuid.UUID, db: Session = Depends(get_db)):
 
 
 @router.get("/stats/overview")
-def get_vulnerability_stats(db: Session = Depends(get_db)):
+def get_vulnerability_stats(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
     from sqlalchemy import func
 
-    total_pupils = db.query(models.Pupil).count()
-    stats = (
-        db.query(
-            models.VulnerabilityAssessment.classification,
-            func.count(models.VulnerabilityAssessment.id),
-        )
-        .group_by(models.VulnerabilityAssessment.classification)
-        .all()
-    )
+    pupil_query = db.query(models.Pupil)
+    pupil_query = apply_pupil_scope(pupil_query, current_user)
+    total_pupils = pupil_query.count()
+
+    assessment_query = db.query(
+        models.VulnerabilityAssessment.classification,
+        func.count(models.VulnerabilityAssessment.id),
+    ).join(models.Pupil, models.Pupil.id == models.VulnerabilityAssessment.pupil_id)
+    if current_user.role == models.UserRole.SCHOOL_DIRECTOR:
+        if current_user.school_id:
+            assessment_query = assessment_query.filter(
+                models.Pupil.school_id == current_user.school_id
+            )
+        else:
+            assessment_query = assessment_query.filter(models.Pupil.id == None)
+    elif current_user.role == models.UserRole.TEACHER:
+        if current_user.school_id:
+            assessment_query = assessment_query.filter(
+                models.Pupil.school_id == current_user.school_id
+            )
+            if getattr(current_user, "grade", None):
+                assessment_query = assessment_query.filter(
+                    models.Pupil.grade == current_user.grade
+                )
+        else:
+            assessment_query = assessment_query.filter(models.Pupil.id == None)
+
+    stats = assessment_query.group_by(
+        models.VulnerabilityAssessment.classification
+    ).all()
 
     classification_counts = {
         s[0].value if hasattr(s[0], "value") else str(s[0]): s[1] for s in stats

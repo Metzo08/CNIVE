@@ -123,7 +123,24 @@ const Layout: React.FC = () => {
     }
 
     const displayName = user?.email ? (user.email.split('@')[0]) : (t('roles.user') || 'Utilisateur')
-    const roleLabel = user?.role === 'GTE_ADMIN' ? (t('roles.admin') || 'Admin GTE') : (t('roles.expert') || 'Expert')
+    const getRoleLabel = () => {
+        if (!user) return 'Utilisateur'
+        switch (user.role) {
+            case 'GTE_ADMIN':
+                return 'Administrateur National'
+            case 'SCHOOL_DIRECTOR':
+                return 'Directeur d’École'
+            case 'TEACHER':
+                return 'Enseignant'
+            case 'SOCIAL_WORKER':
+                return 'Travailleur Social'
+            case 'HEALTH_WORKER':
+                return 'Agent de Santé'
+            default:
+                return user.role
+        }
+    }
+    const roleLabel = getRoleLabel()
     const isCollapsed = sidebarCollapsed && !mobileMenuOpen
 
     return (
@@ -298,6 +315,16 @@ const Layout: React.FC = () => {
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                     <p className="text-[9px] tracking-wider font-black text-slate-400 uppercase">{roleLabel}</p>
                                 </div>
+                                {user?.schoolName && (
+                                    <p className="text-[10px] font-bold text-sky-400 truncate mt-1" title={user.schoolName}>
+                                        🏫 {user.schoolName}
+                                    </p>
+                                )}
+                                {user?.grade && (
+                                    <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                        Classe : {user.grade}
+                                    </span>
+                                )}
                             </div>
                         )}
                     </div>

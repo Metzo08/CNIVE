@@ -17,6 +17,7 @@ class UserBase(BaseModel):
     last_name: Optional[str] = None
     role: UserRole
     school_id: Optional[uuid.UUID] = None
+    grade: Optional[str] = None
     is_active: Optional[bool] = True
 
 
