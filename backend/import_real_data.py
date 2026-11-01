@@ -143,12 +143,8 @@ def import_sam_sam_pupils(db, sam_sam_school):
         birth_date = estimate_birth_date(age_str, collect_date)
         cnive_id = f"CNIVE-2026-{imported + 1:06d}"
 
-        # Assign photo if available
+        # L'école Sam Sam n'a pas de photos dans le fichier de collecte officiel
         photo_url = None
-        if available_photos:
-            assigned_photo = available_photos[photo_idx % len(available_photos)]
-            photo_url = f"/uploads/{assigned_photo}"
-            photo_idx += 1
 
         pupil_id = uuid.uuid4()
         pupil = models.Pupil(
