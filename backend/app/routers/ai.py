@@ -4,6 +4,8 @@ from sqlalchemy import func, desc, or_
 from database import get_db
 from app.models import models
 from app.utils.auth import get_current_user
+from app.utils.scoping import apply_pupil_scope, verify_pupil_access
+from app.utils.llm_router import generate_intelligent_analysis
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date, timedelta
 
@@ -302,10 +304,12 @@ def predict_dropout_risk(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """Prédiction individuelle optimisée du risque de décrochage"""
+    """Prédiction individuelle optimisée du risque de décrochage via LLM intelligent"""
     pupil = db.query(models.Pupil).filter(models.Pupil.id == pupil_id).first()
     if not pupil:
         raise HTTPException(status_code=404, detail="Élève non trouvé")
+
+    verify_pupil_access(pupil, current_user)
 
     assessment = (
         db.query(models.VulnerabilityAssessment)
@@ -320,7 +324,70 @@ def predict_dropout_risk(
         .all()
     )
 
-    return calculate_dropout_risk(pupil, assessment, interventions, db)
+    base = calculate_dropout_risk(pupil, assessment, interventions, db)
+
+    school = (
+        db.query(models.School).filter(models.School.id == pupil.school_id).first()
+        if pupil.school_id
+        else None
+    )
+    health = (
+        db.query(models.HealthRecord)
+        .filter(models.HealthRecord.pupil_id == pupil.id)
+        .first()
+    )
+
+    pupil_payload = {
+        "pupil_name": f"{pupil.first_name} {pupil.last_name}",
+        "cnive_id": pupil.cnive_id,
+        "school_name": school.name if school else "Non spécifiée",
+        "grade": pupil.grade,
+        "economic_score": assessment.economic_score if assessment else 1,
+        "school_score": assessment.school_score if assessment else 1,
+        "health_nutrition_score": (
+            assessment.health_nutrition_score if assessment else 1
+        ),
+        "family_social_score": assessment.family_social_score if assessment else 1,
+        "protection_score": assessment.protection_score if assessment else 1,
+        "environmental_score": assessment.environmental_score if assessment else 1,
+        "total_score": assessment.total_score if assessment else 30,
+        "classification": (
+            assessment.classification.value
+            if assessment and hasattr(assessment.classification, "value")
+            else (str(assessment.classification) if assessment else "NON_EVALUE")
+        ),
+        "unjustified_absences": base.get("signals", {}).get("absences_unjustified", 0),
+        "academic_score": pupil.academic_score,
+        "cmu_enrolled": bool(health.cmu_enrolled) if health else False,
+        "completed_interventions": len(
+            [
+                i
+                for i in interventions
+                if i.status == models.InterventionStatus.COMPLETED
+            ]
+        ),
+    }
+
+    llm_res = generate_intelligent_analysis(pupil_payload)
+
+    if llm_res.get("synthese_diagnostique"):
+        base["synthese_diagnostique"] = llm_res["synthese_diagnostique"]
+    if llm_res.get("facteurs_de_risque_prioritaires"):
+        base["factors"] = llm_res["facteurs_de_risque_prioritaires"]
+    if llm_res.get("plan_action_recommande"):
+        base["recommendations"] = llm_res["plan_action_recommande"]
+    if llm_res.get("trajectoire_previsionnelle"):
+        base["trajectory"] = llm_res["trajectoire_previsionnelle"]
+    if llm_res.get("score_risque_ia"):
+        base["risk_score"] = int(llm_res["score_risque_ia"])
+    if llm_res.get("niveau_risque_ia"):
+        base["risk_level"] = llm_res["niveau_risque_ia"]
+
+    base["llm_provider"] = llm_res.get("_provider", "CNIVE Engine")
+    base["is_live_llm"] = llm_res.get("is_live_llm", False)
+    base["latency_ms"] = llm_res.get("latency_ms", 0)
+
+    return base
 
 
 @router.get("/predict/batch")
@@ -339,6 +406,7 @@ def predict_batch_dropout_risk(
     query = db.query(models.Pupil).filter(
         models.Pupil.status == models.PupilStatus.ACTIVE
     )
+    query = apply_pupil_scope(query, current_user)
     total_active = query.count()
 
     pupils = (
@@ -396,11 +464,11 @@ def get_ai_dashboard(
     db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     """Tableau de bord décisionnel IA CNIVE Intelligence optimisé"""
-    total_pupils = (
-        db.query(models.Pupil)
-        .filter(models.Pupil.status == models.PupilStatus.ACTIVE)
-        .count()
+    pupil_query = db.query(models.Pupil).filter(
+        models.Pupil.status == models.PupilStatus.ACTIVE
     )
+    pupil_query = apply_pupil_scope(pupil_query, current_user)
+    total_pupils = pupil_query.count()
     total_assessments = db.query(models.VulnerabilityAssessment).count()
 
     level_counts = dict(

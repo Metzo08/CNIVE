@@ -28,6 +28,10 @@ interface PredictionResult {
     recommendations: string[]
     alerts?: Record<string, string>
     vulnerability_classification?: string
+    synthese_diagnostique?: string
+    llm_provider?: string
+    is_live_llm?: boolean
+    latency_ms?: number
     signals?: {
         fev_total_score?: number
         absences_unjustified?: number
@@ -187,11 +191,15 @@ const AIAnalyticsPage: React.FC = () => {
                         <BrainCircuit size={40} />
                     </div>
                     <div>
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-1.5">
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-1.5">
                             <span className="px-2 py-0.5 rounded-md bg-white/20 text-white text-[10px] font-black uppercase tracking-widest">
                                 CNIVE Intelligence v2.5
                             </span>
                             <span className="text-white/80 text-xs font-bold">• Échelle FEV Multidimensionnelle</span>
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 text-[10px] font-black uppercase tracking-wide flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                Multi-LLM : Groq + OpenRouter + xKiro
+                            </span>
                         </div>
                         <h1 className="text-xl sm:text-2xl md:text-4xl font-black text-white tracking-tight mb-2">
                             Analyse Prédictive & Détection Précoce
@@ -470,6 +478,25 @@ const AIAnalyticsPage: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Synthèse Psychosociale IA & Modèle actif */}
+                                {prediction.synthese_diagnostique && (
+                                    <div className="p-5 rounded-2xl bg-gradient-to-br from-sky-500/10 via-emerald-500/10 to-transparent border border-sky-500/25 space-y-2">
+                                        <div className="flex items-center justify-between flex-wrap gap-2">
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                                <Sparkles size={14} className="text-amber-400 animate-pulse" /> Expertise Diagnostique Psychosociale
+                                            </span>
+                                            {prediction.llm_provider && (
+                                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                                                    ⚡ Modèle actif : {prediction.llm_provider} {prediction.latency_ms ? `(${prediction.latency_ms} ms)` : ''}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs md:text-sm font-semibold leading-relaxed text-slate-200">
+                                            {prediction.synthese_diagnostique}
+                                        </p>
+                                    </div>
+                                )}
 
                                 {/* Facteurs et Recommandations */}
                                 <div className="space-y-4 pt-4 border-t" style={{ borderColor: colors.border }}>
