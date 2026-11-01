@@ -134,6 +134,10 @@ class Pupil(Base):
     school_id = Column(UUID(as_uuid=True), ForeignKey("schools.id"), index=True)
     school = relationship("School", back_populates="pupils")
 
+    @property
+    def school_name(self):
+        return self.school.name if self.school else None
+
     contact_parent1_name = Column(String(100))
     contact_parent1_phone = Column(String(20))
     contact_parent2_name = Column(String(100))

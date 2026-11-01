@@ -90,6 +90,7 @@ class PupilResponse(PupilBase):
     id: uuid.UUID
     cnive_id: Optional[str] = None
     school_id: uuid.UUID
+    school_name: Optional[str] = None
     status: PupilStatus
     photo_url: Optional[str] = None
     created_at: datetime

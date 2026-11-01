@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_, func, text
 from typing import List, Optional
 from database import get_db
@@ -82,6 +82,7 @@ def get_pupils(
     limit: int = 100,
     search: Optional[str] = None,
     status: Optional[str] = None,
+    school_id: Optional[uuid.UUID] = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
     request: Request = None,
@@ -93,11 +94,14 @@ def get_pupils(
         user_id=str(current_user.id),
         user_email=current_user.email,
         ip_address=request.client.host if request and request.client else None,
-        metadata={"search": search, "status": status, "limit": limit},
+        metadata={"search": search, "status": status, "school_id": str(school_id) if school_id else None, "limit": limit},
     )
 
-    query = db.query(models.Pupil)
+    query = db.query(models.Pupil).options(joinedload(models.Pupil.school))
     query = apply_pupil_scope(query, current_user)
+
+    if school_id:
+        query = query.filter(models.Pupil.school_id == school_id)
 
     if status:
         status_upper = status.upper()
@@ -154,12 +158,16 @@ def get_pupils(
 def get_pupils_count(
     status: Optional[str] = None,
     search: Optional[str] = None,
+    school_id: Optional[uuid.UUID] = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
     request: Request = None,
 ):
     query = db.query(models.Pupil)
     query = apply_pupil_scope(query, current_user)
+
+    if school_id:
+        query = query.filter(models.Pupil.school_id == school_id)
 
     if status:
         status_upper = status.upper()

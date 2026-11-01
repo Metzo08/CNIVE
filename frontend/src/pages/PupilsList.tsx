@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import apiClient from '../api/client'
 import { useTranslation } from 'react-i18next'
-import { Search, Plus, UserCircle, ChevronLeft, ChevronRight, Filter, AlertTriangle, Users, Edit, Trash2, Calendar, X, Archive } from 'lucide-react'
+import { Search, Plus, UserCircle, ChevronLeft, ChevronRight, Filter, AlertTriangle, Users, Edit, Trash2, Calendar, X, Archive, School as SchoolIcon } from 'lucide-react'
 import ConfirmModal from '../components/ConfirmModal'
 import { getPortalContainer } from '../utils/domSafety'
 import { getPupilPhotoUrl } from '../utils/imageUtils'
@@ -19,12 +19,24 @@ interface Pupil {
     status: string
     photo_url?: string
     academic_score?: number
+    school_id?: string
+    school_name?: string
+}
+
+interface School {
+    id: string
+    name: string
+    code?: string
+    city: string
+    pupil_count?: number
 }
 
 const PupilsList: React.FC = () => {
     const { t } = useTranslation()
     const { colors } = useTheme()
     const [pupils, setPupils] = useState<Pupil[]>([])
+    const [schools, setSchools] = useState<School[]>([])
+    const [schoolsLoading, setSchoolsLoading] = useState(false)
     const [totalCount, setTotalCount] = useState(0)
     const [loading, setLoading] = useState(true)
     
@@ -53,6 +65,19 @@ const PupilsList: React.FC = () => {
     const [searchParams] = useSearchParams()
     const urlStatus = searchParams.get('status')
     const urlSearch = searchParams.get('search')
+    const urlSchool = searchParams.get('school_id') || ''
+
+    // Charger la liste des écoles pour le sélecteur
+    useEffect(() => {
+        setSchoolsLoading(true)
+        apiClient.get('/schools')
+            .then((res) => {
+                const data = Array.isArray(res.data) ? res.data : []
+                setSchools(data)
+            })
+            .catch((err) => console.error('Erreur chargement écoles:', err))
+            .finally(() => setSchoolsLoading(false))
+    }, [])
 
     useEffect(() => {
         setSearchValue(urlSearch || '')
@@ -69,18 +94,38 @@ const PupilsList: React.FC = () => {
         return () => clearTimeout(handler)
     }, [searchValue, debouncedSearch])
 
+    const updateFilters = (newParams: { status?: string | null; school_id?: string | null; search?: string | null }) => {
+        const params = new URLSearchParams(searchParams)
+        if (newParams.status !== undefined) {
+            if (newParams.status) params.set('status', newParams.status)
+            else params.delete('status')
+        }
+        if (newParams.school_id !== undefined) {
+            if (newParams.school_id) params.set('school_id', newParams.school_id)
+            else params.delete('school_id')
+        }
+        if (newParams.search !== undefined) {
+            if (newParams.search) params.set('search', newParams.search)
+            else params.delete('search')
+        }
+        navigate(params.toString() ? `/pupils?${params.toString()}` : '/pupils')
+        setPage(1)
+    }
+
     const fetchPupils = useCallback(async () => {
         setLoading(true)
         try {
             const skip = (page - 1) * pageSize
             const searchParam = debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : ''
             const statusParam = urlStatus ? `&status=${encodeURIComponent(urlStatus)}` : ''
+            const schoolParam = urlSchool ? `&school_id=${encodeURIComponent(urlSchool)}` : ''
             
-            const pupilsUrl = `/pupils?skip=${skip}&limit=${pageSize}${searchParam}${statusParam}`
+            const pupilsUrl = `/pupils?skip=${skip}&limit=${pageSize}${searchParam}${statusParam}${schoolParam}`
             
             const countParams = []
             if (urlStatus) countParams.push(`status=${encodeURIComponent(urlStatus)}`)
             if (debouncedSearch) countParams.push(`search=${encodeURIComponent(debouncedSearch)}`)
+            if (urlSchool) countParams.push(`school_id=${encodeURIComponent(urlSchool)}`)
             const countUrl = `/pupils/count${countParams.length > 0 ? '?' + countParams.join('&') : ''}`
             
             const [pupilsRes, countRes] = await Promise.all([
@@ -89,7 +134,7 @@ const PupilsList: React.FC = () => {
             ])
 
             const pupilsData = Array.isArray(pupilsRes.data) ? pupilsRes.data : (pupilsRes.data?.pupils || [])
-            const serverCount = countRes.data?.count ?? (debouncedSearch || urlStatus ? pupilsData.length : 0)
+            const serverCount = countRes.data?.count ?? (debouncedSearch || urlStatus || urlSchool ? pupilsData.length : 0)
             
             setPupils(pupilsData)
             setTotalCount(serverCount)
@@ -101,7 +146,7 @@ const PupilsList: React.FC = () => {
         } finally {
             setLoading(false)
         }
-    }, [page, pageSize, debouncedSearch, urlStatus])
+    }, [page, pageSize, debouncedSearch, urlStatus, urlSchool])
 
     useEffect(() => {
         fetchPupils()
@@ -173,6 +218,8 @@ const PupilsList: React.FC = () => {
         return colorsList[charCode % colorsList.length]
     }
 
+    const selectedSchoolObj = schools.find((s) => s.id === urlSchool)
+
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-0">
             {success && (
@@ -181,11 +228,16 @@ const PupilsList: React.FC = () => {
                 </div>
             )}
 
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                 <div>
                     <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-2">{t('pupils.title')}</h1>
                     <p className="font-medium" style={{ color: colors.textSecondary }}>
                         {totalCount} {t('pupils.subtitle').split(' ')[1] || 'élèves enregistrés'}
+                        {selectedSchoolObj && (
+                            <span className="text-primary-500 font-bold ml-2">
+                                • {selectedSchoolObj.name} ({selectedSchoolObj.city})
+                            </span>
+                        )}
                     </p>
                 </div>
                 <button
@@ -196,7 +248,8 @@ const PupilsList: React.FC = () => {
                 </button>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+            {/* Barre de filtres et recherche */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-4">
                 <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input
@@ -204,29 +257,107 @@ const PupilsList: React.FC = () => {
                         placeholder={t('pupils.search_placeholder')}
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
-                        className="w-full border rounded-2xl py-4 pl-12 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary-500/10 transition-all" style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
+                        className="w-full border rounded-2xl py-4 pl-12 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary-500/10 transition-all" 
+                        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
                     />
                 </div>
-                <select 
-                    value={urlStatus || ''} 
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        const params = new URLSearchParams();
-                        if (val) params.set('status', val);
-                        if (searchValue) params.set('search', searchValue);
-                        navigate(params.toString() ? `/pupils?${params.toString()}` : '/pupils');
-                        setPage(1);
-                    }}
-                    className="border rounded-2xl px-6 py-4 font-bold text-sm outline-none cursor-pointer focus:ring-4 focus:ring-primary-500/10 transition-all" style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
-                >
-                    <option value="">{t('common.all')}</option>
-                    <option value="ACTIVE">{t('status.active')}</option>
-                    <option value="TRANSFERRED">{t('status.transferred')}</option>
-                    <option value="DROPOUT">{t('status.dropout')}</option>
-                    <option value="CRITICAL">{t('vulnerability.critical')}</option>
-                    <option value="HIGH">{t('vulnerability.high')}</option>
-                </select>
+
+                {/* Filtre par École */}
+                <div className="relative min-w-[260px]">
+                    <SchoolIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-500 pointer-events-none" size={18} />
+                    <select 
+                        value={urlSchool} 
+                        onChange={(e) => updateFilters({ school_id: e.target.value || null })}
+                        className="w-full border rounded-2xl py-4 pl-11 pr-10 font-bold text-sm outline-none cursor-pointer focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none" 
+                        style={{ backgroundColor: colors.card, borderColor: urlSchool ? '#3b82f6' : colors.border, color: colors.text }}
+                    >
+                        <option value="">
+                            {schoolsLoading ? 'Chargement des écoles...' : `Toutes les écoles (${schools.length})`}
+                        </option>
+                        {schools.map((school) => (
+                            <option key={school.id} value={school.id}>
+                                {school.name} {school.city ? `(${school.city})` : ''}
+                            </option>
+                        ))}
+                    </select>
+                    <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" size={16} />
+                </div>
+
+                {/* Filtre par Statut */}
+                <div className="relative min-w-[180px]">
+                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                    <select 
+                        value={urlStatus || ''} 
+                        onChange={(e) => updateFilters({ status: e.target.value || null })}
+                        className="w-full border rounded-2xl py-4 pl-11 pr-10 font-bold text-sm outline-none cursor-pointer focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none" 
+                        style={{ backgroundColor: colors.card, borderColor: urlStatus ? '#f59e0b' : colors.border, color: colors.text }}
+                    >
+                        <option value="">{t('common.all') || 'Tous les statuts'}</option>
+                        <option value="ACTIVE">{t('status.active')}</option>
+                        <option value="TRANSFERRED">{t('status.transferred')}</option>
+                        <option value="DROPOUT">{t('status.dropout')}</option>
+                        <option value="CRITICAL">{t('vulnerability.critical')}</option>
+                        <option value="HIGH">{t('vulnerability.high')}</option>
+                    </select>
+                    <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" size={16} />
+                </div>
             </div>
+
+            {/* Badges de filtres actifs */}
+            {(urlSchool || urlStatus || debouncedSearch) && (
+                <div className="flex flex-wrap items-center gap-2 mb-8 p-3 rounded-2xl border bg-slate-500/5" style={{ borderColor: colors.border }}>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1">Filtres actifs :</span>
+                    {urlSchool && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary-500/15 border border-primary-500/30 text-primary-500 font-bold text-xs">
+                            <SchoolIcon size={13} />
+                            <span>École : {selectedSchoolObj?.name || 'Sélectionnée'}</span>
+                            <button 
+                                onClick={() => updateFilters({ school_id: null })}
+                                className="hover:text-red-500 ml-1 text-sm font-black"
+                                title="Enlever ce filtre"
+                            >
+                                ×
+                            </button>
+                        </span>
+                    )}
+                    {urlStatus && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-500 font-bold text-xs">
+                            <Filter size={13} />
+                            <span>Statut : {urlStatus}</span>
+                            <button 
+                                onClick={() => updateFilters({ status: null })}
+                                className="hover:text-red-500 ml-1 text-sm font-black"
+                                title="Enlever ce filtre"
+                            >
+                                ×
+                            </button>
+                        </span>
+                    )}
+                    {debouncedSearch && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-500/15 border border-slate-500/30 text-slate-300 font-bold text-xs">
+                            <Search size={13} />
+                            <span>"{debouncedSearch}"</span>
+                            <button 
+                                onClick={() => { setSearchValue(''); updateFilters({ search: null }); }}
+                                className="hover:text-red-500 ml-1 text-sm font-black"
+                                title="Effacer la recherche"
+                            >
+                                ×
+                            </button>
+                        </span>
+                    )}
+                    <button
+                        onClick={() => {
+                            setSearchValue('');
+                            navigate('/pupils');
+                            setPage(1);
+                        }}
+                        className="text-xs font-black text-rose-400 hover:text-rose-500 hover:underline ml-auto"
+                    >
+                        Réinitialiser tous les filtres
+                    </button>
+                </div>
+            )}
 
             {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -241,6 +372,18 @@ const PupilsList: React.FC = () => {
                             <Users size={64} className="mx-auto text-slate-300 mb-6" />
                             <h3 className="text-xl font-black mb-2">{t('common.no_data')}</h3>
                             <p className="font-medium" style={{ color: colors.textSecondary }}>{t('pupils.search_empty') || 'Aucun élève ne correspond à vos critères.'}</p>
+                            {(urlSchool || urlStatus || debouncedSearch) && (
+                                <button
+                                    onClick={() => {
+                                        setSearchValue('');
+                                        navigate('/pupils');
+                                        setPage(1);
+                                    }}
+                                    className="mt-4 px-5 py-2.5 rounded-xl bg-primary-600 text-white font-bold text-xs hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20"
+                                >
+                                    Afficher tous les élèves
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -298,9 +441,24 @@ const PupilsList: React.FC = () => {
                                                 {getInitials(pupil.first_name, pupil.last_name)}
                                             </span>
                                         </div>
-                                        <div className="min-w-0">
+
+                                        <div className="min-w-0 flex-1">
                                             <h3 className="font-black text-lg truncate pr-12">{pupil.first_name} {pupil.last_name}</h3>
-                                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mt-1">ID: #{pupil.cnive_id.slice(-6)}</p>
+                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
+                                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">ID: #{pupil.cnive_id.slice(-6)}</p>
+                                                {pupil.school_name && (
+                                                    <>
+                                                        <span className="text-slate-400 text-xs">•</span>
+                                                        <span 
+                                                            className="text-[11px] font-bold text-primary-500 dark:text-primary-400 truncate max-w-[150px] inline-flex items-center gap-1"
+                                                            title={pupil.school_name}
+                                                        >
+                                                            <SchoolIcon size={11} className="shrink-0" />
+                                                            {pupil.school_name}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
