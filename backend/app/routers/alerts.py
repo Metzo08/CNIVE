@@ -96,14 +96,21 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
     """
     global _initial_sync_done, alerts_registry
 
-    # Nettoyage automatique des alertes des élèves/entités supprimés
+    # Nettoyage dynamique: supprimer toute alerte orpheline ou obsolète
     try:
         existing_pupil_ids = {str(pid[0]) for pid in db.query(models.Pupil.id).all()}
         existing_interv_ids = {str(iid[0]) for iid in db.query(models.Intervention.id).all()}
+        critical_pupil_ids = {
+            str(aid[0]) for aid in db.query(models.VulnerabilityAssessment.pupil_id).filter(
+                models.VulnerabilityAssessment.classification == models.VulnerabilityLevel.CRITICAL
+            ).all()
+        }
         keys_to_purge = [
             k for k, a in list(alerts_registry.items())
             if (a.get("pupil_id") and str(a["pupil_id"]) not in existing_pupil_ids)
             or (a.get("alert_type") == "intervention" and len(k.split(":")) >= 3 and k.split(":")[2] not in existing_interv_ids)
+            or (a.get("alert_type") == "vulnerability" and a.get("pupil_id") and str(a["pupil_id"]) not in critical_pupil_ids)
+            or (a.get("alert_type") == "health")
         ]
         for k in keys_to_purge:
             del alerts_registry[k]
@@ -145,26 +152,7 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
                     alerts_registry[key_sms] = sms_alert
                     send_simulated_notification(sms_alert, key_sms)
 
-    # 2. Check Health Enrollment (CMU)
-    health_records = db.query(models.HealthRecord).filter(models.HealthRecord.cmu_status == "not_enrolled").all()
-    for hr in health_records:
-        key = f"in_app:health:{hr.pupil_id}"
-        if key not in alerts_registry:
-            pupil = db.query(models.Pupil).filter(models.Pupil.id == hr.pupil_id).first()
-            name = f"{pupil.first_name} {pupil.last_name}" if pupil else "Élève"
-            alerts_registry[key] = {
-                "id": str(uuid.uuid4()),
-                "pupil_id": str(hr.pupil_id),
-                "school_id": None,
-                "alert_type": "health",
-                "level": "warning",
-                "channel": "in_app",
-                "title": "CMU non enrôlé",
-                "message": f"{name}: Inscription CMU absente ou en retard.",
-                "is_read": False,
-                "is_escalated": False,
-                "created_at": datetime.utcnow().isoformat()
-            }
+    # CMU baseline check disabled to prevent flooding notifications
 
     # 3. Check Pending Urgent Interventions
     intervs = db.query(models.Intervention).filter(

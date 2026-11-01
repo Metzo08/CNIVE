@@ -297,13 +297,24 @@ const PupilsList: React.FC = () => {
 
                                     <div className="rounded-2xl p-4 flex justify-between items-center mb-6 border" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
                                         <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('pupils.last_assessment') || 'Dernière éval.'}</p>
-                                            <p className="text-xl font-black" style={{ color: colors.text }}>
-                                                {pupil.academic_score != null ? pupil.academic_score.toFixed(1) : 'N/A'} <span className="text-xs opacity-30">/ 20</span>
-                                            </p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('pupils.last_assessment') || 'Moyenne académique'}</p>
+                                            <div className="flex items-baseline gap-1" style={{ color: colors.text }}>
+                                                {pupil.academic_score != null ? (
+                                                    <>
+                                                        <span className="text-xl font-black">{pupil.academic_score.toFixed(1)}</span>
+                                                        <span className="text-xs opacity-30">/ 20</span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Non noté</span>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="w-10 h-10 rounded-full border-4 border-primary-500/20 flex items-center justify-center">
-                                            <div className="w-4 h-4 rounded-full bg-primary-500 animate-pulse" />
+                                        <div className="w-10 h-10 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center">
+                                            {pupil.academic_score != null ? (
+                                                <div className="w-4 h-4 rounded-full bg-primary-500 animate-pulse" />
+                                            ) : (
+                                                <span className="text-xs font-black text-slate-400 dark:text-slate-500">—</span>
+                                            )}
                                         </div>
                                     </div>
 

@@ -31,28 +31,8 @@ def extract_photo_url(drive_cell):
     match = re.search(r'/d/([a-zA-Z0-9_-]{25,})', str(drive_cell))
     if match:
         drive_id = match.group(1)
-        # Google Drive public high-speed CDN endpoint
         return f"https://lh3.googleusercontent.com/d/{drive_id}"
     return None
-
-def map_classification(classif_str, total_score):
-    classif_str = str(classif_str).lower().strip()
-    if "critique" in classif_str:
-        return models.VulnerabilityLevel.CRITICAL
-    elif "élev" in classif_str:
-        return models.VulnerabilityLevel.HIGH
-    elif "modér" in classif_str:
-        return models.VulnerabilityLevel.MODERATE
-    elif "faible" in classif_str:
-        return models.VulnerabilityLevel.LOW
-    
-    if total_score >= 80:
-        return models.VulnerabilityLevel.CRITICAL
-    elif total_score >= 65:
-        return models.VulnerabilityLevel.HIGH
-    elif total_score >= 45:
-        return models.VulnerabilityLevel.MODERATE
-    return models.VulnerabilityLevel.LOW
 
 def import_csv_school(db, csv_file_path, school_code, school_name, default_address):
     print(f"\n=======================================================")
@@ -86,12 +66,10 @@ def import_csv_school(db, csv_file_path, school_code, school_name, default_addre
         print("  [ERR] CSV has insufficient rows.")
         return 0
 
-    # Start after row 0 (title) and row 1 (headers)
     rows = reader[2:]
     print(f"  Found {len(rows)} data rows to process.")
 
     imported = 0
-    # Determine base sequence from existing count in database
     existing_count = db.query(models.Pupil).count()
 
     for idx, r in enumerate(rows, start=1):
@@ -108,38 +86,9 @@ def import_csv_school(db, csv_file_path, school_code, school_name, default_addre
         grade = r[5].strip() if len(r) > 5 and r[5].strip() else "CI"
         phone = r[6].strip() if len(r) > 6 and r[6].strip() else None
 
-        # Scores
-        try:
-            v_eco = int(float(r[7])) if len(r) > 7 and r[7].strip() else 10
-        except: v_eco = 10
-        try:
-            v_sco = int(float(r[8])) if len(r) > 8 and r[8].strip() else 10
-        except: v_sco = 10
-        try:
-            v_san = int(float(r[9])) if len(r) > 9 and r[9].strip() else 10
-        except: v_san = 10
-        try:
-            v_fam = int(float(r[10])) if len(r) > 10 and r[10].strip() else 10
-        except: v_fam = 10
-        try:
-            v_pro = int(float(r[11])) if len(r) > 11 and r[11].strip() else 10
-        except: v_pro = 10
-        try:
-            v_env = int(float(r[12])) if len(r) > 12 and r[12].strip() else 10
-        except: v_env = 10
-
-        try:
-            total_score = float(r[13]) if len(r) > 13 and r[13].strip() else float(v_eco + v_sco + v_san + v_fam + v_pro + v_env)
-        except:
-            total_score = float(v_eco + v_sco + v_san + v_fam + v_pro + v_env)
-
-        classif_raw = r[15] if len(r) > 15 else ""
-        classification = map_classification(classif_raw, total_score)
-
         drive_cell = r[16] if len(r) > 16 else ""
         photo_url = extract_photo_url(drive_cell)
 
-        # Unique sequential CNIVE ID
         seq_num = existing_count + imported + 1
         cnive_id = f"CNIVE-2026-{seq_num:06d}"
 
@@ -155,28 +104,12 @@ def import_csv_school(db, csv_file_path, school_code, school_name, default_addre
             address=default_address,
             contact_parent1_phone=phone,
             photo_url=photo_url,
-            academic_score=round(10.0 + (20.0 - (total_score / 6.0)) * 0.4, 1),
+            academic_score=None, # Aucun élève n'a de note pour l'instant
             school_id=school.id,
             status=models.PupilStatus.ACTIVE
         )
         db.add(pupil)
         db.flush()
-
-        # FEV Assessment
-        assessment = models.VulnerabilityAssessment(
-            id=uuid.uuid4(),
-            pupil_id=pupil_id,
-            economic_score=v_eco,
-            school_score=v_sco,
-            health_nutrition_score=v_san,
-            family_social_score=v_fam,
-            protection_score=v_pro,
-            environmental_score=v_env,
-            total_score=total_score,
-            classification=classification,
-            comments=f"Collecte FEV officielle - École {school.name}."
-        )
-        db.add(assessment)
 
         # SenECard record
         card = models.Card(
@@ -189,12 +122,12 @@ def import_csv_school(db, csv_file_path, school_code, school_name, default_addre
         )
         db.add(card)
 
-        # Health Record
+        # Health Record (aucun faux statut ni faux numéro inventé)
         health = models.HealthRecord(
             id=uuid.uuid4(),
             pupil_id=pupil_id,
-            cmu_status="enrolled" if (imported % 4 != 0) else "not_enrolled",
-            cmu_number=f"CMU-DKR-{seq_num + 5000:05d}" if (imported % 4 != 0) else None,
+            cmu_status=None,
+            cmu_number=None,
             health_facility=f"Poste de Santé {school.city} / Pikine"
         )
         db.add(health)
@@ -211,7 +144,6 @@ def import_csv_school(db, csv_file_path, school_code, school_name, default_addre
 def main():
     db = SessionLocal()
     try:
-        # 1. ECOPN : école Diacksao Fass 2
         import_csv_school(
             db=db,
             csv_file_path="backend/ecopn_diacksao_fass_2.csv",
@@ -220,7 +152,6 @@ def main():
             default_address="Quartier Diacksao Fass 2, Pikine"
         )
 
-        # 2. EDEN : Salif Ndongo B
         import_csv_school(
             db=db,
             csv_file_path="backend/eden_salif_ndongo_b.csv",
