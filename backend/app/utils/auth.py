@@ -17,23 +17,22 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 import bcrypt
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against a hashed password using bcrypt"""
     try:
         return bcrypt.checkpw(
-            plain_password.encode('utf-8'), 
-            hashed_password.encode('utf-8')
+            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
         )
     except Exception as e:
         print(f"Verification error: {e}")
         return False
 
+
 def get_password_hash(password: str) -> str:
     """Hash a password using bcrypt"""
-    return bcrypt.hashpw(
-        password.encode('utf-8'), 
-        bcrypt.gensalt()
-    ).decode('utf-8')
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -45,6 +44,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
 def decode_access_token(token: str) -> dict:
     """Decode and validate a JWT token"""
     try:
@@ -53,19 +53,20 @@ def decode_access_token(token: str) -> dict:
     except JWTError:
         raise Exception("Token invalide ou expiré")
 
+
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> models.User:
     """Extract and validate current user from Authorization header."""
     authorization = request.headers.get("Authorization")
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Non authentifié")
-    
+
     token = authorization.split(" ")[1]
     try:
         payload = decode_access_token(token)
         email = payload.get("sub")
         if not email:
             raise HTTPException(status_code=401, detail="Token invalide")
-        
+
         user = db.query(models.User).filter(models.User.email == email).first()
         if not user:
             raise HTTPException(status_code=401, detail="Utilisateur non trouvé")
@@ -73,11 +74,11 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> models.
     except Exception:
         raise HTTPException(status_code=401, detail="Token invalide ou expiré")
 
+
 def require_admin(current_user: models.User = Depends(get_current_user)):
     """Ensure the current user is a GTE_ADMIN."""
     if current_user.role != models.UserRole.GTE_ADMIN:
         raise HTTPException(
-            status_code=403,
-            detail="Accès réservé aux administrateurs GTE"
+            status_code=403, detail="Accès réservé aux administrateurs GTE"
         )
     return current_user

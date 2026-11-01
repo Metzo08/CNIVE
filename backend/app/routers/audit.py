@@ -12,6 +12,7 @@ from app.utils.auth import get_current_user, require_admin
 
 router = APIRouter(prefix="/audit", tags=["Audit"])
 
+
 class AuditLogResponse(BaseModel):
     id: str
     user_id: Optional[str]
@@ -24,6 +25,7 @@ class AuditLogResponse(BaseModel):
     metadata: Optional[str]
     timestamp: str
 
+
 def log_action(
     db: Session,
     action: models.AuditActionType,
@@ -33,7 +35,7 @@ def log_action(
     resource_id: Optional[str] = None,
     ip_address: Optional[str] = None,
     user_agent: Optional[str] = None,
-    metadata: Optional[dict] = None
+    metadata: Optional[dict] = None,
 ):
     """Helper function to create audit log entries"""
     log_entry = models.AuditLog(
@@ -44,17 +46,19 @@ def log_action(
         resource_id=resource_id,
         ip_address=ip_address,
         user_agent=user_agent,
-        extra_data=json.dumps(metadata) if metadata else None
+        extra_data=json.dumps(metadata) if metadata else None,
     )
     db.add(log_entry)
     db.commit()
     return log_entry
+
 
 class PaginatedAuditLogs(BaseModel):
     total: int
     skip: int
     limit: int
     logs: List[AuditLogResponse]
+
 
 @router.get("/", response_model=PaginatedAuditLogs)
 def get_audit_logs(
@@ -66,18 +70,19 @@ def get_audit_logs(
     limit: int = 25,
     db: Session = Depends(get_db),
     admin: models.User = Depends(require_admin),
-    request: Request = None
+    request: Request = None,
 ):
     """Get audit logs with filters and pagination (Admin only)"""
     # Audit log
     log_action(
-        db, models.AuditActionType.VIEW_AUDIT_LOG,
+        db,
+        models.AuditActionType.VIEW_AUDIT_LOG,
         user_id=str(admin.id),
         user_email=admin.email,
-        ip_address=request.client.host if request and request.client else None
+        ip_address=request.client.host if request and request.client else None,
     )
     query = db.query(models.AuditLog)
-    
+
     # Apply filters
     if action:
         try:
@@ -85,23 +90,25 @@ def get_audit_logs(
             query = query.filter(models.AuditLog.action == action_enum)
         except:
             pass
-    
+
     if user_email:
         query = query.filter(models.AuditLog.user_email.ilike(f"%{user_email}%"))
-    
+
     if resource_type:
         query = query.filter(models.AuditLog.resource_type == resource_type)
-    
+
     # Time filter
     since = datetime.utcnow() - timedelta(days=days)
     query = query.filter(models.AuditLog.timestamp >= since)
-    
+
     # Get total before pagination
     total = query.count()
-    
+
     # Order and paginate
-    logs_data = query.order_by(desc(models.AuditLog.timestamp)).offset(skip).limit(limit).all()
-    
+    logs_data = (
+        query.order_by(desc(models.AuditLog.timestamp)).offset(skip).limit(limit).all()
+    )
+
     formatted_logs = [
         AuditLogResponse(
             id=str(log.id),
@@ -113,25 +120,29 @@ def get_audit_logs(
             ip_address=log.ip_address,
             user_agent=log.user_agent,
             metadata=log.extra_data,
-            timestamp=log.timestamp.isoformat() if log.timestamp else datetime.utcnow().isoformat()
+            timestamp=(
+                log.timestamp.isoformat()
+                if log.timestamp
+                else datetime.utcnow().isoformat()
+            ),
         )
         for log in logs_data
     ]
 
-    return PaginatedAuditLogs(
-        total=total,
-        skip=skip,
-        limit=limit,
-        logs=formatted_logs
-    )
+    return PaginatedAuditLogs(total=total, skip=skip, limit=limit, logs=formatted_logs)
+
 
 @router.get("/user/{user_id}", response_model=List[AuditLogResponse])
 def get_user_audit_logs(user_id: str, limit: int = 50, db: Session = Depends(get_db)):
     """Get audit logs for a specific user"""
-    logs = db.query(models.AuditLog).filter(
-        models.AuditLog.user_id == uuid.UUID(user_id)
-    ).order_by(desc(models.AuditLog.timestamp)).limit(limit).all()
-    
+    logs = (
+        db.query(models.AuditLog)
+        .filter(models.AuditLog.user_id == uuid.UUID(user_id))
+        .order_by(desc(models.AuditLog.timestamp))
+        .limit(limit)
+        .all()
+    )
+
     return [
         AuditLogResponse(
             id=str(log.id),
@@ -143,29 +154,34 @@ def get_user_audit_logs(user_id: str, limit: int = 50, db: Session = Depends(get
             ip_address=log.ip_address,
             user_agent=log.user_agent,
             metadata=log.extra_data,
-            timestamp=log.timestamp.isoformat() if log.timestamp else datetime.utcnow().isoformat()
+            timestamp=(
+                log.timestamp.isoformat()
+                if log.timestamp
+                else datetime.utcnow().isoformat()
+            ),
         )
         for log in logs
     ]
+
 
 @router.get("/stats")
 def get_audit_stats(days: int = 7, db: Session = Depends(get_db)):
     """Get audit statistics for dashboard"""
     since = datetime.utcnow() - timedelta(days=days)
     logs = db.query(models.AuditLog).filter(models.AuditLog.timestamp >= since).all()
-    
+
     # Count by action type
     action_counts = {}
     for log in logs:
         action = log.action.value if log.action else "SYSTEM"
         action_counts[action] = action_counts.get(action, 0) + 1
-    
+
     # Group by day
     daily_counts = {}
     for log in logs:
         day = log.timestamp.strftime("%Y-%m-%d") if log.timestamp else "unknown"
         daily_counts[day] = daily_counts.get(day, 0) + 1
-    
+
     return {
         "total_logs": len(logs),
         "period_days": days,
@@ -173,9 +189,12 @@ def get_audit_stats(days: int = 7, db: Session = Depends(get_db)):
         "by_day": daily_counts,
         "logins": action_counts.get("LOGIN", 0),
         "failed_logins": action_counts.get("LOGIN_FAILED", 0),
-        "data_access": action_counts.get("VIEW_PUPIL", 0) + action_counts.get("VIEW_HEALTH", 0),
-        "modifications": action_counts.get("EDIT_PUPIL", 0) + action_counts.get("CREATE_PUPIL", 0)
+        "data_access": action_counts.get("VIEW_PUPIL", 0)
+        + action_counts.get("VIEW_HEALTH", 0),
+        "modifications": action_counts.get("EDIT_PUPIL", 0)
+        + action_counts.get("CREATE_PUPIL", 0),
     }
+
 
 @router.get("/actions")
 def get_available_actions():

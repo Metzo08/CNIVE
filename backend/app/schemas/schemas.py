@@ -2,7 +2,14 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime, date
 import uuid
-from app.models.models import UserRole, PupilStatus, VulnerabilityLevel, CardStatus, InterventionStatus
+from app.models.models import (
+    UserRole,
+    PupilStatus,
+    VulnerabilityLevel,
+    CardStatus,
+    InterventionStatus,
+)
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -12,8 +19,10 @@ class UserBase(BaseModel):
     school_id: Optional[uuid.UUID] = None
     is_active: Optional[bool] = True
 
+
 class UserCreate(UserBase):
     password: str
+
 
 class UserResponse(UserBase):
     id: uuid.UUID
@@ -22,13 +31,16 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[UserRole] = None
+
 
 class PupilBase(BaseModel):
     first_name: str
@@ -44,17 +56,21 @@ class PupilBase(BaseModel):
     grade: Optional[str] = None
     academic_score: Optional[float] = None
 
+
 class AcademicRecordBase(BaseModel):
     subject: str
     score: float
     base_score: int = 20
     term: Optional[str] = None
 
+
 class AcademicRecordCreate(AcademicRecordBase):
     pass
 
+
 class AcademicRecordList(BaseModel):
     records: List[AcademicRecordCreate]
+
 
 class AcademicRecordResponse(AcademicRecordBase):
     id: uuid.UUID
@@ -64,8 +80,10 @@ class AcademicRecordResponse(AcademicRecordBase):
     class Config:
         from_attributes = True
 
+
 class PupilCreate(PupilBase):
     school_id: uuid.UUID
+
 
 class PupilResponse(PupilBase):
     id: uuid.UUID
@@ -78,6 +96,7 @@ class PupilResponse(PupilBase):
     class Config:
         from_attributes = True
 
+
 class PupilMini(BaseModel):
     id: uuid.UUID
     cnive_id: str
@@ -86,6 +105,7 @@ class PupilMini(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class HealthRecordResponse(BaseModel):
     id: uuid.UUID
@@ -103,6 +123,7 @@ class HealthRecordResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class AbsenceBase(BaseModel):
     pupil_id: uuid.UUID
     date: date
@@ -111,8 +132,10 @@ class AbsenceBase(BaseModel):
     duration_days: int = 1
     notes: Optional[str] = None
 
+
 class AbsenceCreate(AbsenceBase):
     pass
+
 
 class AbsenceResponse(AbsenceBase):
     id: uuid.UUID
@@ -120,6 +143,7 @@ class AbsenceResponse(AbsenceBase):
 
     class Config:
         from_attributes = True
+
 
 class VaccinationResponse(BaseModel):
     id: uuid.UUID
@@ -135,6 +159,7 @@ class VaccinationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class ConsultationResponse(BaseModel):
     id: uuid.UUID
@@ -153,6 +178,7 @@ class ConsultationResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class AssessmentBase(BaseModel):
     pupil_id: uuid.UUID
     economic_score: int
@@ -162,8 +188,10 @@ class AssessmentBase(BaseModel):
     violence_score: int
     comments: Optional[str] = None
 
+
 class AssessmentCreate(AssessmentBase):
     assessor_id: uuid.UUID
+
 
 class AssessmentResponse(AssessmentBase):
     id: uuid.UUID

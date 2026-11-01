@@ -10,16 +10,19 @@ from enum import Enum
 
 router = APIRouter(prefix="/alerts", tags=["Alerts"])
 
+
 class AlertLevel(str, Enum):
     INFO = "info"
-    WARNING = "warning" 
+    WARNING = "warning"
     URGENT = "urgent"
     CRITICAL = "critical"
+
 
 class NotificationChannel(str, Enum):
     IN_APP = "in_app"
     EMAIL = "email"
     SMS = "sms"
+
 
 class AlertType(str, Enum):
     VULNERABILITY = "vulnerability"
@@ -27,6 +30,7 @@ class AlertType(str, Enum):
     ATTENDANCE = "attendance"
     INTERVENTION = "intervention"
     SYSTEM = "system"
+
 
 class AlertCreate(BaseModel):
     pupil_id: Optional[str] = None
@@ -37,6 +41,7 @@ class AlertCreate(BaseModel):
     title: str
     message: str
     metadata: Optional[dict] = None
+
 
 class AlertResponse(BaseModel):
     id: str
@@ -50,6 +55,7 @@ class AlertResponse(BaseModel):
     is_read: bool
     is_escalated: bool = False
     created_at: str
+
 
 # In-memory storage for alerts with persistence of 'is_read' state
 # Key pattern: {channel}:{type}:{pupil_id or entity_id}
@@ -69,7 +75,7 @@ def send_simulated_notification(alert: dict, key: str):
 
     channel = alert.get("channel", "in_app")
     alert_type = alert.get("alert_type", "system")
-    
+
     # Routing logic based on alert type
     destinataire = "Coordinateur GTE"
     if alert_type == "vulnerability":
@@ -83,7 +89,9 @@ def send_simulated_notification(alert: dict, key: str):
         print(f"📧 [SIMULATION EMAIL] To: {destinataire} | Subject: {alert['title']}")
         print(f"   └─ Message: {alert['message']}")
     elif channel == "sms":
-        print(f"📱 [SIMULATION SMS] To: {destinataire} (+221 7X XXX XX XX) | {alert['title']}")
+        print(
+            f"📱 [SIMULATION SMS] To: {destinataire} (+221 7X XXX XX XX) | {alert['title']}"
+        )
 
 
 def sync_alerts_with_data(db: Session, notify: bool = True):
@@ -98,28 +106,48 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
     # Nettoyage dynamique: supprimer toute alerte orpheline ou obsolète
     try:
         existing_pupil_ids = {str(pid[0]) for pid in db.query(models.Pupil.id).all()}
-        existing_interv_ids = {str(iid[0]) for iid in db.query(models.Intervention.id).all()}
+        existing_interv_ids = {
+            str(iid[0]) for iid in db.query(models.Intervention.id).all()
+        }
         critical_pupil_ids = {
-            str(aid[0]) for aid in db.query(models.VulnerabilityAssessment.pupil_id).filter(
-                models.VulnerabilityAssessment.classification == models.VulnerabilityLevel.CRITICAL
-            ).all()
+            str(aid[0])
+            for aid in db.query(models.VulnerabilityAssessment.pupil_id)
+            .filter(
+                models.VulnerabilityAssessment.classification
+                == models.VulnerabilityLevel.CRITICAL
+            )
+            .all()
         }
         keys_to_purge = [
-            k for k, a in list(alerts_registry.items())
+            k
+            for k, a in list(alerts_registry.items())
             if (a.get("pupil_id") and str(a["pupil_id"]) not in existing_pupil_ids)
-            or (a.get("alert_type") == "intervention" and len(k.split(":")) >= 3 and k.split(":")[2] not in existing_interv_ids)
-            or (a.get("alert_type") == "vulnerability" and a.get("pupil_id") and str(a["pupil_id"]) not in critical_pupil_ids)
+            or (
+                a.get("alert_type") == "intervention"
+                and len(k.split(":")) >= 3
+                and k.split(":")[2] not in existing_interv_ids
+            )
+            or (
+                a.get("alert_type") == "vulnerability"
+                and a.get("pupil_id")
+                and str(a["pupil_id"]) not in critical_pupil_ids
+            )
             or (a.get("alert_type") == "health")
         ]
         for k in keys_to_purge:
             del alerts_registry[k]
     except Exception as e:
         pass
-    
+
     # 1. Check Critical Vulnerabilities
-    criticals = db.query(models.VulnerabilityAssessment).filter(
-        models.VulnerabilityAssessment.classification == models.VulnerabilityLevel.CRITICAL
-    ).all()
+    criticals = (
+        db.query(models.VulnerabilityAssessment)
+        .filter(
+            models.VulnerabilityAssessment.classification
+            == models.VulnerabilityLevel.CRITICAL
+        )
+        .all()
+    )
     for v in criticals:
         # In-App Alert
         key_app = f"in_app:vulnerability:{v.pupil_id}"
@@ -137,10 +165,14 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
                 "message": f"{name} a un score de vulnérabilité CRITIQUE ({int(v.total_score or 0)}/100). Une intervention immédiate est requise.",
                 "is_read": False,
                 "is_escalated": False,
-                "created_at": v.created_at.isoformat() if v.created_at else datetime.utcnow().isoformat()
+                "created_at": (
+                    v.created_at.isoformat()
+                    if v.created_at
+                    else datetime.utcnow().isoformat()
+                ),
             }
             alerts_registry[key_app] = alert
-            
+
             # Simulated SMS — only if this is a genuine new detection (not a server restart bulk-load)
             if notify and _initial_sync_done:
                 key_sms = f"sms:vulnerability:{v.pupil_id}"
@@ -154,10 +186,14 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
     # CMU baseline check disabled to prevent flooding notifications
 
     # 3. Check Pending Urgent Interventions
-    intervs = db.query(models.Intervention).filter(
-        models.Intervention.status == models.InterventionStatus.PENDING,
-        models.Intervention.priority.in_(["urgent", "high"])
-    ).all()
+    intervs = (
+        db.query(models.Intervention)
+        .filter(
+            models.Intervention.status == models.InterventionStatus.PENDING,
+            models.Intervention.priority.in_(["urgent", "high"]),
+        )
+        .all()
+    )
     for i in intervs:
         key = f"in_app:intervention:{i.id}"
         if key not in alerts_registry:
@@ -174,10 +210,14 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
                 "message": f"{i.title} prévue pour {p_name} (Priorité: {i.priority})",
                 "is_read": False,
                 "is_escalated": False,
-                "created_at": i.created_at.isoformat() if i.created_at else datetime.utcnow().isoformat()
+                "created_at": (
+                    i.created_at.isoformat()
+                    if i.created_at
+                    else datetime.utcnow().isoformat()
+                ),
             }
             alerts_registry[key] = alert
-            
+
             # Simulated Email — only for genuinely new interventions
             if notify and _initial_sync_done and i.priority == "urgent":
                 key_email = f"email:intervention:{i.id}"
@@ -187,7 +227,7 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
                     email_alert["channel"] = "email"
                     alerts_registry[key_email] = email_alert
                     send_simulated_notification(email_alert, key_email)
-    
+
     # 4. Automated Escalation (48 hours) — only on full sync
     if notify:
         now = datetime.utcnow()
@@ -221,36 +261,38 @@ def create_alert(alert: AlertCreate, db: Session = Depends(get_db)):
         "message": alert.message,
         "is_read": False,
         "is_escalated": False,
-        "created_at": datetime.utcnow().isoformat()
+        "created_at": datetime.utcnow().isoformat(),
     }
     alerts_registry[f"{alert.channel.value}:manual:{alert_id}"] = new_alert
     return AlertResponse(**new_alert)
 
 
 @router.get("/")
-def get_alerts(unread_only: bool = False, channel: Optional[str] = None, level: Optional[str] = None, skip: int = 0, limit: int = 25, db: Session = Depends(get_db)):
+def get_alerts(
+    unread_only: bool = False,
+    channel: Optional[str] = None,
+    level: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 25,
+    db: Session = Depends(get_db),
+):
     """Get alerts with pagination support and level filtering"""
     sync_alerts_with_data(db, notify=True)
     res = list(alerts_registry.values())
-    
+
     if channel:
         res = [a for a in res if a["channel"] == channel]
     if unread_only:
         res = [a for a in res if not a["is_read"]]
     if level:
         res = [a for a in res if a["level"] == level]
-        
+
     res.sort(key=lambda x: x["created_at"], reverse=True)
-    
+
     total = len(res)
     paginated_alerts = res[skip : skip + limit]
-    
-    return {
-        "total": total,
-        "skip": skip,
-        "limit": limit,
-        "alerts": paginated_alerts
-    }
+
+    return {"total": total, "skip": skip, "limit": limit, "alerts": paginated_alerts}
 
 
 @router.get("/unread-count")
@@ -266,8 +308,8 @@ def get_unread_count(db: Session = Depends(get_db)):
         "channels": {
             "in_app": len([a for a in unread if a["channel"] == "in_app"]),
             "email": len([a for a in unread if a["channel"] == "email"]),
-            "sms": len([a for a in unread if a["channel"] == "sms"])
-        }
+            "sms": len([a for a in unread if a["channel"] == "sms"]),
+        },
     }
 
 
@@ -308,14 +350,20 @@ def delete_alert(alert_id: str):
 @router.post("/generate-vulnerability-alerts")
 def generate_vulnerability_alerts(db: Session = Depends(get_db)):
     """Scan for critical vulnerabilities and generate alerts"""
-    
-    critical_assessments = db.query(models.VulnerabilityAssessment).filter(
-        models.VulnerabilityAssessment.classification == "CRITICAL"
-    ).all()
-    
+
+    critical_assessments = (
+        db.query(models.VulnerabilityAssessment)
+        .filter(models.VulnerabilityAssessment.classification == "CRITICAL")
+        .all()
+    )
+
     alerts_created = []
     for assessment in critical_assessments:
-        pupil = db.query(models.Pupil).filter(models.Pupil.id == assessment.pupil_id).first()
+        pupil = (
+            db.query(models.Pupil)
+            .filter(models.Pupil.id == assessment.pupil_id)
+            .first()
+        )
         if pupil:
             alert = {
                 "id": str(uuid.uuid4()),
@@ -323,11 +371,8 @@ def generate_vulnerability_alerts(db: Session = Depends(get_db)):
                 "alert_type": "vulnerability",
                 "level": "critical",
                 "title": f"Alerte critique: {pupil.first_name} {pupil.last_name}",
-                "message": f"Score de vulnérabilité: {assessment.total_score}/100 - Intervention urgente requise"
+                "message": f"Score de vulnérabilité: {assessment.total_score}/100 - Intervention urgente requise",
             }
             alerts_created.append(alert)
-    
-    return {
-        "alerts_generated": len(alerts_created),
-        "alerts": alerts_created
-    }
+
+    return {"alerts_generated": len(alerts_created), "alerts": alerts_created}

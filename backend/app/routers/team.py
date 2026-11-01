@@ -18,10 +18,10 @@ router = APIRouter(prefix="/team", tags=["Team Management"])
 
 from app.utils.auth import get_current_user, require_admin
 
-
 # ──────────────────────────────────────────────
 # Endpoints
 # ──────────────────────────────────────────────
+
 
 @router.get("/")
 def list_team_members(
@@ -31,15 +31,16 @@ def list_team_members(
     limit: int = 100,
     admin: models.User = Depends(require_admin),
     db: Session = Depends(get_db),
-    request: Request = None
+    request: Request = None,
 ):
     """List all team members. Admin only."""
     # Audit log
     log_action(
-        db, models.AuditActionType.VIEW_TEAM,
+        db,
+        models.AuditActionType.VIEW_TEAM,
         user_id=str(admin.id),
         user_email=admin.email,
-        ip_address=request.client.host if request and request.client else None
+        ip_address=request.client.host if request and request.client else None,
     )
     query = db.query(models.User)
 
@@ -53,13 +54,15 @@ def list_team_members(
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-            (models.User.email.ilike(search_term)) |
-            (models.User.first_name.ilike(search_term)) |
-            (models.User.last_name.ilike(search_term))
+            (models.User.email.ilike(search_term))
+            | (models.User.first_name.ilike(search_term))
+            | (models.User.last_name.ilike(search_term))
         )
 
     total = query.count()
-    members = query.order_by(models.User.created_at.desc()).offset(skip).limit(limit).all()
+    members = (
+        query.order_by(models.User.created_at.desc()).offset(skip).limit(limit).all()
+    )
 
     return {
         "total": total,
@@ -77,7 +80,7 @@ def list_team_members(
                 "created_at": m.created_at.isoformat() if m.created_at else None,
             }
             for m in members
-        ]
+        ],
     }
 
 
@@ -85,16 +88,17 @@ def list_team_members(
 def team_stats(
     admin: models.User = Depends(require_admin),
     db: Session = Depends(get_db),
-    request: Request = None
+    request: Request = None,
 ):
     """Get team statistics by role."""
     # Audit log
     log_action(
-        db, models.AuditActionType.VIEW_TEAM,
+        db,
+        models.AuditActionType.VIEW_TEAM,
         user_id=str(admin.id),
         user_email=admin.email,
         ip_address=request.client.host if request and request.client else None,
-        metadata={"action": "view_stats"}
+        metadata={"action": "view_stats"},
     )
     total = db.query(models.User).count()
     active = db.query(models.User).filter(models.User.is_active == True).count()
@@ -112,7 +116,7 @@ def team_stats(
         "active": active,
         "inactive": inactive,
         "mfa_enabled": mfa_enabled,
-        "by_role": role_counts
+        "by_role": role_counts,
     }
 
 
@@ -120,7 +124,7 @@ def team_stats(
 def get_team_member(
     user_id: uuid.UUID,
     admin: models.User = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get a specific team member's details."""
     user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -146,11 +150,13 @@ def create_team_member(
     member_data: schemas.UserCreate,
     request: Request,
     admin: models.User = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Create a new team member. Admin defines the password."""
     # Check duplicate email
-    existing = db.query(models.User).filter(models.User.email == member_data.email).first()
+    existing = (
+        db.query(models.User).filter(models.User.email == member_data.email).first()
+    )
     if existing:
         raise HTTPException(status_code=400, detail="Cet email est déjà utilisé")
 
@@ -170,13 +176,14 @@ def create_team_member(
 
     # Audit log
     log_action(
-        db, models.AuditActionType.CREATE_TEAM,
+        db,
+        models.AuditActionType.CREATE_TEAM,
         user_id=str(admin.id),
         user_email=admin.email,
         resource_type="user",
         resource_id=str(new_user.id),
         ip_address=request.client.host if request.client else None,
-        metadata={"action": "create_team_member", "new_role": member_data.role.value}
+        metadata={"action": "create_team_member", "new_role": member_data.role.value},
     )
 
     return {
@@ -186,7 +193,7 @@ def create_team_member(
         "last_name": new_user.last_name,
         "role": new_user.role.value,
         "is_active": new_user.is_active,
-        "message": "Membre créé avec succès"
+        "message": "Membre créé avec succès",
     }
 
 
@@ -196,7 +203,7 @@ def update_team_member(
     update_data: dict,
     request: Request,
     admin: models.User = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update a team member's role, school, or status."""
     user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -225,13 +232,14 @@ def update_team_member(
 
     # Audit log
     log_action(
-        db, models.AuditActionType.EDIT_TEAM,
+        db,
+        models.AuditActionType.EDIT_TEAM,
         user_id=str(admin.id),
         user_email=admin.email,
         resource_type="user",
         resource_id=str(user.id),
         ip_address=request.client.host if request.client else None,
-        metadata={"action": "update_team_member", "fields": list(update_data.keys())}
+        metadata={"action": "update_team_member", "fields": list(update_data.keys())},
     )
 
     return {
@@ -241,7 +249,7 @@ def update_team_member(
         "last_name": user.last_name,
         "role": user.role.value,
         "is_active": user.is_active,
-        "message": "Membre mis à jour avec succès"
+        "message": "Membre mis à jour avec succès",
     }
 
 
@@ -250,7 +258,7 @@ def deactivate_team_member(
     user_id: uuid.UUID,
     request: Request,
     admin: models.User = Depends(require_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Soft-delete: deactivate a team member."""
     user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -259,20 +267,23 @@ def deactivate_team_member(
 
     # Prevent self-deactivation
     if user.id == admin.id:
-        raise HTTPException(status_code=400, detail="Vous ne pouvez pas désactiver votre propre compte")
+        raise HTTPException(
+            status_code=400, detail="Vous ne pouvez pas désactiver votre propre compte"
+        )
 
     user.is_active = False
     db.commit()
 
     # Audit log
     log_action(
-        db, models.AuditActionType.DELETE_TEAM,
+        db,
+        models.AuditActionType.DELETE_TEAM,
         user_id=str(admin.id),
         user_email=admin.email,
         resource_type="user",
         resource_id=str(user.id),
         ip_address=request.client.host if request.client else None,
-        metadata={"action": "deactivate_team_member"}
+        metadata={"action": "deactivate_team_member"},
     )
 
     return {"message": "Membre désactivé avec succès", "id": str(user.id)}

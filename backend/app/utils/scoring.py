@@ -24,7 +24,7 @@ VULNERABILITY_SCALE = {
     17: {"label": "Élevée", "color": "red"},
     18: {"label": "Élevée", "color": "red"},
     19: {"label": "Élevée", "color": "red"},
-    20: {"label": "Critique", "color": "red"}
+    20: {"label": "Critique", "color": "red"},
 }
 
 # Définition complète du référentiel FEV avec 20 options par dimension
@@ -52,8 +52,8 @@ VULNERABILITY_REFERENCE = {
             17: "Insécurité alimentaire modérée dans le ménage. L'élève s'absente fréquemment pour travailler ou par faim.",
             18: "L'élève est contraint à des travaux pénibles ou de longue durée, compromettant gravement sa scolarité.",
             19: "Situation de faim régulière. L'élève ne possède plus aucune fourniture et le risque d'abandon est immédiat.",
-            20: "Mendicité, faim fréquente, (abandon scolaire imminent) ou absence totale de prise en charge."
-        }
+            20: "Mendicité, faim fréquente, (abandon scolaire imminent) ou absence totale de prise en charge.",
+        },
     },
     "school": {
         "title": "Vulnérabilité scolaire",
@@ -78,8 +78,8 @@ VULNERABILITY_REFERENCE = {
             17: "Risque d'abandon imminent en raison d'une démotivation totale ou de l'influence négative de pairs déscolarisés.",
             18: "Exclusions temporaires répétées dues à des problèmes de comportement ou refus fréquents de venir à l'école.",
             19: "Déscolarisation de fait : l'élève ne vient pratiquement plus à l'école depuis plus d'un mois.",
-            20: "Déscolarisation, abandon scolaire, refus fréquent de venir à l’école (manque de motivation, influence « négative ») ou exclusion répétée."
-        }
+            20: "Déscolarisation, abandon scolaire, refus fréquent de venir à l’école (manque de motivation, influence « négative ») ou exclusion répétée.",
+        },
     },
     "health_nutrition": {
         "title": "Vulnérabilité sanitaire et nutritionnelle",
@@ -104,8 +104,8 @@ VULNERABILITY_REFERENCE = {
             17: "Maladie chronique grave non suivie médicalement, douleur ou gêne permanente perturbant l'apprentissage.",
             18: "Handicap physique ou sensoriel sévère sans aucun accompagnement ni aménagement à l'école.",
             19: "Signes physiques de malnutrition sévère (émaciation, léthargie) ou absence totale d'accès aux médicaments essentiels.",
-            20: "Malnutrition sévère, maladie chronique non suivie, handicap sans accompagnement ou absence totale de soins."
-        }
+            20: "Malnutrition sévère, maladie chronique non suivie, handicap sans accompagnement ou absence totale de soins.",
+        },
     },
     "family_social": {
         "title": "Vulnérabilité familiale et sociale",
@@ -130,8 +130,8 @@ VULNERABILITY_REFERENCE = {
             17: "Enfant confié à un tiers sans aucun lien de parenté et exploité pour des tâches ménagères excessives.",
             18: "Perte de tutelle parentale imminente (parent incarcéré ou déficient mental) sans relais familial organisé.",
             19: "Enfant en rupture familiale partielle, dormant occasionnellement en dehors du foyer.",
-            20: "Enfant orphelin, enfants de parents déviants (drogués), enfants en perte de tutelle parentale (prison, déficient, perte de ressources, etc.), confié sans suivi, en situation de rue, victime d’exploitation ou de négligence sévère."
-        }
+            20: "Enfant orphelin, enfants de parents déviants (drogués), enfants en perte de tutelle parentale (prison, déficient, perte de ressources, etc.), confié sans suivi, en situation de rue, victime d’exploitation ou de négligence sévère.",
+        },
     },
     "protection": {
         "title": "Vulnérabilité liée à la protection de l'enfant",
@@ -156,8 +156,8 @@ VULNERABILITY_REFERENCE = {
             17: "Menace de mariage précoce ou pratiques traditionnelles néfastes planifiées par la famille.",
             18: "Danger immédiat d'exploitation sexuelle ou de traite (sollicitations suspectes répétées).",
             19: "Enfant en situation de rue une grande partie de la journée, sans aucun repère protecteur.",
-            20: "Abus sexuels, traite, exploitation sévère, enfant en situation de rue ou danger immédiat. 20 points"
-        }
+            20: "Abus sexuels, traite, exploitation sévère, enfant en situation de rue ou danger immédiat. 20 points",
+        },
     },
     "environmental": {
         "title": "Vulnérabilité environnementale",
@@ -182,24 +182,26 @@ VULNERABILITY_REFERENCE = {
             17: "Risque d'expulsion locative imminent ou insécurité foncière extrême.",
             18: "Exposition permanente à un danger industriel ou naturel majeur (glissement de terrain, érosion côtière).",
             19: "Logement totalement insalubre ou détruit, hébergement d'urgence précaire et très instable.",
-            20: "Perte de logement après inondation, exposition permanente à des risques majeurs ou déplacement forcé durable."
-        }
-    }
+            20: "Perte de logement après inondation, exposition permanente à des risques majeurs ou déplacement forcé durable.",
+        },
+    },
 }
+
 
 def get_classification(total_score: float) -> str:
     """
     Classification FEV
     Seuils ajustés sur la somme des dimensions (Min 6, Max 120)
     """
-    if total_score <= 45:    # Moyenne <= 7.5
+    if total_score <= 45:  # Moyenne <= 7.5
         return "LOW"
     elif total_score <= 75:  # Moyenne <= 12.5
         return "MODERATE"
-    elif total_score <= 105: # Moyenne <= 17.5
+    elif total_score <= 105:  # Moyenne <= 17.5
         return "HIGH"
-    else:                    # Moyenne > 17.5
+    else:  # Moyenne > 17.5
         return "CRITICAL"
+
 
 def assess_vulnerability(assessment_data: dict) -> dict:
     """
@@ -208,26 +210,28 @@ def assess_vulnerability(assessment_data: dict) -> dict:
     dimension_scores = {}
     total_score = 0
     critical_criteria = []
-    
+
     for dim_id in VULNERABILITY_REFERENCE.keys():
         score = int(assessment_data.get(dim_id, 1))
         # Contrainte entre 1 et 20
         score = max(1, min(20, score))
         dimension_scores[dim_id] = score
         total_score += score
-        
+
         # Un score >= 16 est considéré comme critique dans la dimension
         if score >= 16:
-            critical_criteria.append({
-                "dimension": dim_id,
-                "label": VULNERABILITY_REFERENCE[dim_id]["title"],
-                "severity": "CRITICAL",
-                "score": score
-            })
-            
+            critical_criteria.append(
+                {
+                    "dimension": dim_id,
+                    "label": VULNERABILITY_REFERENCE[dim_id]["title"],
+                    "severity": "CRITICAL",
+                    "score": score,
+                }
+            )
+
     return {
         "dimension_scores": dimension_scores,
         "total_score": float(total_score),
         "classification": get_classification(total_score),
-        "critical_criteria": critical_criteria
+        "critical_criteria": critical_criteria,
     }

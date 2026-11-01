@@ -7,14 +7,29 @@ import os
 import uuid
 from datetime import datetime
 
-from app.routers import auth, pupils, vulnerabilities, schools, cards, alerts, interventions, reports, ai, health, uploads, audit, team, absences
+from app.routers import (
+    auth,
+    pupils,
+    vulnerabilities,
+    schools,
+    cards,
+    alerts,
+    interventions,
+    reports,
+    ai,
+    health,
+    uploads,
+    audit,
+    team,
+    absences,
+)
 from database import engine, Base, get_db
 from app.models import models
 from app.utils.limiter import limiter
 
 app = FastAPI(
-    title="CNIVE API", 
-    version="2.3.0", 
+    title="CNIVE API",
+    version="2.3.0",
     description="Cartographie Numérique Intégrée des Vulnérabilités de l'Enfant - Sénégal",
     # Sécurité Production : Désactiver la documentation publique
     # Pour réactiver (développement), commenter les 3 lignes suivantes
@@ -75,6 +90,7 @@ app.include_router(absences.router)
 # File Uploads (Photos, Documents)
 app.include_router(uploads.router)
 
+
 # Direct QR Scan Handler (Bypasses router prefixes for shorter URLs)
 @app.get("/q/{token}")
 @limiter.limit("20/minute")
@@ -84,11 +100,13 @@ def handle_root_qr_scan(request: Request, token: str, db: Session = Depends(get_
     if not card:
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
         return RedirectResponse(url=f"{frontend_url}/404")
-    
+
     # Capture User-Agent and client IP for richer tracking
     user_agent = request.headers.get("User-Agent", "")[:255]
-    client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
-    
+    client_ip = request.headers.get(
+        "X-Forwarded-For", request.client.host if request.client else "unknown"
+    )
+
     # Log scan with device info
     scan_log = models.CardScanLog(
         id=uuid.uuid4(),
@@ -97,13 +115,14 @@ def handle_root_qr_scan(request: Request, token: str, db: Session = Depends(get_
         scan_type="qr_web_root",
         device_info=user_agent,
         location_name=f"IP: {client_ip}",
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
     db.add(scan_log)
     db.commit()
-    
+
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
     return RedirectResponse(url=f"{frontend_url}/scan/{card.pupil_id}")
+
 
 @app.get("/")
 async def root():
@@ -112,15 +131,25 @@ async def root():
         "version": "2.3.0",
         "status": "production-ready",
         "modules": [
-            "auth", "pupils", "schools", "vulnerabilities", 
-            "cards", "health", "alerts", "interventions", "reports", "ai", "absences"
+            "auth",
+            "pupils",
+            "schools",
+            "vulnerabilities",
+            "cards",
+            "health",
+            "alerts",
+            "interventions",
+            "reports",
+            "ai",
+            "absences",
         ],
         "endpoints": {
             "health": "/api/health",
             "docs": "/docs",
-            "qr_scan": "/q/{token}"
-        }
+            "qr_scan": "/q/{token}",
+        },
     }
+
 
 @app.get("/api/health")
 async def health_check(db: Session = Depends(get_db)):
@@ -140,17 +169,18 @@ async def health_check(db: Session = Depends(get_db)):
                 "pupils": pupils_count,
                 "cards": cards_count,
                 "total_scans": scans_count,
-                "schools": schools_count
+                "schools": schools_count,
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         return {
             "status": "degraded",
             "service": "CNIVE API",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
