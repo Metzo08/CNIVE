@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import apiClient from '../api/client'
 import { useTranslation } from 'react-i18next'
-import { Search, Plus, UserCircle, ChevronLeft, ChevronRight, Filter, AlertTriangle, Users, Edit, Trash2, Calendar, X, Archive, School as SchoolIcon } from 'lucide-react'
+import { Search, Plus, UserCircle, ChevronLeft, ChevronRight, Filter, AlertTriangle, Users, Edit, Trash2, Calendar, X, Archive, School as SchoolIcon, Phone } from 'lucide-react'
 import ConfirmModal from '../components/ConfirmModal'
 import { getPortalContainer } from '../utils/domSafety'
 import { getPupilPhotoUrl } from '../utils/imageUtils'
@@ -21,6 +21,10 @@ interface Pupil {
     academic_score?: number
     school_id?: string
     school_name?: string
+    contact_parent1_name?: string
+    contact_parent1_phone?: string
+    contact_parent2_name?: string
+    contact_parent2_phone?: string
 }
 
 interface School {
@@ -483,6 +487,47 @@ const PupilsList: React.FC = () => {
                                                 <span className="text-xs font-black text-slate-400 dark:text-slate-500">—</span>
                                             )}
                                         </div>
+                                    </div>
+
+                                    {/* Contact Tuteur / Parent */}
+                                    <div 
+                                        className="rounded-2xl p-3 mb-4 flex items-center justify-between gap-3 border transition-all"
+                                        style={{ backgroundColor: colors.bg, borderColor: colors.border }}
+                                    >
+                                        <div className="flex items-center gap-2.5 min-w-0">
+                                            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                                                <Phone size={14} />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
+                                                    {pupil.contact_parent1_name || 'Tuteur'}
+                                                </p>
+                                                {pupil.contact_parent1_phone ? (
+                                                    <a 
+                                                        href={`tel:${pupil.contact_parent1_phone}`}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="text-xs font-black text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors tracking-wide truncate block"
+                                                        title={`Appeler le tuteur : ${pupil.contact_parent1_phone}`}
+                                                    >
+                                                        {pupil.contact_parent1_phone}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 italic">
+                                                        Non renseigné
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {pupil.contact_parent1_phone && (
+                                            <a 
+                                                href={`tel:${pupil.contact_parent1_phone}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white flex items-center justify-center shrink-0 transition-all border border-emerald-500/20"
+                                                title={`Appeler le ${pupil.contact_parent1_phone}`}
+                                            >
+                                                <Phone size={12} />
+                                            </a>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-wrap gap-2">

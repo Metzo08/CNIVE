@@ -252,6 +252,22 @@ const PupilProfile: React.FC = () => {
                                         : t(`status.${pupil.status.toLowerCase()}`)}
                                 </p></div>
                                 <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.form.address')}</p><p className="text-xl font-black">{pupil.address || '---'}</p></div>
+                                <div>
+                                    <p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">Contact Tuteur / Parent</p>
+                                    <p className="text-xl font-black flex items-center gap-3">
+                                        <span>{pupil.contact_parent1_name || 'Tuteur'}</span>
+                                        {pupil.contact_parent1_phone && (
+                                            <a 
+                                                href={`tel:${pupil.contact_parent1_phone}`} 
+                                                className="text-sm font-bold px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-500 hover:text-white transition-all inline-flex items-center gap-1.5"
+                                                title={`Appeler le ${pupil.contact_parent1_phone}`}
+                                            >
+                                                <span>📞</span>
+                                                <span>{pupil.contact_parent1_phone}</span>
+                                            </a>
+                                        )}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

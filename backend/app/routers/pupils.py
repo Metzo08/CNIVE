@@ -152,6 +152,8 @@ def get_pupils(
                 models.Pupil.first_name.ilike(search_term),
                 models.Pupil.last_name.ilike(search_term),
                 models.Pupil.cnive_id.ilike(search_term),
+                models.Pupil.contact_parent1_phone.ilike(search_term),
+                models.Pupil.contact_parent1_name.ilike(search_term),
             )
         )
     return (
@@ -216,6 +218,8 @@ def get_pupils_count(
                 models.Pupil.first_name.ilike(search_term),
                 models.Pupil.last_name.ilike(search_term),
                 models.Pupil.cnive_id.ilike(search_term),
+                models.Pupil.contact_parent1_phone.ilike(search_term),
+                models.Pupil.contact_parent1_name.ilike(search_term),
             )
         )
 
