@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { 
     Users, AlertCircle, Activity, CreditCard, 
     BarChart3, Zap, Map, Stethoscope, Plus, 
-    LayoutDashboard, School, BrainCircuit 
+    LayoutDashboard, School, BrainCircuit, Info 
 } from 'lucide-react'
 
 interface Stats {
@@ -169,6 +169,12 @@ const Dashboard: React.FC = () => {
                         </div>
                     ) : (
                         <div className="space-y-8">
+                        {vulnerabilityTotal === 0 && (
+                            <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-400 text-xs font-semibold flex items-center gap-3">
+                                <Info size={20} className="shrink-0" />
+                                <span>Cohorte pilote active (1 478 élèves). Les évaluations FEV débuteront dès la validation définitive de la grille ministérielle.</span>
+                            </div>
+                        )}
                         {[
                             { label: t('vulnerability.levels.critical'), count: stats.criticalCases, color: '#ef4444' },
                             { label: t('vulnerability.levels.high'), count: stats.highCases, color: '#f97316' },

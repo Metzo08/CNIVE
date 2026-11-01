@@ -6,6 +6,9 @@ from database import engine
 from sqlalchemy import text
 
 INDEXES_SQL = [
+    # Extension Trigram pour recherche floue instantanée (100k+ élèves)
+    "CREATE EXTENSION IF NOT EXISTS pg_trgm;",
+
     # Écoles
     "CREATE INDEX IF NOT EXISTS idx_schools_code ON schools(code);",
     "CREATE INDEX IF NOT EXISTS idx_schools_name ON schools(name);",
@@ -22,6 +25,9 @@ INDEXES_SQL = [
     "CREATE INDEX IF NOT EXISTS idx_pupils_created_at ON pupils(created_at DESC);",
     "CREATE INDEX IF NOT EXISTS idx_pupils_name ON pupils(last_name, first_name);",
     "CREATE INDEX IF NOT EXISTS idx_pupils_school_status ON pupils(school_id, status);",
+    "CREATE INDEX IF NOT EXISTS idx_pupils_fn_trgm ON pupils USING gin (first_name gin_trgm_ops);",
+    "CREATE INDEX IF NOT EXISTS idx_pupils_ln_trgm ON pupils USING gin (last_name gin_trgm_ops);",
+    "CREATE INDEX IF NOT EXISTS idx_pupils_cnive_trgm ON pupils USING gin (cnive_id gin_trgm_ops);",
     
     # Absences & Académique
     "CREATE INDEX IF NOT EXISTS idx_absences_pupil_date ON absences(pupil_id, date);",
