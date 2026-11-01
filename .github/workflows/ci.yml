@@ -45,8 +45,8 @@ jobs:
 
     - name: Run Backend Tests
       run: |
-        python -c "import test_api; print('=== test_api module loaded successfully ===')"
-        pytest test_api.py -v -ra --tb=short
+        python -c "import test_api" 2>&1 | tee /tmp/import.log || (echo "::error::IMPORT_FAILED: $(cat /tmp/import.log | tr '\n' ' ')"; exit 1)
+        pytest test_api.py -v -ra --tb=short 2>&1 | tee /tmp/pytest.log || (echo "::error::PYTEST_FAILED: $(tail -n 25 /tmp/pytest.log | tr '\n' ' ')"; exit 1)
 
   frontend-check:
     name: Frontend Build & Type Check (React/Vite)
