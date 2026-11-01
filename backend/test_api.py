@@ -36,8 +36,7 @@ def setup_test_database():
 
 @pytest.fixture
 def client():
-    with TestClient(app) as c:
-        yield c
+    return TestClient(app)
 
 
 def test_read_root(client):

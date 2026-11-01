@@ -44,7 +44,9 @@ jobs:
       run: flake8 app main.py --count --select=E9,F63,F7,F82 --show-source --statistics --exit-zero
 
     - name: Run Backend Tests
-      run: pytest test_api.py -v
+      run: |
+        python -c "import test_api; print('=== test_api module loaded successfully ===')"
+        pytest test_api.py -v -ra --tb=short
 
   frontend-check:
     name: Frontend Build & Type Check (React/Vite)
