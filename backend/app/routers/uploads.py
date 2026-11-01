@@ -10,10 +10,70 @@ import io
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 
 # Create uploads directory
-UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR = Path(__file__).resolve().parent.parent.parent / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 (UPLOAD_DIR / "photos").mkdir(exist_ok=True)
 (UPLOAD_DIR / "documents").mkdir(exist_ok=True)
+(UPLOAD_DIR / "drive_cache").mkdir(exist_ok=True)
+
+import httpx
+
+@router.get("/drive/{drive_id}")
+async def get_drive_photo(drive_id: str):
+    """Serve or cache a Google Drive photo with zero 429 rate limit errors (async non-blocking)"""
+    cache_file = UPLOAD_DIR / "drive_cache" / f"{drive_id}.jpg"
+    
+    if not cache_file.exists() or cache_file.stat().st_size == 0:
+        url = f"https://lh3.googleusercontent.com/d/{drive_id}"
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                resp = await client.get(url, headers=headers)
+                if resp.status_code == 200 and len(resp.content) > 100:
+                    with open(cache_file, "wb") as f:
+                        f.write(resp.content)
+                else:
+                    alt_url = f"https://drive.google.com/uc?export=download&id={drive_id}"
+                    resp2 = await client.get(alt_url, headers=headers)
+                    if resp2.status_code == 200 and len(resp2.content) > 100:
+                        with open(cache_file, "wb") as f:
+                            f.write(resp2.content)
+                    else:
+                        raise HTTPException(status_code=404, detail="Photo non accessible")
+        except Exception:
+            raise HTTPException(status_code=404, detail="Photo non disponible")
+
+    if cache_file.exists() and cache_file.stat().st_size > 0:
+        return FileResponse(
+            cache_file, 
+            media_type="image/jpeg",
+            headers={"Cache-Control": "public, max-age=31536000, immutable"}
+        )
+    raise HTTPException(status_code=404, detail="Photo introuvable")
+
+@router.get("/photos/{filename}")
+@router.get("/drive_cache/{filename}")
+@router.get("/file/{filename}")
+@router.get("/direct/{filename}")
+@router.get("/{filename}")
+async def get_root_upload(filename: str):
+    """Serve any file located in uploads/, uploads/photos/, or uploads/drive_cache/"""
+    safe_name = os.path.basename(filename)
+    filepath = UPLOAD_DIR / safe_name
+    if filepath.exists() and filepath.is_file():
+        return FileResponse(filepath, headers={"Cache-Control": "public, max-age=31536000"})
+    
+    # Also check uploads/photos
+    sub_filepath = UPLOAD_DIR / "photos" / safe_name
+    if sub_filepath.exists() and sub_filepath.is_file():
+        return FileResponse(sub_filepath, headers={"Cache-Control": "public, max-age=31536000"})
+        
+    # Also check uploads/drive_cache
+    cache_filepath = UPLOAD_DIR / "drive_cache" / safe_name
+    if cache_filepath.exists() and cache_filepath.is_file():
+        return FileResponse(cache_filepath, headers={"Cache-Control": "public, max-age=31536000"})
+
+    raise HTTPException(status_code=404, detail="Fichier non trouvé")
 
 ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB (allow larger uploads then compress)

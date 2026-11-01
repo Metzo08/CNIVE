@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { Search, Plus, UserCircle, ChevronLeft, ChevronRight, Filter, AlertTriangle, Users, Edit, Trash2, Calendar, X, Archive } from 'lucide-react'
 import ConfirmModal from '../components/ConfirmModal'
 import { getPortalContainer } from '../utils/domSafety'
+import { getPupilPhotoUrl } from '../utils/imageUtils'
 
 interface Pupil {
     id: string
@@ -281,13 +282,21 @@ const PupilsList: React.FC = () => {
                                     </div>
 
                                     <div className="flex items-center gap-5 mb-6">
-                                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white overflow-hidden shadow-inner shrink-0" 
+                                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white overflow-hidden shadow-inner shrink-0 relative" 
                                              style={{ backgroundColor: getAvatarColor(pupil.first_name) }}>
                                             {pupil.photo_url ? (
-                                                <img src={pupil.photo_url} className="w-full h-full object-cover" alt="" />
-                                            ) : (
-                                                getInitials(pupil.first_name, pupil.last_name)
-                                            )}
+                                                <img 
+                                                    src={getPupilPhotoUrl(pupil.photo_url)} 
+                                                    className="w-full h-full object-cover absolute inset-0" 
+                                                    alt={`${pupil.first_name} ${pupil.last_name}`}
+                                                    loading="lazy"
+                                                    referrerPolicy="no-referrer"
+                                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                />
+                                            ) : null}
+                                            <span className="select-none pointer-events-none">
+                                                {getInitials(pupil.first_name, pupil.last_name)}
+                                            </span>
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="font-black text-lg truncate pr-12">{pupil.first_name} {pupil.last_name}</h3>

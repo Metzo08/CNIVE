@@ -1,3 +1,26 @@
+import { API_URL } from '../config';
+
+/**
+ * Resolves pupil photo URL reliably:
+ * - Google Drive / lh3 URLs are routed through our local high-speed cached proxy `/uploads/drive/{id}`
+ *   which completely eliminates Google's 429 "Too Many Requests" rate limiting on client browsers!
+ * - Local /uploads paths are prefixed with the backend API URL.
+ */
+export const getPupilPhotoUrl = (url?: string | null): string | undefined => {
+    if (!url) return undefined;
+    
+    const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (driveMatch) {
+        return `${API_URL}/uploads/drive/${driveMatch[1]}`;
+    }
+    
+    if (url.startsWith('/uploads')) {
+        return `${API_URL}${url}`;
+    }
+    
+    return url;
+};
+
 /**
  * Utility function to compress and resize an image file before upload.
  * Reduces bandwidth usage and server storage costs.

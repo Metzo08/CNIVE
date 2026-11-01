@@ -11,6 +11,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { CreditCard, QrCode, Activity, Users, User, MapPin, Plus, History, BarChart3, Download, Printer, Settings, Eye, Info, Smartphone, ShieldCheck, X, School as SchoolIcon, Phone, Heart, AlertTriangle, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react'
+import { getPupilPhotoUrl } from '../utils/imageUtils'
 
 // Custom marker icon for Leaflet
 const createIcon = (color: string) => L.divIcon({
@@ -704,15 +705,20 @@ const CardsManagement: React.FC = () => {
 
                             {/* Identity — compact row */}
                             <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                                <div style={{ width: '72px', height: '72px', flexShrink: 0, borderRadius: '50%', border: '3px solid #4f46e5', overflow: 'hidden', backgroundColor: '#1e293b', position: 'relative' }}>
+                                <div style={{ width: '72px', height: '72px', flexShrink: 0, borderRadius: '50%', border: '3px solid #4f46e5', overflow: 'hidden', backgroundColor: '#1e293b', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {selectedPupilDetails.photo_url ? (
-                                        <img src={selectedPupilDetails.photo_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
-                                            <Users size={36} />
-                                        </div>
-                                    )}
-                                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: '22px', height: '22px', backgroundColor: '#4f46e5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0f172a' }}>
+                                        <img 
+                                            src={getPupilPhotoUrl(selectedPupilDetails.photo_url)} 
+                                            alt="Profile" 
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} 
+                                            referrerPolicy="no-referrer"
+                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                        />
+                                    ) : null}
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
+                                        <Users size={36} />
+                                    </div>
+                                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: '22px', height: '22px', backgroundColor: '#4f46e5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0f172a', zIndex: 2 }}>
                                         <ShieldCheck size={12} color="white" />
                                     </div>
                                 </div>
@@ -834,12 +840,17 @@ const CardsManagement: React.FC = () => {
                                 {/* Body */}
                                 <div style={{ display: 'flex', width: '100%', gap: '10px', flex: 1 }}>
                                     {/* Photo Placeholder / Image */}
-                                    <div style={{ width: '22mm', height: '28mm', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ width: '22mm', height: '28mm', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                                         {cardData.photo_url ? (
-                                            <img src={cardData.photo_url.startsWith('http') ? cardData.photo_url : `${apiClient.defaults.baseURL || ''}${cardData.photo_url}`} alt="Élève" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : (
-                                            <User size={30} color="#94a3b8" />
-                                        )}
+                                            <img 
+                                                src={getPupilPhotoUrl(cardData.photo_url)} 
+                                                alt="Élève" 
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} 
+                                                referrerPolicy="no-referrer"
+                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                            />
+                                        ) : null}
+                                        <User size={30} color="#94a3b8" />
                                     </div>
                                     
                                     {/* Information */}
