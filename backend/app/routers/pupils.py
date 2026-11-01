@@ -94,7 +94,12 @@ def get_pupils(
         user_id=str(current_user.id),
         user_email=current_user.email,
         ip_address=request.client.host if request and request.client else None,
-        metadata={"search": search, "status": status, "school_id": str(school_id) if school_id else None, "limit": limit},
+        metadata={
+            "search": search,
+            "status": status,
+            "school_id": str(school_id) if school_id else None,
+            "limit": limit,
+        },
     )
 
     query = db.query(models.Pupil).options(joinedload(models.Pupil.school))
