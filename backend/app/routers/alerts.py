@@ -63,7 +63,6 @@ _notified_keys: set = set()
 
 def send_simulated_notification(alert: dict, key: str):
     """Simulates sending a notification via Email or SMS to the correct stakeholder."""
-    global _notified_keys
     if key in _notified_keys:
         return  # Already notified, skip
     _notified_keys.add(key)
@@ -94,7 +93,7 @@ def sync_alerts_with_data(db: Session, notify: bool = True):
         notify: If True, fire simulated SMS/Email for new alerts.
                 Set to False for lightweight polling (unread-count).
     """
-    global _initial_sync_done, alerts_registry
+    global _initial_sync_done
 
     # Nettoyage dynamique: supprimer toute alerte orpheline ou obsolète
     try:
