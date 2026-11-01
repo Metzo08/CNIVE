@@ -6,6 +6,7 @@ from database import get_db
 from app.models import models
 from app.utils.auth import get_current_user
 from app.routers.audit import log_action
+from app.utils.scoping import verify_pupil_access
 import uuid
 from datetime import datetime
 from enum import Enum
@@ -86,6 +87,7 @@ def create_intervention(
     )
     if not pupil:
         raise HTTPException(status_code=404, detail="Élève non trouvé")
+    verify_pupil_access(pupil, current_user)
 
     new_intervention = models.Intervention(
         id=uuid.uuid4(),
@@ -169,7 +171,22 @@ def get_interventions(
         ip_address=request.client.host if request and request.client else None,
     )
 
-    query = db.query(models.Intervention)
+    query = db.query(models.Intervention).join(
+        models.Pupil, models.Pupil.id == models.Intervention.pupil_id
+    )
+    if current_user.role == models.UserRole.SCHOOL_DIRECTOR:
+        if current_user.school_id:
+            query = query.filter(models.Pupil.school_id == current_user.school_id)
+        else:
+            return []
+    elif current_user.role == models.UserRole.TEACHER:
+        if current_user.school_id:
+            query = query.filter(models.Pupil.school_id == current_user.school_id)
+            if getattr(current_user, "grade", None):
+                query = query.filter(models.Pupil.grade == current_user.grade)
+        else:
+            return []
+
     if status:
         status_map = {
             "planned": models.InterventionStatus.PENDING,

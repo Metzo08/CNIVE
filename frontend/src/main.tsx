@@ -34,3 +34,12 @@ if (rootElement) {
         </ErrorBoundary>
     );
 }
+
+// Enregistrement du Service Worker PWA (Mode hors-ligne)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.warn('Enregistrement Service Worker PWA ignoré :', err);
+        });
+    });
+}

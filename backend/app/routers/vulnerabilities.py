@@ -255,3 +255,79 @@ def get_vulnerability_stats(
             "CRITICAL": classification_counts.get("CRITICAL", 0),
         },
     }
+
+
+class BatchAssessmentItem(BaseModel):
+    pupil_id: uuid.UUID
+    scores: DimensionScoresFEV
+    comments: Optional[str] = None
+
+
+class BatchAssessmentRequest(BaseModel):
+    assessments: List[BatchAssessmentItem]
+
+
+@router.post("/batch-assess")
+def batch_create_assessments(
+    payload: BatchAssessmentRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+    request: Request = None,
+):
+    """Enregistre une campagne d'évaluations FEV par classe en lot"""
+    results = []
+    for item in payload.assessments:
+        pupil = db.query(models.Pupil).filter(models.Pupil.id == item.pupil_id).first()
+        if not pupil:
+            continue
+        try:
+            verify_pupil_access(pupil, current_user)
+        except HTTPException:
+            continue
+
+        scores_dict = item.scores.dict()
+        res = assess_vulnerability(scores_dict)
+
+        new_assessment = models.VulnerabilityAssessment(
+            pupil_id=item.pupil_id,
+            assessor_id=current_user.id,
+            economic_score=res["dimension_scores"]["economic"],
+            school_score=res["dimension_scores"]["school"],
+            health_nutrition_score=res["dimension_scores"]["health_nutrition"],
+            family_social_score=res["dimension_scores"]["family_social"],
+            protection_score=res["dimension_scores"]["protection"],
+            environmental_score=res["dimension_scores"]["environmental"],
+            total_score=res["total_score"],
+            classification=res["classification"],
+            raw_scores=json.dumps(scores_dict),
+            comments=item.comments,
+        )
+        db.add(new_assessment)
+        results.append(
+            {
+                "pupil_id": str(pupil.id),
+                "cnive_id": pupil.cnive_id,
+                "pupil_name": f"{pupil.first_name} {pupil.last_name}",
+                "total_score": res["total_score"],
+                "classification": res["classification"],
+            }
+        )
+
+    db.commit()
+
+    log_action(
+        db,
+        models.AuditActionType.EDIT_VULNERABILITY,
+        user_id=str(current_user.id),
+        user_email=current_user.email,
+        resource_type="batch_vulnerability_assessment",
+        resource_id=str(current_user.school_id) if current_user.school_id else "global",
+        ip_address=request.client.host if request and request.client else None,
+        metadata={"count": len(results), "model": "FEV_BATCH"},
+    )
+
+    return {
+        "success": True,
+        "count": len(results),
+        "assessments": results,
+    }

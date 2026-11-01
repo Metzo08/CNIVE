@@ -9,7 +9,7 @@ from app.utils.qr_service import generate_tracking_qr, generate_referral_qr
 from app.utils.auth import get_current_user, decode_access_token
 from app.utils.scoping import verify_pupil_access
 from app.utils.limiter import limiter
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, or_
 import uuid
 import os
 from datetime import datetime, timedelta
@@ -764,3 +764,203 @@ def get_card_details(
         "status": card.status.value if card.status else "ACTIVE",
         "created_at": card.created_at.isoformat() if card.created_at else None,
     }
+
+
+class ServiceScanRequest(BaseModel):
+    token: str
+    service_type: str = (
+        "CANTINE"  # CANTINE, KIT_SCOLAIRE, VISITE_SANTE, POINTAGE, AIDE_URGENCE
+    )
+    location_name: Optional[str] = None
+    device_info: Optional[str] = "Scanner Web Caméra"
+    notes: Optional[str] = None
+    lat: Optional[float] = None
+    lon: Optional[float] = None
+
+
+@router.post("/service-scan")
+def scan_service(
+    request: ServiceScanRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Enregistre un service social, cantine ou scolaire lié à la Sen-e-Carte"""
+    token_str = request.token.strip()
+
+    # Recherche par qr_token ou card_number
+    card = (
+        db.query(models.Card)
+        .filter(
+            or_(
+                models.Card.qr_token == token_str,
+                models.Card.card_number == token_str,
+            )
+        )
+        .first()
+    )
+
+    pupil = None
+    if card:
+        pupil = db.query(models.Pupil).filter(models.Pupil.id == card.pupil_id).first()
+    else:
+        # Recherche alternative par CNIVE ID
+        pupil = (
+            db.query(models.Pupil)
+            .filter(
+                or_(
+                    models.Pupil.cnive_id == token_str,
+                    func.lower(models.Pupil.cnive_id) == token_str.lower(),
+                )
+            )
+            .first()
+        )
+        if pupil:
+            card = (
+                db.query(models.Card).filter(models.Card.pupil_id == pupil.id).first()
+            )
+
+    if not pupil:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Aucun élève trouvé pour le code '{token_str}'",
+        )
+
+    verify_pupil_access(pupil, current_user)
+
+    if not card:
+        card = models.Card(
+            pupil_id=pupil.id,
+            qr_token=token_str if len(token_str) <= 32 else str(uuid.uuid4())[:8],
+            status=models.CardStatus.ACTIVE,
+        )
+        db.add(card)
+        db.commit()
+        db.refresh(card)
+
+    school = (
+        db.query(models.School).filter(models.School.id == pupil.school_id).first()
+        if pupil.school_id
+        else None
+    )
+    loc_name = request.location_name or (
+        school.name if school else "Établissement scolaire"
+    )
+
+    scan_log = models.CardScanLog(
+        card_id=card.id,
+        scanner_id=current_user.id,
+        scanner_role=current_user.role.value if current_user.role else "USER",
+        scan_type=request.service_type,
+        location_name=loc_name,
+        location_lat=request.lat,
+        location_lon=request.lon,
+        device_info=request.device_info,
+    )
+    db.add(scan_log)
+    db.commit()
+
+    health = (
+        db.query(models.HealthRecord)
+        .filter(models.HealthRecord.pupil_id == pupil.id)
+        .first()
+    )
+    latest_fev = (
+        db.query(models.VulnerabilityAssessment)
+        .filter(models.VulnerabilityAssessment.pupil_id == pupil.id)
+        .order_by(desc(models.VulnerabilityAssessment.created_at))
+        .first()
+    )
+
+    service_labels = {
+        "CANTINE": "Repas de cantine scolaire",
+        "KIT_SCOLAIRE": "Kit de fournitures & uniforme",
+        "VISITE_SANTE": "Visite médicale / Contrôle CMU",
+        "POINTAGE": "Pointage de présence",
+        "AIDE_URGENCE": "Appui social d'urgence",
+    }
+    label = service_labels.get(request.service_type, request.service_type)
+
+    return {
+        "success": True,
+        "service_type": request.service_type,
+        "service_label": label,
+        "timestamp": (
+            scan_log.timestamp.isoformat()
+            if scan_log.timestamp
+            else datetime.utcnow().isoformat()
+        ),
+        "pupil": {
+            "id": str(pupil.id),
+            "name": f"{pupil.first_name} {pupil.last_name}",
+            "cnive_id": pupil.cnive_id,
+            "grade": pupil.grade or "Non spécifiée",
+            "school_name": school.name if school else "Non spécifiée",
+            "photo_url": pupil.photo_url,
+            "cmu_enrolled": bool(health.cmu_enrolled) if health else False,
+            "vulnerability_level": (
+                latest_fev.classification.value
+                if latest_fev and hasattr(latest_fev.classification, "value")
+                else (str(latest_fev.classification) if latest_fev else "NON_EVALUE")
+            ),
+        },
+        "message": f"Service enregistré : {label} validé pour {pupil.first_name} {pupil.last_name} ({pupil.cnive_id})",
+    }
+
+
+@router.get("/services/recent")
+def get_recent_service_scans(
+    limit: int = 25,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Retourne l'historique récent des scans de services dans le périmètre de l'utilisateur"""
+    query = (
+        db.query(models.CardScanLog, models.Card, models.Pupil)
+        .join(models.Card, models.Card.id == models.CardScanLog.card_id)
+        .join(models.Pupil, models.Pupil.id == models.Card.pupil_id)
+    )
+    if current_user.role == models.UserRole.SCHOOL_DIRECTOR:
+        if current_user.school_id:
+            query = query.filter(models.Pupil.school_id == current_user.school_id)
+        else:
+            return []
+    elif current_user.role == models.UserRole.TEACHER:
+        if current_user.school_id:
+            query = query.filter(models.Pupil.school_id == current_user.school_id)
+            if getattr(current_user, "grade", None):
+                query = query.filter(models.Pupil.grade == current_user.grade)
+        else:
+            return []
+
+    logs = query.order_by(desc(models.CardScanLog.timestamp)).limit(limit).all()
+
+    service_labels = {
+        "CANTINE": "Cantine Scolaire",
+        "KIT_SCOLAIRE": "Kit Fournitures",
+        "VISITE_SANTE": "Visite Santé",
+        "POINTAGE": "Pointage",
+        "AIDE_URGENCE": "Aide d'Urgence",
+        "qr": "Consultation QR",
+        "nfc": "Lecture NFC",
+    }
+
+    results = []
+    for scan_log, card, pupil in logs:
+        results.append(
+            {
+                "id": str(scan_log.id),
+                "timestamp": (
+                    scan_log.timestamp.isoformat() if scan_log.timestamp else None
+                ),
+                "service_type": scan_log.scan_type,
+                "service_label": service_labels.get(
+                    scan_log.scan_type, scan_log.scan_type
+                ),
+                "location": scan_log.location_name,
+                "pupil_name": f"{pupil.first_name} {pupil.last_name}",
+                "cnive_id": pupil.cnive_id,
+                "grade": pupil.grade,
+                "photo_url": pupil.photo_url,
+            }
+        )
+    return results

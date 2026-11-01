@@ -12,6 +12,7 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { CreditCard, QrCode, Activity, Users, User, MapPin, Plus, History, BarChart3, Download, Printer, Settings, Eye, Info, Smartphone, ShieldCheck, X, School as SchoolIcon, Phone, Heart, AlertTriangle, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react'
 import { getPupilPhotoUrl } from '../utils/imageUtils'
+import CardServiceScanner from '../components/CardServiceScanner'
 
 // Custom marker icon for Leaflet
 const createIcon = (color: string) => L.divIcon({
@@ -262,6 +263,7 @@ const CardsManagement: React.FC = () => {
             <div style={{ display: 'flex', gap: '8px', marginBottom: '40px', backgroundColor: `${colors.card}50`, padding: '8px', borderRadius: '24px', width: 'fit-content', flexWrap: 'wrap' }}>
                 {[
                     { id: 'overview', label: t('cards.tabs.overview'), icon: <BarChart3 size={18}/> },
+                    { id: 'scanner', label: "Scanner & Prestations", icon: <QrCode size={18}/> },
                     (user?.role === 'GTE_ADMIN' || user?.role === 'SCHOOL_DIRECTOR') ? { id: 'generate', label: t('cards.tabs.generate'), icon: <Plus size={18}/> } : null,
                     { id: 'history', label: t('cards.tabs.history'), icon: <History size={18}/> }
                 ].filter(Boolean).map((tab: any) => (
@@ -492,6 +494,10 @@ const CardsManagement: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {activeTab === 'scanner' && (
+                <CardServiceScanner />
             )}
 
             {activeTab === 'generate' && (

@@ -37,6 +37,18 @@ const Layout: React.FC = () => {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [langMenuOpen, setLangMenuOpen] = useState(false)
+    const [isOnline, setIsOnline] = useState(navigator.onLine)
+
+    useEffect(() => {
+        const handleOnline = () => setIsOnline(true)
+        const handleOffline = () => setIsOnline(false)
+        window.addEventListener('online', handleOnline)
+        window.addEventListener('offline', handleOffline)
+        return () => {
+            window.removeEventListener('online', handleOnline)
+            window.removeEventListener('offline', handleOffline)
+        }
+    }, [])
 
     useEffect(() => {
         const fetchCounts = async () => {
@@ -346,6 +358,13 @@ const Layout: React.FC = () => {
                     sidebarCollapsed ? 'lg:ml-24' : 'lg:ml-[290px]'
                 }`}
             >
+                {/* Bandeau Hors-Ligne */}
+                {!isOnline && (
+                    <div className="bg-amber-500/90 text-slate-950 px-4 py-2 text-center text-xs font-black tracking-wide flex items-center justify-center gap-2 shadow-md z-50">
+                        <span>📶 Mode Hors-Ligne Actif</span>
+                        <span className="opacity-80 font-medium">— Vos consultations restent disponibles depuis le cache local PWA</span>
+                    </div>
+                )}
                 {/* Header Moderne */}
                 <header 
                     className="sticky top-0 z-30 h-16 md:h-18 px-4 md:px-8 flex items-center justify-between backdrop-blur-2xl border-b border-slate-200/60 dark:border-white/5" 
