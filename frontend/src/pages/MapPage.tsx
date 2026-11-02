@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Popup, CircleMarker, Circle } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import apiClient from '../api/client'
 import { useTheme } from '../context/ThemeContext'
 import { useTranslation } from 'react-i18next'
-import { Map as MapIcon, Filter, Layers, Navigation, Info, School as SchoolIcon, Users, Plus, X, MapPin } from 'lucide-react'
+import { Map as MapIcon, Filter, Navigation, Info, School as SchoolIcon, Users, Plus, X, Eye } from 'lucide-react'
 
 // Fix for default marker icons in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -28,6 +29,7 @@ interface School {
 const MapPage: React.FC = () => {
     const { t } = useTranslation()
     const { colors } = useTheme()
+    const navigate = useNavigate()
     const [schools, setSchools] = useState<School[]>([])
     const [selectedFilter, setSelectedFilter] = useState('all')
     const [showForm, setShowForm] = useState(false)
@@ -94,7 +96,7 @@ const MapPage: React.FC = () => {
     }
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '80px' }}>
+        <div className="max-w-7xl mx-auto pb-20">
             {/* Success Toast */}
             {success && (
                 <div style={{
@@ -106,57 +108,42 @@ const MapPage: React.FC = () => {
                 </div>
             )}
             {/* Premium Header */}
-            <div style={{
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
-                borderRadius: '32px', padding: '48px', marginBottom: '40px',
-                position: 'relative', overflow: 'hidden', boxShadow: '0 20px 40px rgba(37, 99, 235, 0.2)'
-            }}>
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '32px' }}>
-                    <div style={{ width: '96px', height: '96px', borderRadius: '28px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                        <MapIcon size={48} />
-                    </div>
-                    <div>
-                        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{t('map.title')}</h1>
-                        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', fontWeight: 500 }}>{t('map.subtitle')}</p>
+            <div className="rounded-3xl md:rounded-[32px] p-6 sm:p-8 md:p-12 mb-8 md:mb-10 relative overflow-hidden shadow-xl"
+                 style={{
+                     background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
+                     boxShadow: '0 20px 40px rgba(37, 99, 235, 0.2)'
+                 }}>
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4 md:gap-8">
+                        <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[28px] bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0">
+                            <MapIcon size={40} />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-2">{t('map.title')}</h1>
+                            <p className="text-white/90 text-sm sm:text-base md:text-lg font-medium">{t('map.subtitle')}</p>
+                        </div>
                     </div>
                     <button 
                         onClick={() => setShowForm(true)}
-                        style={{
-                            marginLeft: 'auto',
-                            backgroundColor: 'white',
-                            color: colors.primary,
-                            padding: '16px 32px',
-                            borderRadius: '20px',
-                            border: 'none',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-                            transition: 'transform 0.2s'
-                        }}
+                        className="bg-white px-6 py-4 rounded-2xl font-extrabold cursor-pointer flex items-center justify-center gap-3 shadow-lg transition-transform hover:scale-105 active:scale-95 shrink-0"
+                        style={{ color: colors.primary }}
                     >
-                        <Plus size={20}/> {t('map.add_school') || 'Nouvelle École'}
+                        <Plus size={20}/> {t('map.add_school') || 'Nouvelle école'}
                     </button>
                 </div>
                 <div style={{ position: 'absolute', top: '-20%', right: '-5%', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', filter: 'blur(40px)' }} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '32px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 md:gap-8">
+                <div className="flex flex-col gap-6">
                     {/* Map Container */}
-                    <div style={{ 
-                        height: '600px', borderRadius: '32px', overflow: 'hidden', 
-                        border: `1px solid ${colors.border}10`, position: 'relative',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-                    }}>
+                    <div className="h-[380px] sm:h-[480px] lg:h-[600px] rounded-3xl md:rounded-[32px] overflow-hidden relative shadow-xl border"
+                         style={{ borderColor: `${colors.border}10` }}>
                         <MapContainer center={pikineCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Openstreetmap</a>'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-                            {/* Zone d'intervention Nous Cims - interactive=false pour ne pas bloquer les clics */}
                             <Circle 
                                 center={pikineCenter} 
                                 radius={4500} 
@@ -196,9 +183,33 @@ const MapPage: React.FC = () => {
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
                                                         <Users size={14} color={colors.primary}/> <span style={{ color: '#64748b' }}>{school.pupil_count || 0} {t('map.beneficiaries')}</span>
                                                     </div>
-                                                    <div style={{ marginTop: '8px', padding: '10px', borderRadius: '12px', backgroundColor: getMarkerColor(school.avg_vulnerability) + '15', color: getMarkerColor(school.avg_vulnerability), fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>
+                                                    <div style={{ marginTop: '4px', padding: '10px', borderRadius: '12px', backgroundColor: getMarkerColor(school.avg_vulnerability) + '15', color: getMarkerColor(school.avg_vulnerability), fontWeight: 800, fontSize: '0.9rem', textAlign: 'center' }}>
                                                         {t('map.score')}: {school.avg_vulnerability && !isNaN(Number(school.avg_vulnerability)) ? Number(school.avg_vulnerability).toFixed(1) : 'N/A'}
                                                     </div>
+                                                    {school.id && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => navigate(`/pupils?school_id=${school.id}`)}
+                                                            style={{
+                                                                marginTop: '6px',
+                                                                width: '100%',
+                                                                padding: '10px 14px',
+                                                                borderRadius: '12px',
+                                                                border: 'none',
+                                                                backgroundColor: colors.primary,
+                                                                color: 'white',
+                                                                fontWeight: 800,
+                                                                fontSize: '0.8rem',
+                                                                cursor: 'pointer',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                gap: '6px'
+                                                            }}
+                                                        >
+                                                            <Eye size={14} /> Voir les élèves
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         </Popup>
@@ -207,13 +218,13 @@ const MapPage: React.FC = () => {
                         </MapContainer>
 
                         {/* Map Overlay Controls */}
-                        <div style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <div style={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '12px', borderRadius: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-3">
+                            <div style={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '10px 14px', borderRadius: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <Filter size={18} color="#2563eb"/>
                                 <select 
                                     value={selectedFilter} 
                                     onChange={(e) => setSelectedFilter(e.target.value)}
-                                    style={{ border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.9rem', color: '#1e293b', outline: 'none', cursor: 'pointer' }}
+                                    style={{ border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.85rem', color: '#1e293b', outline: 'none', cursor: 'pointer' }}
                                 >
                                     <option value="all">{t('map.all_schools')}</option>
                                     <option value="critical">{t('map.critical_cases')}</option>
@@ -225,38 +236,38 @@ const MapPage: React.FC = () => {
                 </div>
 
                 {/* Sidebar Info */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div style={{ backgroundColor: colors.card, borderRadius: '24px', padding: '32px', border: `1px solid ${colors.border}10` }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+                    <div className="rounded-3xl p-6 md:p-8 border" style={{ backgroundColor: colors.card, borderColor: `${colors.border}10` }}>
+                        <h3 className="text-base font-extrabold mb-6 flex items-center gap-2.5">
                             <Info size={18} color={colors.primary}/> {t('map.legend')}
                         </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div className="flex flex-col gap-4">
                             {[
                                 { label: `${t('vulnerability.low')} (0-25)`, color: '#10b981' },
                                 { label: `${t('vulnerability.moderate')} (26-50)`, color: '#f59e0b' },
                                 { label: `${t('vulnerability.high')} (51-75)`, color: '#f97316' },
                                 { label: `${t('vulnerability.critical')} (76+)`, color: '#ef4444' }
                             ].map((item, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div key={i} className="flex items-center gap-3">
                                     <div style={{ width: '12px', height: '12px', borderRadius: '4px', backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}40` }} />
-                                    <span style={{ fontSize: '0.9rem', fontWeight: 600, color: colors.textSecondary }}>{item.label}</span>
+                                    <span className="text-sm font-semibold" style={{ color: colors.textSecondary }}>{item.label}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div style={{ backgroundColor: colors.card, borderRadius: '24px', padding: '32px', border: `1px solid ${colors.border}10` }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="rounded-3xl p-6 md:p-8 border" style={{ backgroundColor: colors.card, borderColor: `${colors.border}10` }}>
+                        <h3 className="text-base font-extrabold mb-6 flex items-center gap-2.5">
                             <SchoolIcon size={18} color={colors.primary}/> {t('map.zone_stats')}
                         </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <div className="flex flex-col gap-6">
                             <div>
-                                <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, color: colors.textSecondary }}>{t('map.followed_schools')}</p>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '2rem', fontWeight: 900, color: colors.primary }}>{schools.length}</p>
+                                <p className="m-0 text-xs font-bold" style={{ color: colors.textSecondary }}>{t('map.followed_schools')}</p>
+                                <p className="mt-1 mb-0 text-3xl font-black" style={{ color: colors.primary }}>{schools.length}</p>
                             </div>
                             <div>
-                                <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, color: colors.textSecondary }}>{t('map.coverage')}</p>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '1.25rem', fontWeight: 800 }}>Pikine - guédiawaye</p>
+                                <p className="m-0 text-xs font-bold" style={{ color: colors.textSecondary }}>{t('map.coverage')}</p>
+                                <p className="mt-1 mb-0 text-xl font-extrabold">Pikine - guédiawaye</p>
                             </div>
                         </div>
                     </div>
@@ -302,56 +313,47 @@ const MapPage: React.FC = () => {
                 .popup-text {
                     color: #64748b !important;
                 }
-                .premium-tooltip::before {
-                    display: none !important;
-                }
-                .leaflet-tooltip-top.premium-tooltip:before,
-                .leaflet-tooltip-bottom.premium-tooltip:before,
-                .leaflet-tooltip-left.premium-tooltip:before,
-                .leaflet-tooltip-right.premium-tooltip:before {
-                    display: none !important;
-                }
             `}</style>
 
             {/* Form Modal */}
             {showForm && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '24px' }} onClick={() => setShowForm(false)}>
-                    <div style={{ backgroundColor: colors.card, borderRadius: '32px', padding: '40px', maxWidth: '600px', width: '100%', boxShadow: '0 30px 60px rgba(0,0,0,0.5)', position: 'relative' }} onClick={e => e.stopPropagation()}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '16px' }} onClick={() => setShowForm(false)}>
+                    <div className="rounded-3xl p-6 md:p-10 max-w-xl w-full relative shadow-2xl" style={{ backgroundColor: colors.card }} onClick={e => e.stopPropagation()}>
                         <button onClick={() => setShowForm(false)} style={{ position: 'absolute', top: '24px', right: '24px', background: 'transparent', border: 'none', color: colors.textSecondary, cursor: 'pointer' }}><X size={24}/></button>
                         
-                        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <SchoolIcon size={32} color={colors.primary}/> {t('map.add_school') || 'Ajouter une école'}
+                        <h2 className="text-xl md:text-2xl font-extrabold mb-8 flex items-center gap-3 pr-8">
+                            <SchoolIcon size={28} color={colors.primary}/> {t('map.add_school') || 'Ajouter une école'}
                         </h2>
 
                         <form onSubmit={handleSubmit}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                            <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4 mb-4">
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: colors.textSecondary }}>{t('map.school_name') || 'Nom de l\'école'}</label>
+                                    <label className="block mb-2 text-xs font-bold" style={{ color: colors.textSecondary }}>{t('map.school_name') || 'Nom de l\'école'}</label>
                                     <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={inputStyle} required />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: colors.textSecondary }}>{t('map.code') || 'Code'}</label>
+                                    <label className="block mb-2 text-xs font-bold" style={{ color: colors.textSecondary }}>{t('map.code') || 'Code'}</label>
                                     <input type="text" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} style={inputStyle} required />
                                 </div>
                             </div>
 
-                            <div style={{ marginBottom: '20px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: colors.textSecondary }}>{t('map.address') || 'Adresse'}</label>
+                            <div className="mb-4">
+                                <label className="block mb-2 text-xs font-bold" style={{ color: colors.textSecondary }}>{t('map.address') || 'Adresse'}</label>
                                 <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={inputStyle} required />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: colors.textSecondary }}>Latitude</label>
+                                    <label className="block mb-2 text-xs font-bold" style={{ color: colors.textSecondary }}>Latitude</label>
                                     <input type="number" step="any" value={formData.latitude} onChange={e => setFormData({...formData, latitude: parseFloat(e.target.value)})} style={inputStyle} required />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: colors.textSecondary }}>Longitude</label>
+                                    <label className="block mb-2 text-xs font-bold" style={{ color: colors.textSecondary }}>Longitude</label>
                                     <input type="number" step="any" value={formData.longitude} onChange={e => setFormData({...formData, longitude: parseFloat(e.target.value)})} style={inputStyle} required />
                                 </div>
                             </div>
 
-                            {error && <p style={{ color: '#ef4444', marginBottom: '20px', fontSize: '0.9rem', fontWeight: 600 }}>{error}</p>}
+                            {error && <p className="text-red-500 mb-4 text-sm font-semibold">{error}</p>}
 
                             <button 
                                 type="submit" 

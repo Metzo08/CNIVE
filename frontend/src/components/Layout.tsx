@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
@@ -438,7 +438,9 @@ const Layout: React.FC = () => {
                 {/* Contenu Page avec cloisonnement ErrorBoundary */}
                 <div className="flex-1 p-4 md:p-8 lg:p-10 pb-24 lg:pb-8 animate-in fade-in zoom-in-95 duration-500">
                     <ErrorBoundary key={location.pathname} fallbackTitle="Interruption sur cette page">
-                        <Outlet />
+                        <Suspense fallback={<div className="flex items-center justify-center py-24"><div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" /></div>}>
+                            <Outlet />
+                        </Suspense>
                     </ErrorBoundary>
                 </div>
             </main>

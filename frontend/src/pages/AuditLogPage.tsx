@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { useTranslation } from 'react-i18next'
 import apiClient from '../api/client'
-import { ClipboardList, Shield, Search, Filter, Calendar, Terminal, User, Globe, ArrowRight, Activity, ShieldCheck, ShieldAlert, Lock } from 'lucide-react'
+import { ClipboardList, Shield, Search, Terminal, Globe, Activity, ShieldCheck, ShieldAlert, Lock } from 'lucide-react'
 
 interface AuditLog {
     id: string
@@ -95,24 +95,25 @@ const AuditLogPage: React.FC = () => {
         : logs
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '80px' }}>
-            <div style={{
-                background: 'linear-gradient(135deg, #475569 0%, #334155 50%, #1e293b 100%)',
-                borderRadius: '32px', padding: '48px', marginBottom: '40px',
-                position: 'relative', overflow: 'hidden', boxShadow: '0 20px 40px rgba(30, 41, 59, 0.2)'
-            }}>
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                        <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                            <Shield size={40} />
+        <div className="max-w-7xl mx-auto pb-20">
+            <div className="rounded-3xl md:rounded-[32px] p-6 sm:p-8 md:p-12 mb-8 md:mb-10 relative overflow-hidden shadow-xl"
+                 style={{
+                     background: 'linear-gradient(135deg, #475569 0%, #334155 50%, #1e293b 100%)',
+                     boxShadow: '0 20px 40px rgba(30, 41, 59, 0.2)'
+                 }}>
+                <div className="relative z-10 flex flex-col md:flex-row justify-between md:items-center gap-6">
+                    <div className="flex items-center gap-4 md:gap-8">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0">
+                            <Shield size={36} />
                         </div>
                         <div>
-                            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white', marginBottom: '8px' }}>{t('audit.title')}</h1>
-                            <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', fontWeight: 500 }}>{t('audit.subtitle')}</p>
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-2">{t('audit.title')}</h1>
+                            <p className="text-white/90 text-sm sm:text-base md:text-lg font-medium">{t('audit.subtitle')}</p>
                         </div>
                     </div>
                     <select value={days} onChange={e => handleDaysChange(Number(e.target.value))}
-                        style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: 'white', padding: '16px 24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.3)', fontWeight: 800, cursor: 'pointer', outline: 'none' }}>
+                        className="px-5 py-3.5 rounded-2xl font-extrabold text-sm cursor-pointer outline-none w-full md:w-auto"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}>
                         <option value={7} style={{ color: '#1e293b' }}>{t('audit.last_7_days')}</option>
                         <option value={30} style={{ color: '#1e293b' }}>{t('audit.last_30_days')}</option>
                         <option value={90} style={{ color: '#1e293b' }}>{t('audit.last_90_days')}</option>
@@ -120,70 +121,79 @@ const AuditLogPage: React.FC = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10">
                 {[
                     { label: t('audit.stats.total_events'), value: stats?.total_logs || 0, color: '#6366f1', icon: <Terminal/> },
                     { label: t('audit.stats.authorized_access'), value: stats?.logins || 0, color: '#10b981', icon: <ShieldCheck/> },
                     { label: t('audit.stats.security_failures'), value: stats?.failed_logins || 0, color: '#ef4444', icon: <ShieldAlert/> },
                     { label: t('audit.stats.data_access'), value: stats?.data_access || 0, color: '#f59e0b', icon: <Globe/> }
                 ].map((s, i) => (
-                    <div key={i} style={{ backgroundColor: colors.card, borderRadius: '24px', padding: '32px', border: `1px solid ${colors.border}10` }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <div key={i} className="rounded-3xl p-5 md:p-8 border" style={{ backgroundColor: colors.card, borderColor: `${colors.border}10` }}>
+                        <div className="flex justify-between mb-3 md:mb-4">
                             <div style={{ color: s.color }}>{s.icon}</div>
-                            <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color }}>{s.value}</div>
+                            <div className="text-2xl md:text-3xl font-black" style={{ color: s.color }}>{s.value}</div>
                         </div>
-                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, letterSpacing: '1px' }}>{s.label}</p>
+                        <p className="m-0 text-[10px] md:text-xs font-extrabold tracking-wider" style={{ color: colors.textSecondary }}>{s.label}</p>
                     </div>
                 ))}
             </div>
 
-            <div style={{ position: 'relative', marginBottom: '32px' }}>
-                <Search style={{ position: 'absolute', left: '24px', top: '50%', transform: 'translateY(-50%)', color: colors.textSecondary }} size={20}/>
+            <div className="relative mb-6 md:mb-8">
+                <Search style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: colors.textSecondary }} size={20}/>
                 <input type="text" placeholder={t('audit.filter_placeholder')} value={filter} onChange={e => setFilter(e.target.value)}
-                    style={{ width: '100%', padding: '20px 24px 20px 64px', backgroundColor: colors.card, border: `1px solid ${colors.border}10`, borderRadius: '24px', color: colors.text, fontSize: '1.1rem', fontWeight: 600, outline: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}/>
+                    className="w-full py-4 pr-6 pl-14 rounded-2xl md:rounded-3xl font-semibold text-sm md:text-base outline-none shadow-sm border"
+                    style={{ backgroundColor: colors.card, borderColor: `${colors.border}10`, color: colors.text }}/>
             </div>
 
-            <div style={{ backgroundColor: colors.card, borderRadius: '32px', padding: '12px', border: `1px solid ${colors.border}10`, overflow: 'hidden' }}>
+            <div className="rounded-3xl md:rounded-[32px] p-2 sm:p-3 border overflow-hidden" style={{ backgroundColor: colors.card, borderColor: `${colors.border}10` }}>
                 {loading ? (
-                    <div style={{ padding: '80px', textAlign: 'center', color: colors.textSecondary }}>{t('audit.loading')}</div>
+                    <div className="p-16 text-center" style={{ color: colors.textSecondary }}>{t('audit.loading')}</div>
                 ) : error ? (
-                    <div style={{ padding: '80px', textAlign: 'center', color: '#ef4444', fontWeight: 600 }}>
-                        <ShieldAlert size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                        <br />
+                    <div className="p-16 text-center text-red-500 font-semibold">
+                        <ShieldAlert size={48} className="mx-auto mb-4 opacity-50" />
                         {error}
                     </div>
-                ) : logs.length === 0 ? (
-                    <div style={{ padding: '80px', textAlign: 'center', color: colors.textSecondary }}>{t('audit.empty')}</div>
+                ) : filteredLogs.length === 0 ? (
+                    <div className="p-16 text-center" style={{ color: colors.textSecondary }}>{t('audit.empty')}</div>
                 ) : (
                     <>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            {logs.map((log, i) => {
+                        <div className="flex flex-col">
+                            {filteredLogs.map((log, i) => {
                                 const config = getActionConfig(log.action)
                                 const isCritical = log.action.includes('DELETE') || log.action.includes('FAILED')
                                 const actionLabel = t(`audit.actions.${log.action}`) || log.action.replace(/_/g, ' ')
                                 return (
-                                    <div key={log.id} style={{
-                                        display: 'grid', gridTemplateColumns: '300px 1fr 150px 150px', gap: '24px', alignItems: 'center',
-                                        padding: '24px 32px', borderBottom: i < logs.length - 1 ? `1px solid ${colors.border}05` : 'none',
-                                        transition: 'background 0.3s ease', cursor: 'default',
-                                        borderLeft: isCritical ? `6px solid #ef4444` : 'none',
-                                        backgroundColor: isCritical ? '#ef444405' : 'transparent'
-                                    }} onMouseEnter={e => e.currentTarget.style.backgroundColor = isCritical ? '#ef444410' : colors.bg} onMouseLeave={e => e.currentTarget.style.backgroundColor = isCritical ? '#ef444405' : 'transparent'}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ width: '32px', height: '32px', borderRadius: '10px', backgroundColor: config.bg, color: config.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div key={log.id}
+                                         className="grid grid-cols-1 md:grid-cols-[260px_1fr_130px_120px] gap-3 md:gap-6 items-start md:items-center p-4 sm:p-6 transition-colors"
+                                         style={{
+                                             borderBottom: i < filteredLogs.length - 1 ? `1px solid ${colors.border}08` : 'none',
+                                             borderLeft: isCritical ? `6px solid #ef4444` : 'none',
+                                             backgroundColor: isCritical ? '#ef444405' : 'transparent'
+                                         }}
+                                         onMouseEnter={e => e.currentTarget.style.backgroundColor = isCritical ? '#ef444410' : colors.bg}
+                                         onMouseLeave={e => e.currentTarget.style.backgroundColor = isCritical ? '#ef444405' : 'transparent'}>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: config.bg, color: config.color }}>
                                                     {config.icon}
                                                 </div>
-                                                <span style={{ fontWeight: 800, fontSize: '0.9rem', color: config.color }}>{actionLabel}</span>
+                                                <span className="font-extrabold text-sm" style={{ color: config.color }}>{actionLabel}</span>
                                             </div>
-                                            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: config.color, paddingLeft: '44px' }}>{config.label}</span>
+                                            <span className="text-[10px] font-extrabold pl-11" style={{ color: config.color }}>{config.label}</span>
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: colors.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 800 }}>{log.user_email?.[0].toUpperCase() || '?'}</div>
-                                            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{log.user_email || t('audit.actions.SYSTEM')}</span>
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0" style={{ backgroundColor: colors.bg }}>
+                                                {log.user_email?.[0].toUpperCase() || '?'}
+                                            </div>
+                                            <span className="font-semibold text-sm truncate">{log.user_email || t('audit.actions.SYSTEM')}</span>
                                         </div>
-                                        <div style={{ fontSize: '0.85rem', color: colors.textSecondary, fontWeight: 700, fontFamily: 'monospace' }}>{log.ip_address || '--'}</div>
-                                        <div style={{ textAlign: 'right', fontSize: '0.85rem', color: colors.textSecondary, fontWeight: 600 }}>{new Date(log.timestamp).toLocaleDateString(i18n.language === 'es' ? 'es-ES' : 'fr-FR')}</div>
+                                        <div className="flex md:block items-center justify-between w-full text-xs font-bold font-mono" style={{ color: colors.textSecondary }}>
+                                            <span>{log.ip_address || '--'}</span>
+                                            <span className="md:hidden font-sans">{new Date(log.timestamp).toLocaleDateString(i18n.language === 'es' ? 'es-ES' : 'fr-FR')}</span>
+                                        </div>
+                                        <div className="hidden md:block text-right text-xs font-semibold" style={{ color: colors.textSecondary }}>
+                                            {new Date(log.timestamp).toLocaleDateString(i18n.language === 'es' ? 'es-ES' : 'fr-FR')}
+                                        </div>
                                     </div>
                                 )
                             })}
@@ -191,7 +201,7 @@ const AuditLogPage: React.FC = () => {
 
                         {/* Pagination Controls */}
                         {Math.ceil(totalLogs / limit) > 1 && (
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', padding: '32px', borderTop: `1px solid ${colors.border}05` }}>
+                            <div className="flex flex-wrap justify-center items-center gap-4 p-6 border-t" style={{ borderColor: `${colors.border}08` }}>
                                 <button 
                                     disabled={page === 1}
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -204,7 +214,7 @@ const AuditLogPage: React.FC = () => {
                                 >
                                     {t('common.previous')}
                                 </button>
-                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>
+                                <span className="font-extrabold text-sm">
                                     {t('common.page')} {page} {t('common.of')} {Math.ceil(totalLogs / limit)}
                                 </span>
                                 <button 

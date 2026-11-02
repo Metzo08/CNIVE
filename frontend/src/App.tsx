@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense, lazy, useEffect } from 'react'
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -25,7 +25,7 @@ const TeamPage = lazy(() => import("./pages/TeamPage"));
 const ArchivesPage = lazy(() => import("./pages/ArchivesPage"));
 const PublicPupilProfile = lazy(() => import("./pages/PublicPupilProfile"));
 
-// Un Loader simple pendant le chargement des chunks
+// Un Loader simple pendant le chargement initial
 const PageLoader = () => (
   <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
     <div className="w-8 h-8 border-4 border-slate-200 border-t-primary-500 rounded-full animate-spin"></div>
@@ -33,6 +33,21 @@ const PageLoader = () => (
 );
 
 function App() {
+  // Préchargement en arrière-plan des pages principales après le premier rendu pour une fluidité instantanée
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import("./pages/Dashboard");
+      import("./pages/PupilsList");
+      import("./pages/PupilProfile");
+      import("./pages/VulnerabilityAssessment");
+      import("./pages/AlertsPage");
+      import("./pages/InterventionsPage");
+      import("./pages/HealthRecords");
+      import("./pages/CardsManagement");
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider>

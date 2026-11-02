@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import ConfirmModal from '../components/ConfirmModal'
 import apiClient from '../api/client'
 import { useTranslation } from 'react-i18next'
 import { getPortalContainer } from '../utils/domSafety'
 import { 
-    ChevronLeft, ChevronRight, X, AlertTriangle, Plus, 
-    Activity, History, Clock, CheckCircle2, User, 
-    Building, Calendar, Info, Loader2, Trash2 
+    ChevronLeft, ChevronRight, X, Plus, 
+    History, CheckCircle2, User, 
+    Calendar, Loader2, Eye
 } from 'lucide-react'
 
 interface Pupil {
@@ -37,6 +38,10 @@ interface Intervention {
 const InterventionsPage: React.FC = () => {
     const { t } = useTranslation()
     const { colors, mode } = useTheme()
+    const navigate = useNavigate()
+    const [searchParams, setSearchParams] = useSearchParams()
+    const pupilParam = searchParams.get('pupil')
+
     const [interventions, setInterventions] = useState<Intervention[]>([])
     const [pupils, setPupils] = useState<Pupil[]>([])
     const [loading, setLoading] = useState(true)
@@ -56,83 +61,8 @@ const InterventionsPage: React.FC = () => {
     const [totalCount, setTotalCount] = useState(0)
     const pageSize = 25
 
-    const fetchStats = async () => {
-        try {
-            const response = await apiClient.get('/interventions/stats')
-            const data = response.data
-            setStats({
-                total: data.total || 0,
-                planned: data.by_status?.planned || data.by_status?.pending || 0,
-                in_progress: data.by_status?.in_progress || 0,
-                completed: data.by_status?.completed || 0,
-                urgent_pending: data.urgent_pending || 0
-            })
-        } catch (error) {}
-    }
-
-    const fetchInterventions = useCallback(async () => {
-        setLoading(true)
-        try {
-            const skip = (page - 1) * pageSize
-            const statusParam = filter !== 'all' && filter !== 'urgent' ? `&status=${filter}` : ''
-            const priorityParam = filter === 'urgent' ? '&priority=urgent' : ''
-            
-            const response = await apiClient.get(`/interventions/?skip=${skip}&limit=${pageSize}${statusParam}${priorityParam}`)
-            const data = Array.isArray(response.data) ? response.data : (response.data?.interventions || [])
-            setInterventions(data)
-            
-            // Re-fetch stats to ensure they are up to date and we can use them for total count
-            const statsRes = await apiClient.get('/interventions/stats')
-            const st = statsRes.data
-            setStats({
-                total: st.total || 0,
-                planned: st.by_status?.planned || st.by_status?.pending || 0,
-                in_progress: st.by_status?.in_progress || 0,
-                completed: st.by_status?.completed || 0,
-                urgent_pending: st.urgent_pending || 0
-            })
-            
-            let currentTotal = st.total || 0;
-            if (filter === 'planned') currentTotal = st.by_status?.planned || st.by_status?.pending || 0
-            if (filter === 'in_progress') currentTotal = st.by_status?.in_progress || 0
-            if (filter === 'completed') currentTotal = st.by_status?.completed || 0
-            if (filter === 'urgent') currentTotal = st.urgent_pending || 0
-            
-            setTotalCount(currentTotal)
-            
-        } catch (error) {
-            console.error('Error fetching interventions:', error)
-        } finally {
-            setLoading(false)
-        }
-    }, [page, filter, pageSize])
-
-    const fetchPupils = async () => {
-        try {
-            const response = await apiClient.get('/pupils/', { params: { limit: 1000 } })
-            setPupils(Array.isArray(response.data) ? response.data : (response.data?.pupils || []))
-        } catch (error) {}
-    }
-
-    const fetchUsers = async () => {
-        try {
-            const response = await apiClient.get('/team/')
-            setAvailableUsers(Array.isArray(response.data?.members) ? response.data.members : [])
-        } catch (error) {}
-    }
-
-    useEffect(() => {
-        fetchInterventions()
-    }, [fetchInterventions])
-
-    useEffect(() => {
-        fetchPupils()
-        fetchStats()
-        fetchUsers()
-    }, [])
-
     const [formData, setFormData] = useState({
-        pupil_id: '',
+        pupil_id: pupilParam || '',
         intervention_type: 'health',
         title: '',
         description: '',
@@ -142,9 +72,82 @@ const InterventionsPage: React.FC = () => {
         assigned_to: ''
     })
 
+    useEffect(() => {
+        if (pupilParam) {
+            setFormData(prev => ({ ...prev, pupil_id: pupilParam }))
+            setPage(1)
+        }
+    }, [pupilParam])
+
+    const fetchInterventions = useCallback(async () => {
+        setLoading(true)
+        try {
+            const skip = (page - 1) * pageSize
+            const statusParam = filter !== 'all' && filter !== 'urgent' ? `&status=${filter}` : ''
+            const priorityParam = filter === 'urgent' ? '&priority=urgent' : ''
+            const pupilQuery = pupilParam ? `&pupil_id=${pupilParam}` : ''
+            
+            const [response, statsRes] = await Promise.all([
+                apiClient.get(`/interventions/?skip=${skip}&limit=${pageSize}${statusParam}${priorityParam}${pupilQuery}`),
+                apiClient.get('/interventions/stats')
+            ])
+
+            const data = Array.isArray(response.data) ? response.data : (response.data?.interventions || [])
+            setInterventions(data)
+            
+            const st = statsRes.data
+            setStats({
+                total: st.total || 0,
+                planned: st.by_status?.planned || st.by_status?.pending || 0,
+                in_progress: st.by_status?.in_progress || 0,
+                completed: st.by_status?.completed || 0,
+                urgent_pending: st.urgent_pending || 0
+            })
+            
+            const headerTotal = response.headers?.['x-total-count']
+            if (pupilParam && headerTotal !== undefined) {
+                setTotalCount(parseInt(headerTotal, 10) || data.length)
+            } else {
+                let currentTotal = st.total || 0
+                if (filter === 'planned') currentTotal = st.by_status?.planned || st.by_status?.pending || 0
+                if (filter === 'in_progress') currentTotal = st.by_status?.in_progress || 0
+                if (filter === 'completed') currentTotal = st.by_status?.completed || 0
+                if (filter === 'urgent') currentTotal = st.urgent_pending || 0
+                setTotalCount(currentTotal)
+            }
+        } catch (error) {
+            console.error('Error fetching interventions:', error)
+        } finally {
+            setLoading(false)
+        }
+    }, [page, filter, pageSize, pupilParam])
+
+    const fetchPupilsAndUsers = useCallback(async () => {
+        try {
+            if (pupils.length === 0) {
+                const response = await apiClient.get('/pupils/', { params: { limit: 500 } })
+                setPupils(Array.isArray(response.data) ? response.data : (response.data?.pupils || []))
+            }
+            if (availableUsers.length === 0) {
+                const userRes = await apiClient.get('/team/')
+                setAvailableUsers(Array.isArray(userRes.data?.members) ? userRes.data.members : [])
+            }
+        } catch (error) {}
+    }, [pupils.length, availableUsers.length])
+
+    useEffect(() => {
+        fetchInterventions()
+    }, [fetchInterventions])
+
+    useEffect(() => {
+        if (showForm || pupilParam) {
+            fetchPupilsAndUsers()
+        }
+    }, [showForm, pupilParam, fetchPupilsAndUsers])
+
     const resetForm = () => {
         setFormData({
-            pupil_id: '', intervention_type: 'health', title: '', description: '',
+            pupil_id: pupilParam || '', intervention_type: 'health', title: '', description: '',
             priority: 'medium', scheduled_date: new Date().toISOString().split('T')[0],
             partner_organization: '', assigned_to: ''
         })
@@ -163,7 +166,6 @@ const InterventionsPage: React.FC = () => {
             setSuccess(t('common.success'))
             setShowForm(false)
             fetchInterventions()
-            fetchStats()
             resetForm()
             setTimeout(() => setSuccess(''), 3000)
         } catch (error) {
@@ -179,7 +181,6 @@ const InterventionsPage: React.FC = () => {
             await apiClient.patch(`/interventions/${selectedIntervention.id}`, { status: newStatus })
             setSuccess(t('common.success'))
             fetchInterventions()
-            fetchStats()
             setSelectedIntervention({ ...selectedIntervention, status: newStatus })
             setTimeout(() => setSuccess(''), 3000)
         } catch (error) {}
@@ -194,7 +195,6 @@ const InterventionsPage: React.FC = () => {
             setSuccess(t('common.success'))
             setSelectedIntervention(null)
             fetchInterventions()
-            fetchStats()
             setTimeout(() => setSuccess(''), 3000)
         } catch (error) {}
     }
@@ -279,6 +279,10 @@ const InterventionsPage: React.FC = () => {
         return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
     }
 
+    const activeFilterPupil = pupilParam
+        ? (pupils.find(p => String(p.id) === String(pupilParam)) || (interventions[0] ? { first_name: interventions[0].pupil_name, last_name: '', cnive_id: '' } : null))
+        : null
+
     const totalPages = Math.ceil(totalCount / pageSize)
 
     return (
@@ -291,7 +295,7 @@ const InterventionsPage: React.FC = () => {
             )}
 
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-12">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-10">
                 <div>
                     <h1 className="text-2xl md:text-3xl lg:text-5xl font-black tracking-tighter mb-2">{formatLabel(t('interventions.title'))}</h1>
                     <p className="text-slate-500 font-medium text-sm md:text-base">{formatLabel(t('interventions.subtitle'))}</p>
@@ -304,8 +308,41 @@ const InterventionsPage: React.FC = () => {
                 </button>
             </div>
 
+            {/* Active Pupil Filter Banner */}
+            {pupilParam && (
+                <div className="mb-8 p-4 md:p-5 rounded-2xl border flex flex-wrap items-center justify-between gap-4" style={{ backgroundColor: `${colors.primary}10`, borderColor: `${colors.primary}30` }}>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black" style={{ backgroundColor: colors.primary }}>
+                            <User size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black tracking-widest" style={{ color: colors.primary }}>Filtre interventions par élève</p>
+                            <p className="text-sm font-black" style={{ color: colors.text }}>
+                                {activeFilterPupil ? `${activeFilterPupil.first_name} ${activeFilterPupil.last_name}`.trim() : 'Élève sélectionné'}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => navigate(`/pupils/${pupilParam}`)}
+                            className="px-4 py-2 rounded-xl font-black text-xs text-white transition-all flex items-center gap-1.5"
+                            style={{ backgroundColor: colors.primary }}
+                        >
+                            <Eye size={14} /> Voir la fiche élève
+                        </button>
+                        <button
+                            onClick={() => setSearchParams({})}
+                            className="px-4 py-2 rounded-xl font-black text-xs border transition-all flex items-center gap-1.5"
+                            style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
+                        >
+                            <X size={14} /> Tout afficher
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Stats Cards */}
-            <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4 mb-8 md:mb-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 md:gap-4 mb-8 md:mb-12">
                 {[
                     { value: stats.total, label: t('interventions.total'), color: colors.primary, filterId: 'all' },
                     { value: stats.planned, label: t('interventions.planned'), color: '#f59e0b', filterId: 'planned' },
@@ -321,7 +358,7 @@ const InterventionsPage: React.FC = () => {
                             : { backgroundColor: colors.card, borderColor: colors.border, borderWidth: '2px' }
                         }
                     >
-                        <p className="text-[8px] md:text-[10px] font-black tracking-widest text-slate-500 mb-1 leading-tight">{formatLabel(stat.label)}</p>
+                        <p className="text-[9px] md:text-[10px] font-black tracking-widest text-slate-500 mb-1 leading-tight">{formatLabel(stat.label)}</p>
                         <p className="text-2xl md:text-4xl font-black" style={{ color: stat.color }}>{stat.value}</p>
                     </div>
                 ))}
@@ -376,9 +413,23 @@ const InterventionsPage: React.FC = () => {
                                     <h3 className="font-black text-base md:text-lg lg:text-xl mb-1 truncate" style={{ color: colors.text }}>
                                         {intervention.title}
                                     </h3>
-                                    <p className="text-slate-500 font-bold text-xs md:text-sm truncate">
-                                        {intervention.pupil_name} <span className="hidden sm:inline mx-1 text-slate-300">•</span> <span className="hidden sm:inline text-primary-500 text-[10px] tracking-widest">{t(`interventions.types.${((intervention as any).type || intervention.intervention_type)?.toLowerCase()}`)}</span>
-                                    </p>
+                                    <div className="flex flex-wrap items-center gap-1.5 text-slate-500 font-bold text-xs md:text-sm">
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                navigate(`/pupils/${intervention.pupil_id}`)
+                                            }}
+                                            className="hover:underline hover:text-primary-500 transition-colors truncate"
+                                            title="Voir le dossier de l'élève"
+                                        >
+                                            {intervention.pupil_name}
+                                        </button>
+                                        <span className="hidden sm:inline mx-1 text-slate-300">•</span>
+                                        <span className="hidden sm:inline text-primary-500 text-[10px] tracking-widest">
+                                            {t(`interventions.types.${((intervention as any).type || intervention.intervention_type)?.toLowerCase()}`)}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-3 shrink-0">
                                     <span className="hidden sm:inline px-3 md:px-4 py-1.5 rounded-xl text-[9px] md:text-[10px] font-black tracking-widest border"
@@ -446,15 +497,15 @@ const InterventionsPage: React.FC = () => {
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => { setShowForm(false); resetForm(); }} />
                     <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl border"
                          style={{ backgroundColor: colors.card, borderColor: colors.border }}>
-                        <div className="sticky top-0 z-10 px-8 py-6 bg-primary-600 text-white flex items-center justify-between">
-                            <h2 className="text-xl font-black tracking-tighter">
+                        <div className="sticky top-0 z-10 px-6 md:px-8 py-5 md:py-6 bg-primary-600 text-white flex items-center justify-between">
+                            <h2 className="text-lg md:text-xl font-black tracking-tighter">
                                 {editingId ? formatLabel(t('interventions.form_edit')) : formatLabel(t('interventions.form_new'))}
                             </h2>
                             <button onClick={() => { setShowForm(false); resetForm(); }} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
                                 <X size={24}/>
                             </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                        <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6 md:space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label className={labelClass}>{formatLabel(t('interventions.pupil'))} *</label>
@@ -522,19 +573,19 @@ const InterventionsPage: React.FC = () => {
             {selectedIntervention && createPortal(
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/90 backdrop-blur-lg" onClick={() => setSelectedIntervention(null)} />
-                    <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[3rem] shadow-2xl border p-6 md:p-12"
+                    <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl md:rounded-[3rem] shadow-2xl border p-6 md:p-12"
                          style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                         <button onClick={() => setSelectedIntervention(null)} className="absolute top-6 right-6 p-3 rounded-2xl hover:scale-110 transition-transform border"
                                 style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
                             <X size={24}/>
                         </button>
 
-                        <div className="flex flex-col md:flex-row gap-8 items-start md:items-center mb-12">
-                            <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center text-4xl shadow-inner shrink-0"
+                        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center mb-10 md:mb-12">
+                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-3xl md:text-4xl shadow-inner shrink-0"
                                  style={{ backgroundColor: getStatusColors(selectedIntervention.status).bg }}>
                                 {getTypeIcon(selectedIntervention.intervention_type)}
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 pr-12">
                                 <h2 className="text-2xl md:text-4xl font-black tracking-tighter mb-3 leading-tight">
                                     {selectedIntervention.title}
                                 </h2>
@@ -546,10 +597,23 @@ const InterventionsPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
-                            <div className="p-6 rounded-3xl border" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
-                                <p className={labelClass}>{formatLabel(t('interventions.pupil'))}</p>
-                                <p className="text-xl font-black">{selectedIntervention.pupil_name}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10 md:mb-12">
+                            <div className="p-6 rounded-3xl border flex items-center justify-between gap-4" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
+                                <div>
+                                    <p className={labelClass}>{formatLabel(t('interventions.pupil'))}</p>
+                                    <p className="text-xl font-black">{selectedIntervention.pupil_name}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSelectedIntervention(null)
+                                        navigate(`/pupils/${selectedIntervention.pupil_id}`)
+                                    }}
+                                    className="px-3.5 py-2 rounded-xl font-black text-xs text-white flex items-center gap-1.5 shrink-0"
+                                    style={{ backgroundColor: colors.primary }}
+                                >
+                                    <Eye size={14} /> Fiche élève
+                                </button>
                             </div>
                             <div className="p-6 rounded-3xl border" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
                                 <p className={labelClass}>{formatLabel(t('interventions.assigned_to'))}</p>
@@ -557,15 +621,15 @@ const InterventionsPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="mb-12">
+                        <div className="mb-10 md:mb-12">
                             <h3 className="text-[10px] font-black tracking-widest text-slate-400 mb-4">{formatLabel(t('interventions.description'))}</h3>
-                            <div className="p-8 rounded-[2rem] border leading-relaxed font-medium"
+                            <div className="p-6 md:p-8 rounded-2xl md:rounded-[2rem] border leading-relaxed font-medium"
                                  style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>
                                 {selectedIntervention.description || t('interventions.detail.no_description')}
                             </div>
                         </div>
 
-                        <div className="mb-12">
+                        <div className="mb-10 md:mb-12">
                             <h3 className="text-[10px] font-black tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                                 <History size={14}/> {formatLabel(t('interventions.detail.history'))}
                             </h3>

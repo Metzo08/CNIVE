@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useTranslation } from 'react-i18next'
 import apiClient from '../api/client'
@@ -8,17 +8,18 @@ import ConfirmModal from '../components/ConfirmModal'
 import { getPortalContainer } from '../utils/domSafety'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { 
-    X, Shield, Activity, Syringe, User, ChevronRight, 
-    FileText, Heart, Calendar, MapPin, AlertCircle, 
-    Archive, Save, Edit3, Trash2, CheckCircle2, 
+    X, Shield, Activity, Syringe, User, 
+    AlertCircle, Archive, Trash2, 
     Clock, Plus, Search, Stethoscope, Building,
-    ChevronLeft
+    ChevronLeft, ChevronRight, Eye
 } from 'lucide-react'
 
 const HealthRecords: React.FC = () => {
     const { t } = useTranslation()
     const { colors, mode } = useTheme()
     const navigate = useNavigate()
+    const [searchParams, setSearchParams] = useSearchParams()
+    const pupilParam = searchParams.get('pupil')
     const queryClient = useQueryClient()
     
     const [activeTab, setActiveTab] = useState('overview')
@@ -37,7 +38,7 @@ const HealthRecords: React.FC = () => {
     const [editingItem, setEditingItem] = useState<any>(null)
     
     const [formData, setFormData] = useState<any>({
-        pupil_id: '',
+        pupil_id: pupilParam || '',
         blood_group: '',
         allergies: '',
         chronic_conditions: '',
@@ -53,6 +54,13 @@ const HealthRecords: React.FC = () => {
         practitioner: ''
     })
 
+    useEffect(() => {
+        if (pupilParam) {
+            setFormData((prev: any) => ({ ...prev, pupil_id: pupilParam }))
+            setPage(1)
+        }
+    }, [pupilParam])
+
     // Debounce search
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -60,7 +68,7 @@ const HealthRecords: React.FC = () => {
                 setDebouncedSearch(searchQuery)
                 setPage(1)
             }
-        }, 500)
+        }, 400)
         return () => clearTimeout(timer)
     }, [searchQuery, debouncedSearch])
 
@@ -73,23 +81,22 @@ const HealthRecords: React.FC = () => {
         }
     })
 
-    // Only fetch pupils for the modal dropdown (limit to avoid performance issues, ideally this would be a searchable select)
     const { data: pupilsData } = useQuery({
         queryKey: ['pupilsMini'],
         queryFn: async () => {
-            const res = await apiClient.get('/pupils/', { params: { limit: 200 } })
+            const res = await apiClient.get('/pupils/', { params: { limit: 300 } })
             return Array.isArray(res.data) ? res.data : (res.data?.pupils || [])
         }
     })
 
     // Main data fetching based on active tab
-    const { data: currentData, isLoading, refetch } = useQuery({
-        queryKey: ['healthData', activeTab, page, debouncedSearch],
+    const { data: currentData, isLoading } = useQuery({
+        queryKey: ['healthData', activeTab, page, debouncedSearch, pupilParam],
         queryFn: async () => {
             const skip = (page - 1) * limit
-            // If searching, we fetch a large batch to filter client-side since the backend doesn't support text search on these nested models yet
-            const fetchLimit = debouncedSearch ? 1000 : limit
-            const fetchSkip = debouncedSearch ? 0 : skip
+            const needsClientFilter = Boolean(debouncedSearch || pupilParam)
+            const fetchLimit = needsClientFilter ? 1000 : limit
+            const fetchSkip = needsClientFilter ? 0 : skip
 
             let endpoint = '/health-records/'
             if (activeTab === 'vaccinations') endpoint = '/health-records/vaccinations'
@@ -99,6 +106,10 @@ const HealthRecords: React.FC = () => {
             const total = parseInt(res.headers['x-total-count'] || '0')
             let items = Array.isArray(res.data) ? res.data : (res.data?.items || [])
             
+            if (pupilParam) {
+                items = items.filter((item: any) => String(item.pupil_id) === String(pupilParam))
+            }
+
             if (debouncedSearch) {
                 const searchLower = debouncedSearch.toLowerCase()
                 items = items.filter((item: any) => {
@@ -106,13 +117,14 @@ const HealthRecords: React.FC = () => {
                     if (item.pupil) {
                         name = `${item.pupil.first_name} ${item.pupil.last_name}`.toLowerCase()
                     } else {
-                        // Fallback to local pupils array if embedded object is missing
                         const p = pupilsData?.find((p: any) => p.id === item.pupil_id)
                         if (p) name = `${p.first_name} ${p.last_name}`.toLowerCase()
                     }
                     return name.includes(searchLower)
                 })
-                // Apply manual pagination to the filtered results
+            }
+
+            if (needsClientFilter) {
                 const filteredTotal = items.length
                 items = items.slice(skip, skip + limit)
                 return { items, total: filteredTotal }
@@ -142,7 +154,7 @@ const HealthRecords: React.FC = () => {
     const resetForm = () => {
         setEditingItem(null)
         setFormData({
-            pupil_id: '', blood_group: '', allergies: '', chronic_conditions: '',
+            pupil_id: pupilParam || '', blood_group: '', allergies: '', chronic_conditions: '',
             cmu_status: 'not_enrolled', health_facility: '', vaccine_name: '',
             dose_number: 1, administered_date: new Date().toISOString().split('T')[0],
             consultation_type: '', consultation_date: new Date().toISOString().split('T')[0],
@@ -269,6 +281,8 @@ const HealthRecords: React.FC = () => {
         return p ? `${p.first_name} ${p.last_name}` : 'Inconnu'
     }
 
+    const activeFilterPupil = pupilParam ? pupils.find((p: any) => String(p.id) === String(pupilParam)) : null
+
     const healthCards = [
         { label: formatLabel(t('health.stats.cmu_enrolled')), value: healthStats.cmu_enrolled, color: '#10b981', icon: <Shield size={24}/> },
         { label: formatLabel(t('health.stats.not_enrolled')), value: healthStats.cmu_not_enrolled, color: '#ef4444', icon: <AlertCircle size={24}/> },
@@ -305,9 +319,10 @@ const HealthRecords: React.FC = () => {
                     if (activeTab === 'overview') {
                         return (
                             <div key={item.id} className="group relative p-6 rounded-[2rem] transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer border" style={{ backgroundColor: colors.card, borderColor: colors.border }} onClick={() => handleEdit(item, 'record')}>
-                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    <button onClick={(e) => { e.stopPropagation(); handleArchiveClick(item.pupil_id); }} className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all" title={t('common.archive')}><Archive size={16}/></button>
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(item.pupil_id, 'record'); }} className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all" title={t('common.delete')}><Trash2 size={16}/></button>
+                                <div className="absolute top-4 right-4 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
+                                    <button onClick={(e) => { e.stopPropagation(); navigate(`/pupils/${item.pupil_id}`); }} className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all" title="Voir le dossier élève"><Eye size={15}/></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleArchiveClick(item.pupil_id); }} className="w-9 h-9 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all" title={t('common.archive')}><Archive size={15}/></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(item.pupil_id, 'record'); }} className="w-9 h-9 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all" title={t('common.delete')}><Trash2 size={15}/></button>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl shrink-0" style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}>
@@ -343,8 +358,9 @@ const HealthRecords: React.FC = () => {
                     } else if (activeTab === 'vaccinations') {
                         return (
                             <div key={item.id} className="group relative p-6 rounded-[2rem] transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer border" style={{ backgroundColor: colors.card, borderColor: colors.border }} onClick={() => handleEdit(item, 'vaccination')}>
-                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(item.id, 'vaccination'); }} className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all"><Trash2 size={16}/></button>
+                                <div className="absolute top-4 right-4 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
+                                    <button onClick={(e) => { e.stopPropagation(); navigate(`/pupils/${item.pupil_id}`); }} className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all" title="Voir le dossier élève"><Eye size={15}/></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(item.id, 'vaccination'); }} className="w-9 h-9 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all"><Trash2 size={15}/></button>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl shrink-0" style={{ backgroundColor: '#3b82f615', color: '#3b82f6' }}>
@@ -373,8 +389,9 @@ const HealthRecords: React.FC = () => {
                     } else if (activeTab === 'consultations') {
                         return (
                             <div key={item.id} className="group relative p-6 rounded-[2rem] transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer border" style={{ backgroundColor: colors.card, borderColor: colors.border }} onClick={() => handleEdit(item, 'consultation')}>
-                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(item.id, 'consultation'); }} className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all"><Trash2 size={16}/></button>
+                                <div className="absolute top-4 right-4 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
+                                    <button onClick={(e) => { e.stopPropagation(); navigate(`/pupils/${item.pupil_id}`); }} className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all" title="Voir le dossier élève"><Eye size={15}/></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(item.id, 'consultation'); }} className="w-9 h-9 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all"><Trash2 size={15}/></button>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl shrink-0" style={{ backgroundColor: '#10b98115', color: '#10b981' }}>
@@ -414,39 +431,81 @@ const HealthRecords: React.FC = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-0 pb-20">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 md:mb-12">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 md:mb-10">
                 <div>
                     <h1 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter mb-1 md:mb-2" style={{ color: colors.text }}>{formatLabel(t('health.title'))}</h1>
                     <p className="font-medium text-sm md:text-base" style={{ color: colors.textSecondary }}>{formatLabel(t('health.subtitle'))}</p>
                 </div>
-                <button 
-                    onClick={() => {
-                        resetForm();
-                        if (activeTab === 'overview') setShowRecordModal(true)
-                        else if (activeTab === 'vaccinations') setShowVaccinationModal(true)
-                        else setShowConsultationModal(true)
-                    }}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs tracking-widest transition-all shadow-xl shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2 md:gap-3 touch-target"
-                >
-                    <Plus size={16}/> {
-                        activeTab === 'overview' ? formatLabel(t('health.new_record')) :
-                        activeTab === 'vaccinations' ? formatLabel(t('health.vaccination.new')) :
-                        formatLabel(t('health.consultation.new'))
-                    }
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <button
+                        onClick={() => navigate('/archives')}
+                        className="px-4 md:px-5 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs tracking-widest transition-all border flex items-center gap-2 active:scale-95 touch-target"
+                        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
+                    >
+                        <Archive size={16} /> Archives santé
+                    </button>
+                    <button 
+                        onClick={() => {
+                            resetForm();
+                            if (activeTab === 'overview') setShowRecordModal(true)
+                            else if (activeTab === 'vaccinations') setShowVaccinationModal(true)
+                            else setShowConsultationModal(true)
+                        }}
+                        className="bg-primary-600 hover:bg-primary-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs tracking-widest transition-all shadow-xl shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2 md:gap-3 touch-target"
+                    >
+                        <Plus size={16}/> {
+                            activeTab === 'overview' ? formatLabel(t('health.new_record')) :
+                            activeTab === 'vaccinations' ? formatLabel(t('health.vaccination.new')) :
+                            formatLabel(t('health.consultation.new'))
+                        }
+                    </button>
+                </div>
             </div>
+
+            {/* Active Pupil Filter Banner */}
+            {pupilParam && (
+                <div className="mb-6 p-4 md:p-5 rounded-2xl border flex flex-wrap items-center justify-between gap-4" style={{ backgroundColor: `${colors.primary}10`, borderColor: `${colors.primary}30` }}>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black" style={{ backgroundColor: colors.primary }}>
+                            <User size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black tracking-widest" style={{ color: colors.primary }}>Filtre dossier médical par élève</p>
+                            <p className="text-sm font-black" style={{ color: colors.text }}>
+                                {activeFilterPupil ? `${activeFilterPupil.first_name} ${activeFilterPupil.last_name} (${activeFilterPupil.cnive_id})` : `Élève sélectionné`}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => navigate(`/pupils/${pupilParam}`)}
+                            className="px-4 py-2 rounded-xl font-black text-xs text-white transition-all flex items-center gap-1.5"
+                            style={{ backgroundColor: colors.primary }}
+                        >
+                            <Eye size={14} /> Voir la fiche élève
+                        </button>
+                        <button
+                            onClick={() => setSearchParams({})}
+                            className="px-4 py-2 rounded-xl font-black text-xs border transition-all flex items-center gap-1.5"
+                            style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
+                        >
+                            <X size={14} /> Tout afficher
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Modals */}
             {showRecordModal && createPortal(
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border max-h-[90vh] flex flex-col" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
-                        <div className="p-8 md:p-10 border-b shrink-0" style={{ borderColor: colors.border }}>
+                        <div className="p-6 md:p-10 border-b shrink-0" style={{ borderColor: colors.border }}>
                             <div className="flex justify-between items-center">
-                                <h2 className="text-2xl font-black tracking-tight" style={{ color: colors.text }}>{editingItem ? t('common.edit') : t('health.new_record')}</h2>
+                                <h2 className="text-xl md:text-2xl font-black tracking-tight" style={{ color: colors.text }}>{editingItem ? t('common.edit') : t('health.new_record')}</h2>
                                 <button onClick={() => { setShowRecordModal(false); resetForm(); }} className="p-2 rounded-full transition-colors" style={{ color: colors.textSecondary }}><X size={24}/></button>
                             </div>
                         </div>
-                        <div className="p-8 md:p-10 overflow-y-auto custom-scrollbar">
+                        <div className="p-6 md:p-10 overflow-y-auto custom-scrollbar">
                             <form id="recordForm" onSubmit={handleCreateRecord} className="space-y-6">
                                 {(formData.pupil_id || editingItem?.pupil) && (() => {
                                     const p = editingItem?.pupil || pupils.find((p: any) => p.id === formData.pupil_id);
@@ -474,7 +533,7 @@ const HealthRecords: React.FC = () => {
                                     </div>
                                 )}
                                 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelClass} style={{ color: colors.textSecondary }}>{t('health.blood_group')}</label>
                                         <select className={inputClass} value={formData.blood_group} onChange={e => setFormData({...formData, blood_group: e.target.value})}>
@@ -503,7 +562,7 @@ const HealthRecords: React.FC = () => {
                                 </div>
                             </form>
                         </div>
-                        <div className="p-8 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
+                        <div className="p-6 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
                             <button type="submit" form="recordForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
                             <button type="button" onClick={() => { setShowRecordModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
                         </div>
@@ -515,13 +574,13 @@ const HealthRecords: React.FC = () => {
             {showVaccinationModal && createPortal(
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border max-h-[90vh] flex flex-col" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
-                        <div className="p-8 md:p-10 border-b shrink-0" style={{ borderColor: colors.border }}>
+                        <div className="p-6 md:p-10 border-b shrink-0" style={{ borderColor: colors.border }}>
                             <div className="flex justify-between items-center">
-                                <h2 className="text-2xl font-black tracking-tight" style={{ color: colors.text }}>{editingItem ? t('health.vaccination.edit') : t('health.vaccination.new')}</h2>
+                                <h2 className="text-xl md:text-2xl font-black tracking-tight" style={{ color: colors.text }}>{editingItem ? t('health.vaccination.edit') : t('health.vaccination.new')}</h2>
                                 <button onClick={() => { setShowVaccinationModal(false); resetForm(); }} className="p-2 rounded-full transition-colors" style={{ color: colors.textSecondary }}><X size={24}/></button>
                             </div>
                         </div>
-                        <div className="p-8 md:p-10 overflow-y-auto custom-scrollbar">
+                        <div className="p-6 md:p-10 overflow-y-auto custom-scrollbar">
                             <form id="vaccForm" onSubmit={handleCreateVaccination} className="space-y-6">
                                 {(formData.pupil_id || editingItem?.pupil) && (() => {
                                     const p = editingItem?.pupil || pupils.find((p: any) => p.id === formData.pupil_id);
@@ -553,7 +612,7 @@ const HealthRecords: React.FC = () => {
                                     <label className={labelClass} style={{ color: colors.textSecondary }}>{t('health.vaccination.vaccine_name')}</label>
                                     <input required type="text" className={inputClass} value={formData.vaccine_name} onChange={e => setFormData({...formData, vaccine_name: e.target.value})} placeholder={t('health.vaccination.vaccine_placeholder')} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelClass} style={{ color: colors.textSecondary }}>{t('health.vaccination.dose')}</label>
                                         <input required type="number" className={inputClass} value={formData.dose_number} onChange={e => setFormData({...formData, dose_number: e.target.value})} />
@@ -569,7 +628,7 @@ const HealthRecords: React.FC = () => {
                                 </div>
                             </form>
                         </div>
-                        <div className="p-8 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
+                        <div className="p-6 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
                             <button type="submit" form="vaccForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
                             <button type="button" onClick={() => { setShowVaccinationModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
                         </div>
@@ -581,13 +640,13 @@ const HealthRecords: React.FC = () => {
             {showConsultationModal && createPortal(
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border max-h-[90vh] flex flex-col" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
-                        <div className="p-8 md:p-10 border-b shrink-0" style={{ borderColor: colors.border }}>
+                        <div className="p-6 md:p-10 border-b shrink-0" style={{ borderColor: colors.border }}>
                             <div className="flex justify-between items-center">
-                                <h2 className="text-2xl font-black tracking-tight" style={{ color: colors.text }}>{editingItem ? t('health.consultation.edit') : t('health.consultation.new')}</h2>
+                                <h2 className="text-xl md:text-2xl font-black tracking-tight" style={{ color: colors.text }}>{editingItem ? t('health.consultation.edit') : t('health.consultation.new')}</h2>
                                 <button onClick={() => { setShowConsultationModal(false); resetForm(); }} className="p-2 rounded-full transition-colors" style={{ color: colors.textSecondary }}><X size={24}/></button>
                             </div>
                         </div>
-                        <div className="p-8 md:p-10 overflow-y-auto custom-scrollbar">
+                        <div className="p-6 md:p-10 overflow-y-auto custom-scrollbar">
                             <form id="consForm" onSubmit={handleCreateConsultation} className="space-y-6">
                                 {(formData.pupil_id || editingItem?.pupil) && (() => {
                                     const p = editingItem?.pupil || pupils.find((p: any) => p.id === formData.pupil_id);
@@ -618,7 +677,7 @@ const HealthRecords: React.FC = () => {
                                     <label className={labelClass} style={{ color: colors.textSecondary }}>{t('health.consultation.reason')}</label>
                                     <input required type="text" className={inputClass} value={formData.consultation_type} onChange={e => setFormData({...formData, consultation_type: e.target.value})} placeholder={t('health.consultation.reason_placeholder')} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelClass} style={{ color: colors.textSecondary }}>{t('health.consultation.date')}</label>
                                         <input required type="date" className={inputClass} value={formData.consultation_date} onChange={e => setFormData({...formData, consultation_date: e.target.value})} />
@@ -628,7 +687,7 @@ const HealthRecords: React.FC = () => {
                                         <input type="text" className={inputClass} value={formData.diagnosis} onChange={e => setFormData({...formData, diagnosis: e.target.value})} placeholder={t('health.consultation.diagnosis_placeholder')} />
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelClass} style={{ color: colors.textSecondary }}>Praticien</label>
                                         <input type="text" className={inputClass} value={formData.practitioner} onChange={e => setFormData({...formData, practitioner: e.target.value})} placeholder="Nom du médecin..." />
@@ -640,7 +699,7 @@ const HealthRecords: React.FC = () => {
                                 </div>
                             </form>
                         </div>
-                        <div className="p-8 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
+                        <div className="p-6 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
                             <button type="submit" form="consForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
                             <button type="button" onClick={() => { setShowConsultationModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
                         </div>
