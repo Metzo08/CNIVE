@@ -165,10 +165,10 @@ const ArchivesPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <h3 style={{ margin: '0 0 4px 0', fontSize: '1.2rem', fontWeight: 800 }}>{record.pupil?.first_name} {record.pupil?.last_name}</h3>
-                                <p style={{ margin: '0 0 20px 0', color: colors.textSecondary, fontSize: '0.85rem', fontWeight: 600 }}>ID: {record.pupil?.cnive_id}</p>
+                                <p style={{ margin: '0 0 20px 0', color: colors.textSecondary, fontSize: '0.85rem', fontWeight: 600 }}>Id : {record.pupil?.cnive_id}</p>
                                 
                                 <div style={{ backgroundColor: colors.bg, padding: '16px', borderRadius: '16px', marginBottom: '16px' }}>
-                                    <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, color: colors.textSecondary, textTransform: 'uppercase' }}>{t('archives.last_modification')}</p>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, color: colors.textSecondary }}>{t('archives.last_modification')}</p>
                                     <p style={{ margin: '4px 0 0 0', fontWeight: 700, fontSize: '0.9rem' }}>{new Date(record.created_at).toLocaleDateString(i18n.language === 'es' ? 'es-ES' : 'fr-FR')}</p>
                                 </div>
                             </div>

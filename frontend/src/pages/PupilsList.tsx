@@ -310,7 +310,7 @@ const PupilsList: React.FC = () => {
             {/* Badges de filtres actifs */}
             {(urlSchool || urlStatus || debouncedSearch) && (
                 <div className="flex flex-wrap items-center gap-2 mb-8 p-3 rounded-2xl border bg-slate-500/5" style={{ borderColor: colors.border }}>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1">Filtres actifs :</span>
+                    <span className="text-[10px] font-black tracking-wider text-slate-400 mr-1">Filtres actifs :</span>
                     {urlSchool && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary-500/15 border border-primary-500/30 text-primary-500 font-bold text-xs">
                             <SchoolIcon size={13} />
@@ -415,7 +415,7 @@ const PupilsList: React.FC = () => {
                                         <button 
                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPupilToArchive(pupil.id); setShowArchiveConfirm(true); }}
                                             className="w-10 h-10 rounded-xl bg-slate-500 text-white flex items-center justify-center shadow-lg shadow-slate-500/20 hover:scale-110 active:scale-90 transition-all"
-                                            title="Archiver (Anonymiser RGPD)"
+                                            title="Archiver (anonymiser rgpd)"
                                         >
                                             <Archive size={16} />
                                         </button>
@@ -449,7 +449,7 @@ const PupilsList: React.FC = () => {
                                         <div className="min-w-0 flex-1">
                                             <h3 className="font-black text-lg truncate pr-12">{pupil.first_name} {pupil.last_name}</h3>
                                             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
-                                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">ID: #{pupil.cnive_id.slice(-6)}</p>
+                                                <p className="text-[10px] font-black text-slate-500 tracking-widest">ID: #{pupil.cnive_id.slice(-6)}</p>
                                                 {pupil.school_name && (
                                                     <>
                                                         <span className="text-slate-400 text-xs">•</span>
@@ -468,7 +468,7 @@ const PupilsList: React.FC = () => {
 
                                     <div className="rounded-2xl p-4 flex justify-between items-center mb-6 border" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
                                         <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('pupils.last_assessment') || 'Moyenne académique'}</p>
+                                            <p className="text-[10px] font-black tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('pupils.last_assessment') || 'Moyenne académique'}</p>
                                             <div className="flex items-baseline gap-1" style={{ color: colors.text }}>
                                                 {pupil.academic_score != null ? (
                                                     <>
@@ -476,7 +476,7 @@ const PupilsList: React.FC = () => {
                                                         <span className="text-xs opacity-30">/ 20</span>
                                                     </>
                                                 ) : (
-                                                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Non noté</span>
+                                                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">Non noté</span>
                                                 )}
                                             </div>
                                         </div>
@@ -499,7 +499,7 @@ const PupilsList: React.FC = () => {
                                                 <Phone size={14} />
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
+                                                <p className="text-[10px] font-black tracking-wider text-slate-400 dark:text-slate-500 truncate">
                                                     {pupil.contact_parent1_name || 'Tuteur'}
                                                 </p>
                                                 {pupil.contact_parent1_phone ? (
@@ -531,7 +531,7 @@ const PupilsList: React.FC = () => {
                                     </div>
 
                                     <div className="flex flex-wrap gap-2">
-                                        <span className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
+                                        <span className={`px-3 py-1.5 rounded-lg text-[10px] font-black  tracking-wider border ${
                                             pupil.status === 'ACTIVE' 
                                             ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
                                             : 'bg-slate-500/10 text-slate-500 border-slate-500/20'
@@ -540,7 +540,7 @@ const PupilsList: React.FC = () => {
                                                 ? (pupil.gender === 'F' ? t('status.active_f') : t('status.active_m')) 
                                                 : (pupil.status === 'TRANSFERRED' ? t('status.transferred') : (pupil.status === 'DROPOUT' ? t('status.dropout') : t('status.inactive')))}
                                         </span>
-                                        <span className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-primary-500/10 text-primary-500 border border-primary-500/20">
+                                        <span className="px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wider bg-primary-500/10 text-primary-500 border border-primary-500/20">
                                             {pupil.gender === 'F' ? t('gender.female') : t('gender.male')}
                                         </span>
                                     </div>
@@ -607,7 +607,7 @@ const PupilsList: React.FC = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-xs font-black truncate" style={{ color: colors.text }}>{selectedPupil.first_name} {selectedPupil.last_name}</p>
-                                    <p className="text-[9px] font-black uppercase tracking-widest" style={{ color: colors.textSecondary }}>ID: {selectedPupil.cnive_id}</p>
+                                    <p className="text-[9px] font-black tracking-widest" style={{ color: colors.textSecondary }}>ID: {selectedPupil.cnive_id}</p>
                                 </div>
                             </div>
                         </div>
@@ -616,16 +616,16 @@ const PupilsList: React.FC = () => {
                             <form id="absence-form" onSubmit={handleMarkAbsence} className="space-y-5">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.date')}</label>
+                                        <label className="text-[9px] font-black tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.date')}</label>
                                         <input type="date" required className="w-full px-5 py-3.5 border rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all" style={{ backgroundColor: colors.inputBg, borderColor: colors.border, color: colors.text }} value={absenceData.date} onChange={e => setAbsenceData({...absenceData, date: e.target.value})} />
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.duration')}</label>
+                                        <label className="text-[9px] font-black tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.duration')}</label>
                                         <input type="number" min="1" required className="w-full px-5 py-3.5 border rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all" style={{ backgroundColor: colors.inputBg, borderColor: colors.border, color: colors.text }} value={absenceData.duration_days} onChange={e => setAbsenceData({...absenceData, duration_days: parseInt(e.target.value)})} />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-[9px] font-black uppercase tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.reason')}</label>
+                                    <label className="text-[9px] font-black tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.reason')}</label>
                                     <select className="w-full px-5 py-3.5 border rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all" style={{ backgroundColor: colors.inputBg, borderColor: colors.border, color: colors.text }} value={absenceData.reason} onChange={e => setAbsenceData({...absenceData, reason: e.target.value})}>
                                         <option value="sickness">{t('absences.reasons.sickness')}</option>
                                         <option value="family">{t('absences.reasons.family')}</option>
@@ -638,15 +638,15 @@ const PupilsList: React.FC = () => {
                                     <label htmlFor="justified" className="text-xs font-bold cursor-pointer" style={{ color: colors.text }}>{t('absences.justified')}</label>
                                 </div>
                                 <div>
-                                    <label className="text-[9px] font-black uppercase tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.notes')}</label>
+                                    <label className="text-[9px] font-black tracking-widest mb-1.5 block" style={{ color: colors.textSecondary }}>{t('absences.notes')}</label>
                                     <textarea className="w-full px-5 py-3.5 border rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all min-h-[80px] resize-none" style={{ backgroundColor: colors.inputBg, borderColor: colors.border, color: colors.text }} value={absenceData.notes} onChange={e => setAbsenceData({...absenceData, notes: e.target.value})} placeholder="..." />
                                 </div>
                             </form>
                         </div>
 
                         <div className="p-6 md:p-8 border-t flex gap-3" style={{ borderColor: colors.border }}>
-                            <button form="absence-form" type="submit" className="flex-1 bg-primary-600 text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
-                            <button type="button" onClick={() => setShowAbsenceModal(false)} className="flex-1 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.textSecondary }}>{t('common.cancel')}</button>
+                            <button form="absence-form" type="submit" className="flex-1 bg-primary-600 text-white py-3.5 rounded-xl font-black text-[10px] tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
+                            <button type="button" onClick={() => setShowAbsenceModal(false)} className="flex-1 py-3.5 rounded-xl font-black text-[10px] tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.textSecondary }}>{t('common.cancel')}</button>
                         </div>
                     </div>
                 </div>,

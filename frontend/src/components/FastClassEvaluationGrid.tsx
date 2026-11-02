@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import apiClient from '../api/client'
 import { 
     Users, Save, CheckCircle2, AlertTriangle, 
-    Sparkles, RefreshCw, BookOpen, Layers
+    RefreshCw, BookOpen, Layers
 } from 'lucide-react'
 import { getPupilPhotoUrl } from '../utils/imageUtils'
 
@@ -161,7 +161,7 @@ export const FastClassEvaluationGrid: React.FC = () => {
                 <div className="flex items-center gap-3">
                     <BookOpen size={24} className="text-[#00A99D]" />
                     <div>
-                        <h2 className="text-base font-black tracking-tight">Campagne d'Évaluation par Classe</h2>
+                        <h2 className="text-base font-black tracking-tight">Campagne d'évaluation par classe</h2>
                         <p className="text-xs text-slate-400">Évaluez l'ensemble des élèves de la classe en grille rapide</p>
                     </div>
                 </div>
@@ -201,7 +201,7 @@ export const FastClassEvaluationGrid: React.FC = () => {
                     <button
                         onClick={handleSubmitBatch}
                         disabled={submitting || classPupils.length === 0}
-                        className="px-5 py-2.5 rounded-xl bg-[#00A99D] hover:bg-[#008f85] text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg disabled:opacity-50 transition-all active:scale-95"
+                        className="px-5 py-2.5 rounded-xl bg-[#00A99D] hover:bg-[#008f85] text-white font-black text-xs tracking-wider flex items-center gap-2 shadow-lg disabled:opacity-50 transition-all active:scale-95"
                     >
                         {submitting ? <RefreshCw className="animate-spin" size={14} /> : <Save size={14} />}
                         Enregistrer la classe ({classPupils.length})
@@ -214,11 +214,11 @@ export const FastClassEvaluationGrid: React.FC = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                             <thead>
-                                <tr className="border-b border-slate-200 dark:border-white/5 text-slate-400 uppercase text-[10px] tracking-wider">
+                                <tr className="border-b border-slate-200 dark:border-white/5 text-slate-400 text-[10px] tracking-wider">
                                     <th className="pb-3 font-black">Élève</th>
                                     <th className="pb-3 font-black">Matricule</th>
-                                    <th className="pb-3 font-black">Presets Rapides</th>
-                                    <th className="pb-3 font-black text-center">Score FEV</th>
+                                    <th className="pb-3 font-black">Presets rapides</th>
+                                    <th className="pb-3 font-black text-center">Score fev</th>
                                     <th className="pb-3 font-black text-right">Diagnostic</th>
                                 </tr>
                             </thead>
@@ -283,7 +283,7 @@ export const FastClassEvaluationGrid: React.FC = () => {
                                             </td>
                                             <td className="py-3 text-right">
                                                 <span 
-                                                    className="px-2.5 py-1 rounded-lg font-black text-[10px] uppercase border tracking-wider"
+                                                    className="px-2.5 py-1 rounded-lg font-black text-[10px] border tracking-wider"
                                                     style={{ backgroundColor: pill.bg, borderColor: `${pill.color}40`, color: pill.color }}
                                                 >
                                                     {pill.label}

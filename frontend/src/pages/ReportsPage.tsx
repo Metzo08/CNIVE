@@ -104,8 +104,8 @@ const ReportsPage: React.FC = () => {
                                     }`}>
                                     <div className={`transition-transform duration-300 group-hover:scale-110 ${reportType === type.id ? 'text-[#00A99D]' : 'text-slate-400'}`}>{type.icon}</div>
                                     <div>
-                                        <div className={`font-black text-sm uppercase tracking-tight mb-1 ${reportType === type.id ? 'text-[#00A99D]' : ''}`}>{type.name}</div>
-                                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{type.description}</div>
+                                        <div className={`font-black text-sm  tracking-tight mb-1 ${reportType === type.id ? 'text-[#00A99D]' : ''}`}>{type.name}</div>
+                                        <div className="text-[10px] font-bold text-slate-500 tracking-widest">{type.description}</div>
                                     </div>
                                     {reportType === type.id && <div className="ml-auto w-6 h-6 rounded-full bg-[#00A99D] text-white flex items-center justify-center shadow-lg shadow-[#00A99D]/30 animate-in zoom-in-50"><CheckCircle2 size={12}/></div>}
                                 </div>
@@ -120,7 +120,7 @@ const ReportsPage: React.FC = () => {
                         </h3>
                         <div className="space-y-8">
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-2">
+                                <label className="block text-[10px] font-black tracking-[0.2em] text-slate-400 mb-3 ml-2">
                                     {reportType.startsWith('school_') ? "Sélection de l'établissement" : t('vulnerability.select_beneficiary')}
                                 </label>
                                 <select value={selectedEntity} onChange={e => setSelectedEntity(e.target.value)} 
@@ -135,7 +135,7 @@ const ReportsPage: React.FC = () => {
                                 </select>
                             </div>
                             <button onClick={handleGenerateReport} disabled={!selectedEntity || generating}
-                                className="w-full py-5 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all flex items-center justify-center gap-4 shadow-2xl disabled:opacity-30 disabled:grayscale disabled:shadow-none active:scale-[0.98]"
+                                className="w-full py-5 text-white rounded-2xl font-black text-xs tracking-[0.2em] transition-all flex items-center justify-center gap-4 shadow-2xl disabled:opacity-30 disabled:grayscale disabled:shadow-none active:scale-[0.98]"
                                 style={{ 
                                     background: selectedEntity ? 'linear-gradient(135deg, #00A99D, #F39200)' : '#64748b',
                                     boxShadow: selectedEntity ? '0 15px 30px rgba(0, 169, 157, 0.3)' : 'none'
@@ -149,7 +149,7 @@ const ReportsPage: React.FC = () => {
 
                 <div className="lg:col-span-1 space-y-8">
                     <div className="border rounded-2xl md:rounded-[2.5rem] p-5 md:p-8 lg:p-10 shadow-sm" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-3">
+                        <h3 className="text-xs font-black tracking-widest text-slate-400 mb-8 flex items-center gap-3">
                             <Info size={18} className="text-[#00A99D]"/> {t('reports.specifications')}
                         </h3>
                         <div className="space-y-6">
@@ -157,15 +157,15 @@ const ReportsPage: React.FC = () => {
                                 "{t('reports.spec_desc')}"
                             </p>
                             <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10">
-                                <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">{t('reports.format')}</p>
-                                <p className="text-sm font-black text-[#F39200] uppercase tracking-tighter">{t('reports.hq_pdf')}</p>
+                                <p className="text-[10px] font-black text-slate-400 tracking-widest mb-1">{t('reports.format')}</p>
+                                <p className="text-sm font-black text-[#F39200] tracking-tighter">{t('reports.hq_pdf')}</p>
                             </div>
                             <div className="p-6 bg-[#00A99D]/5 rounded-2xl border border-[#00A99D]/10">
-                                <p className="text-[10px] font-black uppercase text-[#00A99D] tracking-widest mb-2">Identité Visuelle</p>
+                                <p className="text-[10px] font-black text-[#00A99D] tracking-widest mb-2">Identité visuelle</p>
                                 <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-[#00A99D]" title="Nous Cims Teal"></div>
-                                    <div className="w-6 h-6 rounded-full bg-[#F39200]" title="Nous Cims Orange"></div>
-                                    <span className="text-[10px] font-bold text-slate-500">Fondation Nous Cims</span>
+                                    <div className="w-6 h-6 rounded-full bg-[#00A99D]" title="Nous cims teal"></div>
+                                    <div className="w-6 h-6 rounded-full bg-[#F39200]" title="Nous cims orange"></div>
+                                    <span className="text-[10px] font-bold text-slate-500">Fondation nous cims</span>
                                 </div>
                             </div>
                         </div>

@@ -10,7 +10,7 @@ import {
     Stethoscope, Map, CreditCard, 
     FileText, BrainCircuit, Bell, ClipboardList, 
     Settings, LogOut, Menu, X, Languages, Archive,
-    ChevronLeft, Shield, Sparkles
+    ChevronLeft, Shield
 } from 'lucide-react'
 
 interface NavItem {
@@ -83,7 +83,7 @@ const Layout: React.FC = () => {
         },
         {
             id: 'beneficiaries',
-            title: 'Bénéficiaires & Terrain',
+            title: 'Bénéficiaires et terrain',
             items: [
                 { path: '/pupils', label: formatLabel(t('nav.pupils')), icon: Users },
                 { path: '/vulnerability', label: formatLabel(t('nav.assessment')), icon: AlertTriangle },
@@ -95,7 +95,7 @@ const Layout: React.FC = () => {
         },
         {
             id: 'tools',
-            title: 'Services & Documents',
+            title: 'Services et documents',
             items: [
                 { path: '/cards', label: formatLabel(t('nav.cards')), icon: CreditCard },
                 { path: '/reports', label: formatLabel(t('nav.reports')), icon: FileText }
@@ -139,17 +139,17 @@ const Layout: React.FC = () => {
         if (!user) return 'Utilisateur'
         switch (user.role) {
             case 'GTE_ADMIN':
-                return 'Administrateur National'
+                return 'Administrateur national'
             case 'SCHOOL_DIRECTOR':
-                return 'Directeur d’École'
+                return 'Directeur d’école'
             case 'TEACHER':
                 return 'Enseignant'
             case 'SOCIAL_WORKER':
-                return 'Travailleur Social'
+                return 'Travailleur social'
             case 'HEALTH_WORKER':
-                return 'Agent de Santé'
+                return 'Agent de santé'
             default:
-                return user.role
+                return formatLabel(user.role)
         }
     }
     const roleLabel = getRoleLabel()
@@ -180,30 +180,30 @@ const Layout: React.FC = () => {
                                 <img 
                                     src="/logo_ministere.png" 
                                     className="h-8 w-auto object-contain flex-shrink-0" 
-                                    alt="Ministère de l'Éducation Nationale" 
+                                    alt="Ministère de l'éducation nationale" 
                                     onError={(e) => { e.currentTarget.style.display = 'none' }} 
                                 />
                                 <div className="flex flex-col min-w-0 flex-1 leading-tight">
-                                    <span className="text-[8px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">
-                                        République du Sénégal
+                                    <span className="text-[8px] font-black tracking-wider text-slate-400 dark:text-slate-400 truncate">
+                                        République du sénégal
                                     </span>
                                     <span className="text-[10px] font-black text-slate-800 dark:text-slate-100 truncate">
-                                        Éducation Nationale
+                                        Éducation nationale
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-1.5 flex-shrink-0">
                                     <img 
                                         src="/logo_gte.jpg" 
                                         className="w-7 h-7 rounded-lg shadow-sm border border-slate-200 dark:border-white/10 object-cover" 
-                                        alt="Groupe Thématique Éducation" 
-                                        title="Groupe Thématique Éducation (GTE)"
+                                        alt="Groupe thématique éducation" 
+                                        title="Groupe thématique éducation (gte)"
                                         onError={(e) => { e.currentTarget.style.display = 'none' }} 
                                     />
                                     <img 
                                         src="/logo_nouscims.png" 
                                         className="h-5 w-auto object-contain" 
                                         alt="Nous Cims" 
-                                        title="Fondation Nous Cims"
+                                        title="Fondation nous cims"
                                         onError={(e) => { e.currentTarget.style.display = 'none' }} 
                                     />
                                 </div>
@@ -223,7 +223,7 @@ const Layout: React.FC = () => {
                                     src="/logo_gte.jpg" 
                                     className="w-8 h-8 rounded-xl shadow-md border border-slate-200 dark:border-white/10 object-cover" 
                                     alt="GTE" 
-                                    title="Groupe Thématique Éducation (GTE)" 
+                                    title="Groupe thématique éducation (gte)" 
                                 />
                             </div>
                             <button 
@@ -242,7 +242,7 @@ const Layout: React.FC = () => {
                     {navSections.map((section) => (
                         <div key={section.id} className="space-y-1">
                             {!isCollapsed && (
-                                <p className="px-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 pt-2 pb-1">
+                                <p className="px-3 text-[10px] font-black tracking-[0.12em] text-slate-400 dark:text-slate-500 pt-2 pb-1">
                                     {section.title}
                                 </p>
                             )}
@@ -325,7 +325,7 @@ const Layout: React.FC = () => {
                                 <p className="text-xs font-black truncate">{displayName}</p>
                                 <div className="flex items-center gap-1 mt-0.5">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <p className="text-[9px] tracking-wider font-black text-slate-400 uppercase">{roleLabel}</p>
+                                    <p className="text-[9px] tracking-wider font-black text-slate-400">{roleLabel}</p>
                                 </div>
                                 {user?.schoolName && (
                                     <p className="text-[10px] font-bold text-sky-400 truncate mt-1" title={user.schoolName}>
@@ -343,11 +343,11 @@ const Layout: React.FC = () => {
                     
                     <button 
                         onClick={handleLogout} 
-                        title={isCollapsed ? t('nav.logout') : undefined}
+                        title={isCollapsed ? formatLabel(t('nav.logout')) : undefined}
                         className={`flex items-center w-full px-3 py-2.5 text-xs font-black text-red-500 transition-all rounded-xl hover:bg-red-500/10 active:scale-95 group touch-target ${isCollapsed ? 'justify-center' : 'gap-3'}`}
                     >
                         <LogOut size={18} className="group-hover:-translate-x-0.5 transition-transform" />
-                        {!isCollapsed && <span className="tracking-wider uppercase text-[10px]">{t('nav.logout')}</span>}
+                        {!isCollapsed && <span className="tracking-wider text-[11px]">{formatLabel(t('nav.logout'))}</span>}
                     </button>
                 </div>
             </aside>
@@ -361,8 +361,8 @@ const Layout: React.FC = () => {
                 {/* Bandeau Hors-Ligne */}
                 {!isOnline && (
                     <div className="bg-amber-500/90 text-slate-950 px-4 py-2 text-center text-xs font-black tracking-wide flex items-center justify-center gap-2 shadow-md z-50">
-                        <span>📶 Mode Hors-Ligne Actif</span>
-                        <span className="opacity-80 font-medium">— Vos consultations restent disponibles depuis le cache local PWA</span>
+                        <span>📶 Mode hors-ligne actif</span>
+                        <span className="opacity-80 font-medium">— vos consultations restent disponibles depuis le cache local pwa</span>
                     </div>
                 )}
                 {/* Header Moderne */}
@@ -381,12 +381,12 @@ const Layout: React.FC = () => {
                         </button>
                         <div className="flex flex-col min-w-0">
                             <h2 className="text-base md:text-2xl font-black tracking-tight truncate max-w-[160px] sm:max-w-[240px] md:max-w-none">
-                                {allNavItems.find(i => i.path === location.pathname)?.label || 'CNIVE'}
+                                {allNavItems.find(i => i.path === location.pathname)?.label || 'Cnive'}
                             </h2>
                             <div className="hidden sm:flex items-center gap-2 mt-0.5">
-                                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 tracking-[0.15em] uppercase flex items-center gap-1.5">
+                                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 tracking-[0.1em] flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    Plateforme Nationale • Sénégal
+                                    Plateforme nationale • sénégal
                                 </span>
                             </div>
                         </div>
@@ -400,7 +400,7 @@ const Layout: React.FC = () => {
                                 className="flex items-center gap-2 px-3 py-2 text-xs font-black transition-all bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 active:scale-95 touch-target"
                             >
                                 <Languages size={15} style={{ color: colors.primary }} />
-                                <span className="hidden md:inline tracking-widest">{i18n.language.toUpperCase()}</span>
+                                <span className="hidden md:inline tracking-widest">{formatLabel(i18n.language)}</span>
                             </button>
                             {langMenuOpen && (
                                 <div 

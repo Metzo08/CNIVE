@@ -272,7 +272,7 @@ const InterventionsPage: React.FC = () => {
         mode === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
     }`
 
-    const labelClass = `block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2`
+    const labelClass = `block text-[10px] font-black  tracking-widest text-slate-500 mb-2`
 
     const formatLabel = (text: string) => {
         if (!text) return ""
@@ -298,7 +298,7 @@ const InterventionsPage: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => { setShowForm(true); resetForm(); }}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest transition-all shadow-xl shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2 md:gap-3 touch-target"
+                    className="bg-primary-600 hover:bg-primary-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs tracking-widest transition-all shadow-xl shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2 md:gap-3 touch-target"
                 >
                     <Plus size={16}/> {formatLabel(t('interventions.add_new'))}
                 </button>
@@ -321,7 +321,7 @@ const InterventionsPage: React.FC = () => {
                             : { backgroundColor: colors.card, borderColor: colors.border, borderWidth: '2px' }
                         }
                     >
-                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 leading-tight">{formatLabel(stat.label)}</p>
+                        <p className="text-[8px] md:text-[10px] font-black tracking-widest text-slate-500 mb-1 leading-tight">{formatLabel(stat.label)}</p>
                         <p className="text-2xl md:text-4xl font-black" style={{ color: stat.color }}>{stat.value}</p>
                     </div>
                 ))}
@@ -337,7 +337,7 @@ const InterventionsPage: React.FC = () => {
                     <button 
                         key={f.id} 
                         onClick={() => { setFilter(f.id); setPage(1); }} 
-                        className="whitespace-nowrap px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
+                        className="whitespace-nowrap px-6 py-3.5 rounded-2xl font-black text-[10px] tracking-widest transition-all active:scale-95"
                         style={
                             filter === f.id 
                             ? { backgroundColor: colors.primary, color: '#ffffff', boxShadow: `0 10px 15px -3px ${colors.primary}40` } 
@@ -377,15 +377,15 @@ const InterventionsPage: React.FC = () => {
                                         {intervention.title}
                                     </h3>
                                     <p className="text-slate-500 font-bold text-xs md:text-sm truncate">
-                                        {intervention.pupil_name} <span className="hidden sm:inline mx-1 text-slate-300">•</span> <span className="hidden sm:inline text-primary-500 uppercase text-[10px] tracking-widest">{t(`interventions.types.${((intervention as any).type || intervention.intervention_type)?.toLowerCase()}`)}</span>
+                                        {intervention.pupil_name} <span className="hidden sm:inline mx-1 text-slate-300">•</span> <span className="hidden sm:inline text-primary-500 text-[10px] tracking-widest">{t(`interventions.types.${((intervention as any).type || intervention.intervention_type)?.toLowerCase()}`)}</span>
                                     </p>
                                 </div>
                                 <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-3 shrink-0">
-                                    <span className="hidden sm:inline px-3 md:px-4 py-1.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border"
+                                    <span className="hidden sm:inline px-3 md:px-4 py-1.5 rounded-xl text-[9px] md:text-[10px] font-black tracking-widest border"
                                           style={{ backgroundColor: priorityColors.bg, color: priorityColors.text, borderColor: `${priorityColors.text}20` }}>
                                         {t(`interventions.priorities.${intervention.priority?.toLowerCase()}`)}
                                     </span>
-                                    <span className="px-3 md:px-4 py-1.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border"
+                                    <span className="px-3 md:px-4 py-1.5 rounded-xl text-[9px] md:text-[10px] font-black tracking-widest border"
                                           style={{ backgroundColor: statusColors.bg, color: statusColors.text, borderColor: `${statusColors.text}20` }}>
                                         {t(`interventions.status.${intervention.status?.toLowerCase()}`)}
                                     </span>
@@ -447,7 +447,7 @@ const InterventionsPage: React.FC = () => {
                     <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl border"
                          style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                         <div className="sticky top-0 z-10 px-8 py-6 bg-primary-600 text-white flex items-center justify-between">
-                            <h2 className="text-xl font-black uppercase tracking-tighter">
+                            <h2 className="text-xl font-black tracking-tighter">
                                 {editingId ? formatLabel(t('interventions.form_edit')) : formatLabel(t('interventions.form_new'))}
                             </h2>
                             <button onClick={() => { setShowForm(false); resetForm(); }} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
@@ -505,10 +505,10 @@ const InterventionsPage: React.FC = () => {
                                 <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className={`${inputClass} min-h-[120px]`} placeholder={formatLabel(t('interventions.form.description_placeholder'))} />
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <button type="submit" disabled={submitting} className="flex-[2] bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-primary-500/20 active:scale-95 disabled:opacity-50">
+                                <button type="submit" disabled={submitting} className="flex-[2] bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-xl shadow-primary-500/20 active:scale-95 disabled:opacity-50">
                                     {submitting ? <Loader2 className="animate-spin mx-auto" size={20}/> : (editingId ? formatLabel(t('interventions.save_changes')) : formatLabel(t('interventions.save')))}
                                 </button>
-                                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="flex-1 bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-200 transition-all">
+                                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="flex-1 bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-slate-200 transition-all">
                                     {formatLabel(t('interventions.cancel'))}
                                 </button>
                             </div>
@@ -539,7 +539,7 @@ const InterventionsPage: React.FC = () => {
                                     {selectedIntervention.title}
                                 </h2>
                                 <div className="flex flex-wrap items-center gap-4 text-slate-500 font-bold text-sm">
-                                    <span className="text-primary-500 uppercase tracking-widest text-[10px] bg-primary-500/10 px-3 py-1 rounded-lg">{formatLabel(t(`interventions.types.${selectedIntervention.intervention_type?.toLowerCase()}`))}</span>
+                                    <span className="text-primary-500 tracking-widest text-[10px] bg-primary-500/10 px-3 py-1 rounded-lg">{formatLabel(t(`interventions.types.${selectedIntervention.intervention_type?.toLowerCase()}`))}</span>
                                     <span className="hidden sm:inline opacity-30">•</span>
                                     <span className="flex items-center gap-2"><Calendar size={14}/> {new Date(selectedIntervention.created_at).toLocaleDateString()}</span>
                                 </div>
@@ -558,7 +558,7 @@ const InterventionsPage: React.FC = () => {
                         </div>
 
                         <div className="mb-12">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">{formatLabel(t('interventions.description'))}</h3>
+                            <h3 className="text-[10px] font-black tracking-widest text-slate-400 mb-4">{formatLabel(t('interventions.description'))}</h3>
                             <div className="p-8 rounded-[2rem] border leading-relaxed font-medium"
                                  style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>
                                 {selectedIntervention.description || t('interventions.detail.no_description')}
@@ -566,14 +566,14 @@ const InterventionsPage: React.FC = () => {
                         </div>
 
                         <div className="mb-12">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                            <h3 className="text-[10px] font-black tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                                 <History size={14}/> {formatLabel(t('interventions.detail.history'))}
                             </h3>
                             <div className="space-y-4 mb-8">
                                 {logs.map((log) => (
                                     <div key={log.id} className="p-6 rounded-2xl border-l-4 border-primary-500 border" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
                                         <div className="flex justify-between items-center mb-3">
-                                            <span className="text-[10px] font-black uppercase text-primary-500 tracking-tighter">{formatLabel(t(`interventions.logs.${log.action_type.toLowerCase()}`) || log.action_type)}</span>
+                                            <span className="text-[10px] font-black text-primary-500 tracking-tighter">{formatLabel(t(`interventions.logs.${log.action_type.toLowerCase()}`) || log.action_type)}</span>
                                             <span className="text-[10px] font-bold text-slate-400">{new Date(log.timestamp).toLocaleString()}</span>
                                         </div>
                                         <p className="text-sm font-bold leading-relaxed">{log.details}</p>
@@ -589,20 +589,20 @@ const InterventionsPage: React.FC = () => {
                                     className="flex-1 px-5 py-4 border rounded-2xl outline-none focus:border-primary-500 transition-all font-medium text-sm"
                                     style={{ backgroundColor: colors.inputBg, borderColor: colors.border, color: colors.text }}
                                 />
-                                <button onClick={handleAddNote} className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95 shadow-lg shadow-primary-500/20 shrink-0">
+                                <button onClick={handleAddNote} className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-2xl font-black text-[10px] tracking-[0.2em] transition-all active:scale-95 shadow-lg shadow-primary-500/20 shrink-0">
                                     {formatLabel(t('interventions.detail.publish'))}
                                 </button>
                             </div>
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-100 dark:border-white/5">
-                            <button onClick={() => handleUpdateStatus('completed')} className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <button onClick={() => handleUpdateStatus('completed')} className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-3">
                                 <CheckCircle2 size={18}/> {formatLabel(t('interventions.status.completed'))}
                             </button>
-                            <button onClick={handleEdit} className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-50 transition-all">
+                            <button onClick={handleEdit} className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 py-5 rounded-2xl font-black text-xs tracking-widest hover:bg-slate-50 transition-all">
                                 {formatLabel(t('interventions.actions.edit'))}
                             </button>
-                            <button onClick={() => setShowDeleteConfirm(true)} className="flex-1 bg-red-500/10 text-red-500 border border-red-500/10 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-500 hover:text-white transition-all">
+                            <button onClick={() => setShowDeleteConfirm(true)} className="flex-1 bg-red-500/10 text-red-500 border border-red-500/10 py-5 rounded-2xl font-black text-xs tracking-widest hover:bg-red-500 hover:text-white transition-all">
                                 {formatLabel(t('interventions.actions.delete'))}
                             </button>
                         </div>

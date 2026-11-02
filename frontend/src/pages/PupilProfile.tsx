@@ -187,10 +187,10 @@ const PupilProfile: React.FC = () => {
                             {`${pupil.first_name} ${pupil.last_name}`}
                         </h1>
                         <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                            <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
+                            <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black tracking-widest">
                                 ID: {pupil.cnive_id}
                             </span>
-                            <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                            <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black tracking-widest flex items-center gap-2">
                                 <Shield size={14}/> {pupil.grade}
                             </span>
                         </div>
@@ -216,7 +216,7 @@ const PupilProfile: React.FC = () => {
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`whitespace-nowrap px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                        className={`whitespace-nowrap px-6 py-4 rounded-2xl font-black text-xs  tracking-widest transition-all ${
                             activeTab === tab.id 
                             ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' 
                             : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/5 hover:bg-slate-50'
@@ -232,28 +232,28 @@ const PupilProfile: React.FC = () => {
                 {activeTab === 'info' && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 animate-in fade-in duration-500">
                         <div>
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">{t('pupils.civil_state')}</h3>
+                            <h3 className="text-[10px] font-black text-slate-400 tracking-[0.2em] mb-8">{t('pupils.civil_state')}</h3>
                             <div className="space-y-6">
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.form.first_name')}</p><p className="text-xl font-black">{pupil.first_name}</p></div>
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.form.last_name')}</p><p className="text-xl font-black">{pupil.last_name}</p></div>
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.form.gender')}</p><p className="text-xl font-black">{pupil.gender === 'F' ? t('gender.female') : t('gender.male')}</p></div>
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.form.birth_date')}</p><p className="text-xl font-black">{new Date(pupil.birth_date).toLocaleDateString()}</p></div>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('pupils.form.first_name')}</p><p className="text-xl font-black">{pupil.first_name}</p></div>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('pupils.form.last_name')}</p><p className="text-xl font-black">{pupil.last_name}</p></div>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('pupils.form.gender')}</p><p className="text-xl font-black">{pupil.gender === 'F' ? t('gender.female') : t('gender.male')}</p></div>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('pupils.form.birth_date')}</p><p className="text-xl font-black">{new Date(pupil.birth_date).toLocaleDateString()}</p></div>
                             </div>
                         </div>
                         <div className="border-t lg:border-t-0 lg:border-l border-slate-200/50 dark:border-white/5 pt-12 lg:pt-0 lg:pl-12">
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">{t('pupils.schooling')}</h3>
+                            <h3 className="text-[10px] font-black text-slate-400 tracking-[0.2em] mb-8">{t('pupils.schooling')}</h3>
                             <div className="space-y-6">
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.form.grade')}</p><p className="text-xl font-black">{pupil.grade}</p></div>
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.cnive_id')}</p><p className="text-xl font-black text-primary-600">{pupil.cnive_id}</p></div>
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('common.status')}</p>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('pupils.form.grade')}</p><p className="text-xl font-black">{pupil.grade}</p></div>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('pupils.cnive_id')}</p><p className="text-xl font-black text-primary-600">{pupil.cnive_id}</p></div>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('common.status')}</p>
                                 <p className={`text-xl font-black ${pupil.status === 'ACTIVE' ? 'text-emerald-500' : 'text-amber-500'}`}>
                                     {pupil.status === 'ACTIVE' 
                                         ? (pupil.gender === 'F' ? t('status.active_f') : t('status.active_m')) 
                                         : t(`status.${pupil.status.toLowerCase()}`)}
                                 </p></div>
-                                <div><p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">{t('pupils.form.address')}</p><p className="text-xl font-black">{pupil.address || '---'}</p></div>
+                                <div><p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">{t('pupils.form.address')}</p><p className="text-xl font-black">{pupil.address || '---'}</p></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-primary-500 uppercase tracking-wider mb-1">Contact Tuteur / Parent</p>
+                                    <p className="text-[10px] font-black text-primary-500 tracking-wider mb-1">Contact tuteur / parent</p>
                                     <p className="text-xl font-black flex items-center gap-3">
                                         <span>{pupil.contact_parent1_name || 'Tuteur'}</span>
                                         {pupil.contact_parent1_phone && (
@@ -286,7 +286,7 @@ const PupilProfile: React.FC = () => {
                             <div className="space-y-8">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-8 bg-slate-50 dark:bg-white/5 rounded-[2.5rem]">
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('vulnerability.classification')}</p>
+                                        <p className="text-[10px] font-black text-slate-400 tracking-widest mb-2">{t('vulnerability.classification')}</p>
                                         <div className="flex items-center gap-4">
                                             <div className={`px-6 py-2 rounded-2xl text-xl font-black border ${
                                                 latestAssessment.classification === 'CRITICAL' ? 'bg-red-500 text-white border-red-600' :
@@ -296,18 +296,18 @@ const PupilProfile: React.FC = () => {
                                             }`}>
                                                 {t(`vulnerability.${latestAssessment.classification.toLowerCase()}`)}
                                             </div>
-                                            <p className="text-4xl font-black opacity-30">{latestAssessment.total_score} <span className="text-sm">pts</span></p>
+                                            <p className="text-4xl font-black opacity-30">{latestAssessment.total_score} <span className="text-sm">Pts</span></p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('vulnerability.last_update')}</p>
+                                        <p className="text-[10px] font-black text-slate-400 tracking-widest mb-2">{t('vulnerability.last_update')}</p>
                                         <p className="text-lg font-black">{new Date(latestAssessment.assessment_date).toLocaleDateString()}</p>
                                     </div>
                                 </div>
 
                                 {assessments && assessments.length > 1 && (
                                     <div className="p-6 md:p-8 bg-slate-50 dark:bg-white/5 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 dark:border-white/5 mb-8">
-                                        <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                                        <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 tracking-widest mb-6 flex items-center gap-2">
                                             <BarChart3 size={16} className="text-primary-500"/> {formatLabel('Historique de vulnérabilité FEV')}
                                         </h4>
                                         <div style={{ height: '240px', width: '100%', overflow: 'hidden' }}>
@@ -353,7 +353,7 @@ const PupilProfile: React.FC = () => {
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">{dim.label}</p>
+                                                    <p className="text-[10px] font-black text-slate-500 tracking-widest mb-3">{dim.label}</p>
                                                     <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                                         <div className={`h-full ${colorClass.split(' ')[1]} transition-all duration-1000`} style={{ width: `${percentage}%` }} />
                                                     </div>
@@ -392,7 +392,7 @@ const PupilProfile: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border`} style={{ backgroundColor: statusColors.bg, color: statusColors.text, borderColor: `${statusColors.text}20` }}>
+                                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black  tracking-widest border`} style={{ backgroundColor: statusColors.bg, color: statusColors.text, borderColor: `${statusColors.text}20` }}>
                                                     {t(`interventions.status.${inv.status}`)}
                                                 </span>
                                             </div>
@@ -407,7 +407,7 @@ const PupilProfile: React.FC = () => {
                 {activeTab === 'absences' && (
                     <div className="animate-in fade-in duration-500">
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('absences.history')}</h3>
+                            <h3 className="text-[10px] font-black text-slate-400 tracking-[0.2em]">{t('absences.history')}</h3>
                         </div>
                         
                         {loadingAbsences ? (
@@ -433,7 +433,7 @@ const PupilProfile: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
+                                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black  tracking-widest border ${
                                                 abs.is_justified ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'
                                             }`}>
                                                 {abs.is_justified ? t('absences.justified') : t('absences.not_justified')}
@@ -453,7 +453,7 @@ const PupilProfile: React.FC = () => {
                         ) : !aiData ? (
                             <div className="py-20 text-center opacity-40">
                                 <BrainCircuit size={64} className="mx-auto mb-6" />
-                                <p className="text-xl font-black tracking-tight">Analyse IA non disponible</p>
+                                <p className="text-xl font-black tracking-tight">Analyse ia non disponible</p>
                             </div>
                         ) : (
                             <div className="space-y-10">
@@ -472,7 +472,7 @@ const PupilProfile: React.FC = () => {
                                                 </svg>
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                                                     <p className="text-3xl font-black">{aiData.risk_prediction.risk_score}%</p>
-                                                    <p className="text-[8px] font-black uppercase tracking-widest opacity-60">{t('ai.predict.score') || 'Score Risque'}</p>
+                                                    <p className="text-[8px] font-black tracking-widest opacity-60">{t('ai.predict.score') || 'Score Risque'}</p>
                                                 </div>
                                             </div>
                                             <div>
@@ -489,7 +489,7 @@ const PupilProfile: React.FC = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="p-8 bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border border-slate-100 dark:border-white/5">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><AlertTriangle size={14}/> {t('ai.predict.factors')}</h4>
+                                        <h4 className="text-[10px] font-black tracking-widest text-slate-400 mb-6 flex items-center gap-2"><AlertTriangle size={14}/> {t('ai.predict.factors')}</h4>
                                         <ul className="space-y-4">
                                             {aiData.risk_prediction.factors.map((f, i) => (
                                                 <li key={i} className="flex gap-3 text-sm font-bold"><span className="text-primary-500">•</span> {f}</li>
@@ -497,7 +497,7 @@ const PupilProfile: React.FC = () => {
                                         </ul>
                                     </div>
                                     <div className="p-8 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-[2.5rem] border border-emerald-500/20">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-6 flex items-center gap-2"><CheckCircle2 size={14}/> {t('ai.predict.recommendations')}</h4>
+                                        <h4 className="text-[10px] font-black tracking-widest text-emerald-600 dark:text-emerald-400 mb-6 flex items-center gap-2"><CheckCircle2 size={14}/> {t('ai.predict.recommendations')}</h4>
                                         <ul className="space-y-4">
                                             {aiData.risk_prediction.recommendations.map((r, i) => (
                                                 <li key={i} className="flex gap-3 text-sm font-bold text-emerald-800 dark:text-emerald-300"><span className="text-emerald-500">✓</span> {r}</li>

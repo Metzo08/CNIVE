@@ -25,7 +25,7 @@ const queryClient = new QueryClient({
 const rootElement = document.getElementById('root');
 if (rootElement) {
     createRoot(rootElement).render(
-        <ErrorBoundary fallbackTitle="Interruption du système CNIVE">
+        <ErrorBoundary fallbackTitle="Interruption du système cnive">
             <QueryClientProvider client={queryClient}>
                 <BrowserRouter>
                     <App />

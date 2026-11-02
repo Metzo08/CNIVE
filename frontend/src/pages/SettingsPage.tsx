@@ -103,7 +103,7 @@ const SettingsPage: React.FC = () => {
                     <div style={{ backgroundColor: colors.card, borderRadius: '32px', padding: '40px', border: `1px solid ${colors.border}10` }}>
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}><User size={20} color={colors.primary}/> {t('settings.profile')}</h3>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, textTransform: 'uppercase' }}>Email</label>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary }}>Email</label>
                             <input type="email" value={userEmail} disabled
                                 style={{ width: '100%', padding: '18px 24px', backgroundColor: colors.bg, border: `1px solid ${colors.border}10`, borderRadius: '16px', color: colors.textSecondary, fontSize: '1rem', fontWeight: 600, outline: 'none' }}/>
                         </div>
@@ -140,7 +140,7 @@ const SettingsPage: React.FC = () => {
                                 <div style={{ padding: '24px', backgroundColor: '#10b98110', borderRadius: '24px', border: '1px solid #10b98120', display: 'flex', gap: '16px' }}>
                                     <div style={{ width: '48px', height: '48px', borderRadius: '14px', backgroundColor: '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Lock size={20}/></div>
                                     <div>
-                                        <h4 style={{ margin: 0, color: '#10b981', fontWeight: 800 }}>MFA Activé</h4>
+                                        <h4 style={{ margin: 0, color: '#10b981', fontWeight: 800 }}>Mfa activé</h4>
                                     </div>
                                 </div>
                                 <button onClick={disableMfa} style={{ padding: '18px', borderRadius: '16px', border: '1px solid #ef444430', backgroundColor: 'transparent', color: '#ef4444', fontWeight: 800, cursor: 'pointer' }}>{t('common.delete')} MFA</button>
@@ -150,7 +150,7 @@ const SettingsPage: React.FC = () => {
                                 <div style={{ textAlign: 'center', padding: '24px', backgroundColor: 'white', borderRadius: '24px', display: 'inline-block', margin: '0 auto' }}>
                                     <div style={{ width: '200px', height: '200px', backgroundColor: '#f8fafc', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px' }}>
                                         <QrCode size={64} color="#1e293b"/>
-                                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700 }}>QR CODE</span>
+                                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700 }}>Qr code</span>
                                     </div>
                                 </div>
                                 <div>

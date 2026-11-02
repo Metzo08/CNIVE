@@ -155,10 +155,9 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                                 fontSize: isPrint ? '5.5pt' : '9px', 
                                 fontWeight: 900, 
                                 letterSpacing: '0.6px', 
-                                color: '#047857',
-                                textTransform: 'uppercase'
+                                color: '#047857'
                             }}>
-                                République du Sénégal
+                                République du sénégal
                             </span>
                         </div>
                         <span style={{ 
@@ -168,7 +167,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                             letterSpacing: '0.4px',
                             lineHeight: 1.1
                         }}>
-                            CARTE NATIONALE DE L'ÉLÈVE • MUTUALIS
+                            Carte nationale de l'élève • mutualis
                         </span>
                         <span style={{ 
                             fontSize: isPrint ? '4pt' : '7px', 
@@ -176,7 +175,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                             fontWeight: 800,
                             letterSpacing: '0.2px'
                         }}>
-                            SEN-É-CARTE / COUVERTURE SANITAIRE UNIVERSELLE
+                            Sen-é-carte / couverture sanitaire universelle
                         </span>
                     </div>
 
@@ -230,7 +229,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                         ) : null}
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b' }}>
                             <User size={isPrint ? 18 : 28} />
-                            <span style={{ fontSize: isPrint ? '3.5pt' : '7px', fontWeight: 700, marginTop: '2px' }}>PHOTO</span>
+                            <span style={{ fontSize: isPrint ? '3.5pt' : '7px', fontWeight: 700, marginTop: '2px' }}>Photo</span>
                         </div>
                     </div>
 
@@ -242,7 +241,6 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                                 margin: 0,
                                 fontSize: isPrint ? '7.5pt' : '13px',
                                 fontWeight: 900,
-                                textTransform: 'uppercase',
                                 color: '#0f172a',
                                 lineHeight: 1.15,
                                 whiteSpace: 'nowrap',
@@ -270,7 +268,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                                     borderRadius: '3px',
                                     border: '0.5px solid #a7f3d0'
                                 }}>
-                                    SEN-É-CARTE
+                                    Sen-é-carte
                                 </span>
                             </div>
                         </div>
@@ -324,10 +322,10 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                     zIndex: 2
                 }}>
                     <span style={{ fontSize: isPrint ? '4pt' : '7.5px', color: '#64748b', fontWeight: 600 }}>
-                        Zone Modèle de Pikine • Année 2025 - 2026
+                        Zone modèle de pikine • année 2025 - 2026
                     </span>
                     <span style={{ fontSize: isPrint ? '4.2pt' : '7.5px', color: '#047857', fontWeight: 800 }}>
-                        PASS SCOLAIRE & COUVERTURE SANTÉ
+                        Pass scolaire et couverture santé
                     </span>
                 </div>
 
@@ -390,7 +388,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                             }} 
                         />
                         <span style={{ fontSize: isPrint ? '4pt' : '6.5px', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>
-                            MSD PIKINE
+                            Msd pikine
                         </span>
                     </div>
 
@@ -407,14 +405,14 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                             }} 
                         />
                         <span style={{ fontSize: isPrint ? '4pt' : '6.5px', fontWeight: 900, color: '#047857', lineHeight: 1 }}>
-                            SEN-CSU
+                            Sen-csu
                         </span>
                     </div>
                 </div>
 
                 {/* Badge Identifiant National */}
                 <div style={{ textAlign: 'right', flex: '0 0 auto' }}>
-                    <span style={{ fontSize: isPrint ? '3.5pt' : '6.5px', color: '#64748b', fontWeight: 700, display: 'block' }}>PASS DIGITAL</span>
+                    <span style={{ fontSize: isPrint ? '3.5pt' : '6.5px', color: '#64748b', fontWeight: 700, display: 'block' }}>Pass digital</span>
                     <span style={{ fontSize: isPrint ? '5pt' : '9px', fontWeight: 900, color: '#00853F', fontFamily: 'monospace' }}>
                         #{displayCniveId.slice(-6)}
                     </span>
@@ -458,7 +456,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                             />
                         ) : (
                             <div style={{ fontSize: isPrint ? '4pt' : '8px', textAlign: 'center', color: '#64748b' }}>
-                                QR CODE<br/>SÉCURISÉ
+                                Qr code<br/>sécurisé
                             </div>
                         )}
                     </div>
@@ -485,37 +483,37 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '2px' }}>
                         <Shield size={isPrint ? 8 : 11} color="#047857" />
-                        <span style={{ fontSize: isPrint ? '4.8pt' : '8.5px', fontWeight: 900, color: '#0f172a', textTransform: 'uppercase' }}>
-                            Niveaux d'Accès Sécurisés :
+                        <span style={{ fontSize: isPrint ? '4.8pt' : '8.5px', fontWeight: 900, color: '#0f172a' }}>
+                            Niveaux d'accès sécurisés :
                         </span>
                     </div>
 
                     {/* Niveau 1 : Éducatif */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: isPrint ? '4.2pt' : '7.5px' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', flexShrink: 0 }} />
-                        <span style={{ fontWeight: 800, color: '#047857' }}>Niv. 1 Scolaire :</span>
-                        <span style={{ color: '#475569' }}>Assiduité, bulletins (Directeur, Prof.)</span>
+                        <span style={{ fontWeight: 800, color: '#047857' }}>Niv. 1 scolaire :</span>
+                        <span style={{ color: '#475569' }}>Assiduité, bulletins (directeur, prof.)</span>
                     </div>
 
                     {/* Niveau 2 : Santé CSU & CMU */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: isPrint ? '4.2pt' : '7.5px' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#0284c7', flexShrink: 0 }} />
-                        <span style={{ fontWeight: 800, color: '#0284c7' }}>Niv. 2 Médical CSU :</span>
-                        <span style={{ color: '#475569' }}>Prise en charge, soins (Médecin, MSD)</span>
+                        <span style={{ fontWeight: 800, color: '#0284c7' }}>Niv. 2 médical csu :</span>
+                        <span style={{ color: '#475569' }}>Prise en charge, soins (médecin, msd)</span>
                     </div>
 
                     {/* Niveau 3 : Protection Sociale */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: isPrint ? '4.2pt' : '7.5px' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#f59e0b', flexShrink: 0 }} />
-                        <span style={{ fontWeight: 800, color: '#b45309' }}>Niv. 3 Social FEV :</span>
-                        <span style={{ color: '#475569' }}>Kits, cantine, bourses (Action sociale)</span>
+                        <span style={{ fontWeight: 800, color: '#b45309' }}>Niv. 3 social fev :</span>
+                        <span style={{ color: '#475569' }}>Kits, cantine, bourses (action sociale)</span>
                     </div>
 
                     {/* Niveau 4 : Sécurité & Contrôle */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: isPrint ? '4.2pt' : '7.5px' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#8b5cf6', flexShrink: 0 }} />
-                        <span style={{ fontWeight: 800, color: '#6d28d9' }}>Niv. 4 Contrôle :</span>
-                        <span style={{ color: '#475569' }}>Authentification numérique & intégrité</span>
+                        <span style={{ fontWeight: 800, color: '#6d28d9' }}>Niv. 4 contrôle :</span>
+                        <span style={{ color: '#475569' }}>Authentification numérique et intégrité</span>
                     </div>
                 </div>
             </div>
@@ -531,7 +529,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                 zIndex: 2
             }}>
                 <span style={{ fontSize: isPrint ? '3.8pt' : '7px', color: '#dc2626', fontWeight: 800 }}>
-                    ⚠️ URGENCE MÉDICALE :
+                    ⚠️ Urgence médicale :
                 </span>
                 <span style={{ fontSize: isPrint ? '3.8pt' : '7px', color: '#64748b', fontStyle: 'italic', textAlign: 'right' }}>
                     Scanner pour afficher le groupe sanguin, les allergies et le contact d'urgence.

@@ -4,7 +4,7 @@ import apiClient from '../api/client'
 import { 
     QrCode, Camera, CheckCircle2, AlertCircle, Utensils, 
     Backpack, Stethoscope, CheckSquare, HeartHandshake, 
-    RefreshCw, User, School, ShieldAlert, Sparkles
+    RefreshCw, User, School, ShieldAlert
 } from 'lucide-react'
 import { getPupilPhotoUrl } from '../utils/imageUtils'
 
@@ -40,11 +40,11 @@ interface RecentScan {
 }
 
 const SERVICES = [
-    { id: 'CANTINE', label: 'Cantine Scolaire', icon: Utensils, color: '#f59e0b', desc: 'Distribution de repas' },
-    { id: 'KIT_SCOLAIRE', label: 'Kit Fournitures', icon: Backpack, color: '#3b82f6', desc: 'Cahiers & Uniforme' },
-    { id: 'VISITE_SANTE', label: 'Visite Santé', icon: Stethoscope, color: '#10b981', desc: 'Contrôle CMU & Médical' },
-    { id: 'POINTAGE', label: 'Pointage Entrée', icon: CheckSquare, color: '#8b5cf6', desc: 'Présence établissement' },
-    { id: 'AIDE_URGENCE', label: 'Aide d\'Urgence', icon: HeartHandshake, color: '#ef4444', desc: 'Appui social immédiat' },
+    { id: 'CANTINE', label: 'Cantine scolaire', icon: Utensils, color: '#f59e0b', desc: 'Distribution de repas' },
+    { id: 'KIT_SCOLAIRE', label: 'Kit fournitures', icon: Backpack, color: '#3b82f6', desc: 'Cahiers et uniforme' },
+    { id: 'VISITE_SANTE', label: 'Visite santé', icon: Stethoscope, color: '#10b981', desc: 'Contrôle cmu et médical' },
+    { id: 'POINTAGE', label: 'Pointage entrée', icon: CheckSquare, color: '#8b5cf6', desc: 'Présence établissement' },
+    { id: 'AIDE_URGENCE', label: 'Aide d\'urgence', icon: HeartHandshake, color: '#ef4444', desc: 'Appui social immédiat' },
 ]
 
 export const CardServiceScanner: React.FC = () => {
@@ -141,7 +141,6 @@ export const CardServiceScanner: React.FC = () => {
             {/* 1. Sélecteur de Service */}
             <div className="p-6 rounded-3xl border border-slate-200 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
                 <div className="flex items-center gap-3 mb-4">
-                    <Sparkles className="text-amber-500" size={24} />
                     <div>
                         <h2 className="text-lg font-black tracking-tight">1. Choisir le service à délivrer</h2>
                         <p className="text-xs text-slate-400">Le scan appliquera automatiquement ce service au dossier de l'élève</p>
@@ -179,7 +178,7 @@ export const CardServiceScanner: React.FC = () => {
                     <div className="w-full flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Camera size={20} className="text-emerald-500" />
-                            <h3 className="font-black text-sm">Scanner par Caméra (QR / NFC)</h3>
+                            <h3 className="font-black text-sm">Scanner par caméra (qr / nfc)</h3>
                         </div>
                         {cameraActive ? (
                             <button 
@@ -209,7 +208,7 @@ export const CardServiceScanner: React.FC = () => {
                             <div className="text-center p-6 text-slate-500">
                                 <QrCode size={64} className="mx-auto mb-3 opacity-30" />
                                 <p className="text-xs font-bold">Caméra en attente d'activation</p>
-                                <p className="text-[10px] text-slate-600 mt-1">Autorisez la caméra pour scanner les QR codes Sen-e-Carte</p>
+                                <p className="text-[10px] text-slate-600 mt-1">Autorisez la caméra pour scanner les qr codes sen-e-carte</p>
                             </div>
                         )}
                         {cameraActive && (
@@ -231,10 +230,10 @@ export const CardServiceScanner: React.FC = () => {
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <QrCode size={20} className="text-sky-500" />
-                            <h3 className="font-black text-sm">Saisie Manuelle ou Douchette Code-barres</h3>
+                            <h3 className="font-black text-sm">Saisie manuelle ou douchette code-barres</h3>
                         </div>
                         <p className="text-xs text-slate-400 mb-6">
-                            Tapez le matricule CNIVE (ex: <code className="text-sky-400">CNIVE-2026-000001</code>) ou le code du QR token.
+                            Tapez le matricule cnive (ex: <code className="text-sky-400">CNIVE-2026-000001</code>) ou le code du qr token.
                         </p>
 
                         <form 
@@ -248,14 +247,14 @@ export const CardServiceScanner: React.FC = () => {
                                 type="text"
                                 value={manualToken}
                                 onChange={(e) => setManualToken(e.target.value)}
-                                placeholder="Entrer le jeton QR ou CNIVE ID..."
+                                placeholder="Entrer le jeton qr ou cnive id..."
                                 className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 font-mono text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-sky-500"
                             />
 
                             <button
                                 type="submit"
                                 disabled={loading || !manualToken.trim()}
-                                className="w-full py-3.5 px-4 rounded-2xl font-black text-xs uppercase tracking-wider text-white bg-sky-600 hover:bg-sky-500 active:scale-[0.99] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-600/30"
+                                className="w-full py-3.5 px-4 rounded-2xl font-black text-xs tracking-wider text-white bg-sky-600 hover:bg-sky-500 active:scale-[0.99] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-600/30"
                             >
                                 {loading ? <RefreshCw className="animate-spin" size={16} /> : <CheckCircle2 size={16} />}
                                 Valider le service pour cet élève
@@ -275,7 +274,7 @@ export const CardServiceScanner: React.FC = () => {
                         <div className="mt-4 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 animate-in zoom-in-95 duration-200">
                             <div className="flex items-center gap-2 mb-3">
                                 <CheckCircle2 size={20} className="text-emerald-500" />
-                                <span className="font-black text-xs uppercase tracking-wider">Service Validé !</span>
+                                <span className="font-black text-xs tracking-wider">Service validé !</span>
                             </div>
                             <div className="flex items-center gap-4 bg-emerald-950/30 p-3 rounded-xl border border-emerald-500/20">
                                 <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden flex-shrink-0 border border-emerald-500/30">
@@ -327,7 +326,7 @@ export const CardServiceScanner: React.FC = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                             <thead>
-                                <tr className="border-b border-slate-200 dark:border-white/5 text-slate-400 uppercase tracking-wider text-[10px]">
+                                <tr className="border-b border-slate-200 dark:border-white/5 text-slate-400 tracking-wider text-[10px]">
                                     <th className="pb-3 font-black">Élève</th>
                                     <th className="pb-3 font-black">Matricule</th>
                                     <th className="pb-3 font-black">Classe</th>

@@ -402,7 +402,7 @@ const Login: React.FC = () => {
                                 WebkitTextFillColor: 'transparent',
                                 letterSpacing: '-0.03em', 
                                 margin: 0 
-                            }}>CNIVE</h1>
+                            }}>Cnive</h1>
                         </div>
                     </div>
                     <p style={{ color: '#475569', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.1px', margin: 0 }}>
@@ -472,7 +472,7 @@ const Login: React.FC = () => {
                                     fontWeight: 600,
                                     boxSizing: 'border-box'
                                 }}
-                                placeholder="votre.email@cnive.sn"
+                                placeholder="Votre.email@cnive.sn"
                             />
                         </div>
                     </div>
@@ -554,7 +554,7 @@ const Login: React.FC = () => {
                 {/* Compact Footer */}
                 <div style={{ marginTop: '24px', paddingTop: '18px', borderTop: '1px solid rgba(16, 185, 129, 0.08)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#64748b', fontSize: '0.8rem', fontWeight: 600 }}>
-                        <Globe size={14} /> <span>Zone pilote de Pikine • République du Sénégal</span>
+                        <Globe size={14} /> <span>Zone pilote de pikine • république du sénégal</span>
                     </div>
                 </div>
             </div>

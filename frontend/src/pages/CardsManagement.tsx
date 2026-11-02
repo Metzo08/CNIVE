@@ -265,7 +265,7 @@ const CardsManagement: React.FC = () => {
             <div style={{ display: 'flex', gap: '8px', marginBottom: '40px', backgroundColor: `${colors.card}50`, padding: '8px', borderRadius: '24px', width: 'fit-content', flexWrap: 'wrap' }}>
                 {[
                     { id: 'overview', label: t('cards.tabs.overview'), icon: <BarChart3 size={18}/> },
-                    { id: 'scanner', label: "Scanner & Prestations", icon: <QrCode size={18}/> },
+                    { id: 'scanner', label: "Scanner et prestations", icon: <QrCode size={18}/> },
                     (user?.role === 'GTE_ADMIN' || user?.role === 'SCHOOL_DIRECTOR') ? { id: 'generate', label: t('cards.tabs.generate'), icon: <Plus size={18}/> } : null,
                     { id: 'history', label: t('cards.tabs.history'), icon: <History size={18}/> }
                 ].filter(Boolean).map((tab: any) => (
@@ -321,10 +321,10 @@ const CardsManagement: React.FC = () => {
                         <div style={{ backgroundColor: colors.card, borderRadius: '32px', padding: '40px', border: `1px solid ${colors.border}10`, height: '480px', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
                                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '12px', margin: 0 }}><MapPin color={colors.primary}/> {t('cards.hotspots')}</h3>
-                                {/* LIVE badge */}
+                                {/* En direct badge */}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '4px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 900, border: '1px solid rgba(239,68,68,0.2)' }}>
                                     <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#ef4444', animation: 'livePulse 1.5s ease-in-out infinite' }} />
-                                    LIVE
+                                    En direct
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', flexWrap: 'wrap' }}>
                                     <span style={{ fontSize: '0.7rem', color: colors.textSecondary, fontWeight: 600 }}>
@@ -332,7 +332,7 @@ const CardsManagement: React.FC = () => {
                                     </span>
                                     <button onClick={() => apiClient.get('/cards/analytics/global').then(r => { setQrStats(r.data); setLastRefresh(new Date()) })}
                                         style={{ padding: '6px 14px', borderRadius: '12px', border: `1px solid ${colors.border}20`, background: colors.bg, color: colors.primary, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>
-                                        ↻ Refresh
+                                        ↻ Actualiser
                                     </button>
                                 </div>
                             </div>
@@ -679,10 +679,10 @@ const CardsManagement: React.FC = () => {
                             <div>
                                 <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: colors.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <CreditCard size={22} color="#00853F" />
-                                    Carte d'Élève • Modèle Mutualis CSU
+                                    Carte d'élève • modèle mutualis csu
                                 </h3>
                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: colors.textSecondary, fontWeight: 600 }}>
-                                    Format horizontal ID-1 • {selectedPupilDetails.pupil_name || `${selectedPupilDetails.first_name || ''} ${selectedPupilDetails.last_name || ''}`} ({selectedPupilDetails.cnive_id})
+                                    Format horizontal id-1 • {selectedPupilDetails.pupil_name || `${selectedPupilDetails.first_name || ''} ${selectedPupilDetails.last_name || ''}`} ({selectedPupilDetails.cnive_id})
                                 </p>
                             </div>
                             <button 
@@ -709,7 +709,7 @@ const CardsManagement: React.FC = () => {
                                     transition: 'all 0.2s ease'
                                 }}
                             >
-                                📄 Recto (Face Avant)
+                                📄 Recto (face avant)
                             </button>
                             <button
                                 onClick={() => setCardPreviewSide('verso')}
@@ -725,7 +725,7 @@ const CardsManagement: React.FC = () => {
                                     transition: 'all 0.2s ease'
                                 }}
                             >
-                                🔄 Verso (CSU & QR)
+                                🔄 Verso (csu et qr)
                             </button>
                             <button
                                 onClick={() => setCardPreviewSide('both')}
@@ -741,7 +741,7 @@ const CardsManagement: React.FC = () => {
                                     transition: 'all 0.2s ease'
                                 }}
                             >
-                                📑 Les Deux Faces
+                                📑 Les deux faces
                             </button>
                         </div>
 
@@ -749,16 +749,16 @@ const CardsManagement: React.FC = () => {
                         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '24px' }}>
                             {(cardPreviewSide === 'recto' || cardPreviewSide === 'both') && (
                                 <div style={{ flex: cardPreviewSide === 'both' ? '1 1 440px' : '1 1 100%', maxWidth: '480px' }}>
-                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
-                                        Face Avant — Recto (Identité & Scolarité)
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, marginBottom: '8px', letterSpacing: '0.5px' }}>
+                                        Face avant — recto (identité et scolarité)
                                     </p>
                                     <PupilIdCard card={selectedPupilDetails} side="recto" isPrint={false} />
                                 </div>
                             )}
                             {(cardPreviewSide === 'verso' || cardPreviewSide === 'both') && (
                                 <div style={{ flex: cardPreviewSide === 'both' ? '1 1 440px' : '1 1 100%', maxWidth: '480px' }}>
-                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
-                                        Face Arrière — Verso (SEN-CSU & Niveaux d'accès)
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, marginBottom: '8px', letterSpacing: '0.5px' }}>
+                                        Face arrière — verso (sen-csu et niveaux d'accès)
                                     </p>
                                     <PupilIdCard card={selectedPupilDetails} side="verso" isPrint={false} />
                                 </div>
@@ -777,13 +777,13 @@ const CardsManagement: React.FC = () => {
                                 }} 
                                 style={{ padding: '12px 18px', borderRadius: '14px', backgroundColor: `${colors.border}20`, color: colors.text, border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}
                             >
-                                <Activity size={16} /> Historique & Scans
+                                <Activity size={16} /> Historique et scans
                             </button>
                             <button 
                                 onClick={() => handlePrint(selectedPupilDetails.id)} 
                                 style={{ padding: '12px 24px', borderRadius: '14px', backgroundColor: '#00853F', color: 'white', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', boxShadow: '0 4px 15px rgba(0, 133, 63, 0.3)' }}
                             >
-                                <Printer size={16} /> Imprimer Recto-Verso (Format Standard)
+                                <Printer size={16} /> Imprimer recto-verso (format standard)
                             </button>
                         </div>
                     </div>
@@ -827,7 +827,7 @@ const CardsManagement: React.FC = () => {
                                 <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', fontWeight: 700, color: colors.textSecondary }}>Total des scans</p>
                             </div>
                             <div style={{ padding: '20px', backgroundColor: colors.bg, borderRadius: '20px', textAlign: 'center' }}>
-                                <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#10b981' }}>{selectedPupilAnalytics.active ? 'ACTIF' : 'INACTIF'}</span>
+                                <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#10b981' }}>{selectedPupilAnalytics.active ? 'Actif' : 'Inactif'}</span>
                                 <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', fontWeight: 700, color: colors.textSecondary }}>Statut du pass</p>
                             </div>
                         </div>
@@ -840,21 +840,21 @@ const CardsManagement: React.FC = () => {
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '24px' }}>
                     <div style={{ maxWidth: '640px', width: '100%', backgroundColor: colors.card, borderRadius: '32px', padding: '40px', border: `1px solid ${colors.border}20` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Rôles & Niveaux d'Accès Sécurisés</h3>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Rôles et niveaux d'accès sécurisés</h3>
                             <button onClick={() => setShowRolesModal(false)} style={{ background: 'none', border: 'none', color: colors.textSecondary, cursor: 'pointer' }}><X size={20}/></button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
-                                <strong style={{ color: '#10b981' }}>🟢 Niveau Scolaire :</strong> Directeur d'école, Enseignant (Scolarité, présences, notes)
+                                <strong style={{ color: '#10b981' }}>🟢 Niveau scolaire :</strong> Directeur d'école, enseignant (scolarité, présences, notes)
                             </div>
                             <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
-                                <strong style={{ color: '#0284c7' }}>🔵 Niveau Médical :</strong> Médecin, Agent de santé, Mutuelle de Santé (CSU, groupe sanguin, soins)
+                                <strong style={{ color: '#0284c7' }}>🔵 Niveau médical :</strong> Médecin, agent de santé, mutuelle de santé (csu, groupe sanguin, soins)
                             </div>
                             <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
-                                <strong style={{ color: '#f59e0b' }}>🟠 Niveau Social :</strong> Travailleur social, Relais communautaire (Score FEV, cantine, bourses)
+                                <strong style={{ color: '#f59e0b' }}>🟠 Niveau social :</strong> Travailleur social, relais communautaire (score fev, cantine, bourses)
                             </div>
                             <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
-                                <strong style={{ color: '#8b5cf6' }}>🟣 Niveau Contrôle :</strong> Administrateur GTE, Inspection d'Académie (Sécurité & audit)
+                                <strong style={{ color: '#8b5cf6' }}>🟣 Niveau contrôle :</strong> Administrateur gte, inspection d'académie (sécurité et audit)
                             </div>
                         </div>
                     </div>

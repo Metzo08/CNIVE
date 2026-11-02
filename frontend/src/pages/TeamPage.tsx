@@ -154,7 +154,7 @@ const TeamPage: React.FC = () => {
     const getRoleMeta = (role: string) => ROLE_META[role] || { label: role, icon: <Users size={18}/>, color: '#6b7280' }
 
     const inputClass = `w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-2xl outline-none font-bold focus:ring-4 focus:ring-primary-500/10 transition-all text-slate-800 dark:text-white`
-    const labelClass = `block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3`
+    const labelClass = `block text-[10px] font-black  tracking-widest text-slate-500 mb-3`
 
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-0 pb-20">
@@ -186,7 +186,7 @@ const TeamPage: React.FC = () => {
                         </div>
                     </div>
                     <button onClick={() => { setEditingMember(null); setPhotoPreview(null); setPhotoFile(null); setFormData({ email: '', password: '', first_name: '', last_name: '', role: 'TEACHER', school_id: '', is_active: true, photo_url: '' }); setShowModal(true); }}
-                        className="bg-white text-indigo-600 px-5 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2 md:gap-3 shrink-0">
+                        className="bg-white text-indigo-600 px-5 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2 md:gap-3 shrink-0">
                         <UserPlus size={16}/> {t('team.add_new')}
                     </button>
                 </div>
@@ -203,7 +203,7 @@ const TeamPage: React.FC = () => {
                             <div style={{ color: s.color }}>{s.icon}</div>
                             <div className="text-2xl md:text-4xl font-black" style={{ color: s.color }}>{s.value}</div>
                         </div>
-                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 leading-tight">{s.label}</p>
+                        <p className="text-[9px] md:text-[10px] font-black tracking-widest text-slate-500 leading-tight">{s.label}</p>
                     </div>
                 ))}
             </div>
@@ -239,7 +239,7 @@ const TeamPage: React.FC = () => {
                                     <h3 className="font-black text-lg truncate">{m.first_name} {m.last_name}</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <div className={`w-2 h-2 rounded-full ${m.is_active ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{m.is_active ? t('status.active') : t('status.inactive')}</span>
+                                        <span className="text-[10px] font-black text-slate-500 tracking-widest">{m.is_active ? t('status.active') : t('status.inactive')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -249,7 +249,7 @@ const TeamPage: React.FC = () => {
                                     <Mail size={16} className="shrink-0"/> <span className="truncate">{m.email}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm font-bold" style={{ color: meta.color }}>
-                                    <Shield size={16} className="shrink-0"/> <span className="uppercase tracking-widest text-[10px]">{meta.label}</span>
+                                    <Shield size={16} className="shrink-0"/> <span className="tracking-widest text-[10px]">{meta.label}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
                                     <Calendar size={16} className="shrink-0"/> {m.last_login ? new Date(m.last_login).toLocaleDateString() : '---'}
@@ -264,7 +264,7 @@ const TeamPage: React.FC = () => {
                                     setFormData({ email: m.email, password: '', first_name: m.first_name, last_name: m.last_name, role: m.role, school_id: m.school_id || '', is_active: m.is_active, photo_url: m.photo_url || '' }); 
                                     setShowModal(true); 
                                 }}
-                                    className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-primary-500 hover:text-white hover:border-primary-500 transition-all flex items-center justify-center gap-2">
+                                    className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 py-3 rounded-xl font-black text-[10px] tracking-widest hover:bg-primary-500 hover:text-white hover:border-primary-500 transition-all flex items-center justify-center gap-2">
                                     <Edit3 size={14}/> {t('common.edit')}
                                 </button>
                                 {m.email !== user?.email && (
@@ -304,16 +304,16 @@ const TeamPage: React.FC = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
                                     <label className={labelClass}>{t('pupils.form.first_name')}</label>
-                                    <input type="text" value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className={inputClass} placeholder="Ex: Moussa" required />
+                                    <input type="text" value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className={inputClass} placeholder="Ex: moussa" required />
                                 </div>
                                 <div>
                                     <label className={labelClass}>{t('pupils.form.last_name')}</label>
-                                    <input type="text" value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className={inputClass} placeholder="Ex: Diop" required />
+                                    <input type="text" value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className={inputClass} placeholder="Ex: diop" required />
                                 </div>
                             </div>
                             <div>
                                 <label className={labelClass}>Email</label>
-                                <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} disabled={!!editingMember} className={inputClass} placeholder="email@exemple.com" required />
+                                <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} disabled={!!editingMember} className={inputClass} placeholder="Email@exemple.com" required />
                             </div>
                             <div>
                                 <label className={labelClass}>Mot de passe {editingMember && t('common.optional')}</label>
@@ -340,10 +340,10 @@ const TeamPage: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                <button type="submit" disabled={submitting} className="flex-[2] bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-primary-500/20 active:scale-95 disabled:opacity-50">
+                                <button type="submit" disabled={submitting} className="flex-[2] bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-xl shadow-primary-500/20 active:scale-95 disabled:opacity-50">
                                     {submitting ? t('common.loading') : t('common.save')}
                                 </button>
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-slate-100 dark:bg-white/5 text-slate-500 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-200 transition-all">
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-slate-100 dark:bg-white/5 text-slate-500 py-4 rounded-2xl font-black text-xs tracking-widest hover:bg-slate-200 transition-all">
                                     {t('common.cancel')}
                                 </button>
                             </div>

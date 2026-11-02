@@ -125,7 +125,7 @@ const PublicPupilProfile: React.FC = () => {
                     </button>
                     <button onClick={toggleLanguage} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700 }}>
                         <Globe size={16} />
-                        {i18n.language.toUpperCase()}
+                        {(i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1).toLowerCase())}
                     </button>
                 </div>
                 <div style={{ position: 'absolute', bottom: '-50px', left: '50%', transform: 'translateX(-50%)' }}>
@@ -168,7 +168,7 @@ const PublicPupilProfile: React.FC = () => {
                     )}
                     {gpsStatus === 'success' && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '5px 12px', borderRadius: '16px', fontSize: '0.7rem', fontWeight: 800, border: '1px solid rgba(16,185,129,0.2)' }}>
-                            <MapPin size={11} /> GPS enregistré
+                            <MapPin size={11} /> Gps enregistré
                         </div>
                     )}
                 </div>
@@ -189,17 +189,17 @@ const PublicPupilProfile: React.FC = () => {
                     
                     <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
                         <div style={{ flex: 1, background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '14px', minWidth: 0 }}>
-                            <p style={{ margin: '0 0 2px 0', color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>{t('scan.blood_group')}</p>
+                            <p style={{ margin: '0 0 2px 0', color: '#64748b', fontSize: '0.65rem', fontWeight: 700 }}>{t('scan.blood_group')}</p>
                             <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>{health?.blood_group || '?'}</p>
                         </div>
                         <div style={{ flex: 1, background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '14px', minWidth: 0 }}>
-                            <p style={{ margin: '0 0 2px 0', color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>{t('scan.gender')}</p>
+                            <p style={{ margin: '0 0 2px 0', color: '#64748b', fontSize: '0.65rem', fontWeight: 700 }}>{t('scan.gender')}</p>
                             <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700 }}>{pupil.gender === 'M' ? t('scan.masculine') : t('scan.feminine')}</p>
                         </div>
                     </div>
 
                     <div style={{ marginTop: '12px', background: 'rgba(239, 68, 68, 0.05)', padding: '12px', borderRadius: '14px', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
-                        <p style={{ margin: '0 0 4px 0', color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>{t('scan.allergies')}</p>
+                        <p style={{ margin: '0 0 4px 0', color: '#ef4444', fontSize: '0.65rem', fontWeight: 800 }}>{t('scan.allergies')}</p>
                         <p style={{ margin: 0, color: '#f8fafc', fontSize: '0.85rem', fontWeight: 500, lineHeight: 1.4 }}>
                             {health?.allergies || t('scan.no_allergies')}
                         </p>
@@ -257,8 +257,8 @@ const PublicPupilProfile: React.FC = () => {
 
             {/* Footer Branding */}
             <div style={{ textAlign: 'center', padding: '10px', opacity: 0.5 }}>
-                <p style={{ fontSize: '0.7rem', fontWeight: 600, margin: 0 }}>CNIVE • République du Sénégal</p>
-                <p style={{ fontSize: '0.6rem', fontWeight: 400, margin: '2px 0 0 0' }}>v2.7 - Multilingual Support</p>
+                <p style={{ fontSize: '0.7rem', fontWeight: 600, margin: 0 }}>Cnive • république du sénégal</p>
+                <p style={{ fontSize: '0.6rem', fontWeight: 400, margin: '2px 0 0 0' }}>V2.7 - support multilingue</p>
             </div>
         </div>
     )

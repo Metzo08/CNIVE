@@ -133,7 +133,7 @@ const Dashboard: React.FC = () => {
     return (
         <div className="max-w-7xl mx-auto">
             <div className="mb-8 md:mb-10">
-                <p className="text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 mb-1">{formatLabel(t('dashboard.location'))}</p>
+                <p className="text-[10px] tracking-[0.2em] font-black text-slate-500 mb-1">{formatLabel(t('dashboard.location'))}</p>
                 <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter mb-2">{formatLabel(t('dashboard.title'))}</h1>
                 <p className="text-slate-500 font-medium text-sm md:text-base">{t('dashboard.subtitle', { count: stats.totalPupils })}</p>
             </div>
@@ -143,7 +143,7 @@ const Dashboard: React.FC = () => {
                     <Link key={i} to={card.link} className="block no-underline group h-full">
                         <div className="p-4 md:p-6 lg:p-8 rounded-2xl md:rounded-[2.5rem] h-full border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary-500/5 relative overflow-hidden shadow-sm" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                             <div className="absolute top-4 right-4 md:top-6 md:right-6 opacity-20 group-hover:scale-125 transition-transform" style={{ color: card.color }}>{card.icon}</div>
-                            <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 md:mb-4 leading-tight">{card.title}</p>
+                            <p className="text-[9px] md:text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 mb-2 md:mb-4 leading-tight">{card.title}</p>
                             <div className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter" style={{ color: card.color }}>
                                 {loading ? '...' : (card.hasError ? <span className="text-sm md:text-lg font-bold text-red-500 flex items-center gap-1"><AlertCircle size={16} /> Err.</span> : card.value)}
                             </div>
@@ -157,9 +157,9 @@ const Dashboard: React.FC = () => {
                     <div className="flex justify-between items-start md:items-end mb-6 md:mb-12">
                         <div>
                             <h3 className="text-base md:text-xl font-black tracking-tight mb-1 text-slate-800 dark:text-white">{formatLabel(t('dashboard.sections.vulnerability'))}</h3>
-                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{formatLabel(t('dashboard.sections.distribution'))}</p>
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-widest">{formatLabel(t('dashboard.sections.distribution'))}</p>
                         </div>
-                        <Link to="/vulnerability" className="text-[10px] font-black uppercase tracking-widest text-primary-500 hover:underline shrink-0 ml-4">{formatLabel(t('common.view_all'))}</Link>
+                        <Link to="/vulnerability" className="text-[10px] font-black tracking-widest text-primary-500 hover:underline shrink-0 ml-4">{formatLabel(t('common.view_all'))}</Link>
                     </div>
 
                     {errors.vulnerabilities ? (
@@ -172,7 +172,7 @@ const Dashboard: React.FC = () => {
                         {vulnerabilityTotal === 0 && (
                             <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-400 text-xs font-semibold flex items-center gap-3">
                                 <Info size={20} className="shrink-0" />
-                                <span>Cohorte pilote active (1 478 élèves). Les évaluations FEV débuteront dès la validation définitive de la grille ministérielle.</span>
+                                <span>Cohorte pilote active (1 478 élèves). les évaluations fev débuteront dès la validation définitive de la grille ministérielle.</span>
                             </div>
                         )}
                         {[
@@ -185,7 +185,7 @@ const Dashboard: React.FC = () => {
                             return (
                                 <div key={i}>
                                     <div className="flex justify-between items-center mb-3">
-                                        <span className="text-sm font-black uppercase tracking-tight text-slate-700 dark:text-slate-200">{formatLabel(level.label)}</span>
+                                        <span className="text-sm font-black tracking-tight text-slate-700 dark:text-slate-200">{formatLabel(level.label)}</span>
                                         <span className="text-sm font-black" style={{ color: level.color }}>{level.count} ({percent.toFixed(0)}%)</span>
                                     </div>
                                     <div className="h-3 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
@@ -208,7 +208,7 @@ const Dashboard: React.FC = () => {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight mb-1">{formatLabel(activity.message)}</p>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{formatLabel(activity.time)}</p>
+                                    <p className="text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500">{formatLabel(activity.time)}</p>
                                 </div>
                             </div>
                         ))}

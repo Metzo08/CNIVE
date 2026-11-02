@@ -153,7 +153,7 @@ const MapPage: React.FC = () => {
                     }}>
                         <MapContainer center={pikineCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
                             <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Openstreetmap</a>'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
                             {/* Zone d'intervention Nous Cims - interactive=false pour ne pas bloquer les clics */}
@@ -256,7 +256,7 @@ const MapPage: React.FC = () => {
                             </div>
                             <div>
                                 <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, color: colors.textSecondary }}>{t('map.coverage')}</p>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '1.25rem', fontWeight: 800 }}>Pikine - Guédiawaye</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '1.25rem', fontWeight: 800 }}>Pikine - guédiawaye</p>
                             </div>
                         </div>
                     </div>

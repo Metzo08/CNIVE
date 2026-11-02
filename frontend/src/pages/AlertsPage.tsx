@@ -106,15 +106,20 @@ const AlertsPage: React.FC = () => {
         }
     }
 
+    const formatSentence = (str: string) => {
+        if (!str) return ''
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+    }
+
     const translateMessage = (alert: Alert) => {
         const titleLower = alert.title.toLowerCase()
         if (titleLower.includes('cmu non enrôlé') || titleLower.includes('cmu no inscrito')) {
-            return { title: t('alerts.messages.cmu_not_enrolled'), message: t('alerts.messages.cmu_not_enrolled_desc') }
+            return { title: formatSentence(t('alerts.messages.cmu_not_enrolled')), message: t('alerts.messages.cmu_not_enrolled_desc') }
         }
         if (titleLower.includes('urgence: cas critique') || titleLower.includes('urgencia: caso crítico')) {
-            return { title: t('alerts.messages.critical_vulnerability'), message: alert.message }
+            return { title: formatSentence(t('alerts.messages.critical_vulnerability')), message: alert.message }
         }
-        return { title: alert.title, message: alert.message }
+        return { title: formatSentence(alert.title), message: alert.message }
     }
 
     const totalPages = Math.ceil(totalAlerts / limit) || 1
@@ -136,7 +141,7 @@ const AlertsPage: React.FC = () => {
                         </div>
                     </div>
                     {unreadCount > 0 && (
-                        <button onClick={markAllRead} className="bg-white text-rose-600 px-5 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2 md:gap-3 shrink-0">
+                        <button onClick={markAllRead} className="bg-white text-rose-600 px-5 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-xs tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2 md:gap-3 shrink-0">
                             <CheckCircle2 size={16} className="md:hidden"/> <CheckCircle2 size={20} className="hidden md:block"/> {t('alerts.mark_all_read')}
                         </button>
                     )}
@@ -154,7 +159,7 @@ const AlertsPage: React.FC = () => {
                     const isActive = filter === f.id
                     return (
                         <button key={f.id} onClick={() => handleFilterChange(f.id)}
-                            className={`whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shrink-0 ${
+                            className={`whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-[11px] tracking-widest transition-all shrink-0 ${
                                 isActive 
                                 ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' 
                                 : 'border'
@@ -164,7 +169,7 @@ const AlertsPage: React.FC = () => {
                         </button>
                     )
                 })}
-                <div className="shrink-0 flex items-center px-3 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest" 
+                <div className="shrink-0 flex items-center px-3 py-2.5 rounded-xl border text-[11px] font-black tracking-widest" 
                      style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.textSecondary }}>
                     {totalAlerts} {t('common.total') || 'total'}
                 </div>
@@ -175,7 +180,7 @@ const AlertsPage: React.FC = () => {
                 <div className="hidden lg:block lg:col-span-1 space-y-8">
                     <div className="rounded-[2.5rem] p-8 h-fit lg:sticky lg:top-24 border transition-all duration-300"
                          style={{ backgroundColor: colors.card, borderColor: colors.border }}>
-                        <h3 className="text-[10px] font-black uppercase tracking-widest mb-8 flex items-center gap-3"
+                        <h3 className="text-xs font-black tracking-widest mb-8 flex items-center gap-3"
                             style={{ color: colors.textSecondary }}><Filter size={14}/> {t('alerts.filters.title')}</h3>
                         <div className="flex flex-col gap-2">
                             {[
@@ -187,7 +192,7 @@ const AlertsPage: React.FC = () => {
                                 const isActive = filter === f.id
                                 return (
                                     <button key={f.id} onClick={() => handleFilterChange(f.id)}
-                                        className={`w-full px-4 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 ${
+                                        className={`w-full px-4 py-4 rounded-2xl font-black text-xs tracking-widest transition-all flex items-center gap-3 ${
                                             isActive 
                                             ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/20' 
                                             : 'hover:bg-slate-100 dark:hover:bg-white/5'
@@ -200,7 +205,7 @@ const AlertsPage: React.FC = () => {
                             })}
                         </div>
                         <div className="mt-10 pt-8 text-center border-t" style={{ borderColor: colors.border }}>
-                            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.textSecondary }}>{t('alerts.total_count', { count: totalAlerts })}</p>
+                            <p className="text-xs font-black tracking-widest" style={{ color: colors.textSecondary }}>{t('alerts.total_count', { count: totalAlerts })}</p>
                         </div>
                     </div>
                 </div>
@@ -239,21 +244,21 @@ const AlertsPage: React.FC = () => {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
                                                     <h4 className="text-lg font-black tracking-tight leading-tight" style={{ color: alert.is_read ? colors.textSecondary : colors.text }}>{translated.title}</h4>
-                                                    <span className="text-[10px] font-black uppercase shrink-0" style={{ color: colors.textSecondary }}>{new Date(alert.created_at).toLocaleDateString()}</span>
+                                                    <span className="text-[11px] font-black shrink-0" style={{ color: colors.textSecondary }}>{new Date(alert.created_at).toLocaleDateString()}</span>
                                                 </div>
                                                 <p className="font-medium text-sm md:text-base leading-relaxed mb-6" style={{ color: colors.textSecondary }}>{translated.message}</p>
                                                 
                                                 <div className="flex flex-wrap gap-3">
-                                                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border"
+                                                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest border"
                                                          style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.textSecondary }}>
-                                                        {getChannelIcon(alert.channel)} {alert.channel === 'email' ? 'E-mail' : alert.channel === 'sms' ? 'Sms' : alert.channel === 'in_app' ? 'In-app' : alert.channel}
+                                                        {getChannelIcon(alert.channel)} {alert.channel === 'email' ? 'E-mail' : alert.channel === 'sms' ? 'Sms' : alert.channel === 'in_app' ? 'In-app' : formatSentence(alert.channel)}
                                                     </div>
-                                                    <div className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border"
+                                                    <div className="px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest border"
                                                          style={{ backgroundColor: config.bg, color: config.color, borderColor: `${config.color}20` }}>
                                                         {config.label}
                                                     </div>
                                                     {alert.is_escalated && (
-                                                        <div className="px-3 py-1.5 bg-orange-500/10 text-orange-500 border border-orange-500/20 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                                        <div className="px-3 py-1.5 bg-orange-500/10 text-orange-500 border border-orange-500/20 rounded-lg text-[10px] font-black tracking-widest">
                                                             {t('alerts.escalated')}
                                                         </div>
                                                     )}
@@ -275,18 +280,18 @@ const AlertsPage: React.FC = () => {
                                     <button 
                                         disabled={page === 1}
                                         onClick={() => setPage(p => Math.max(1, p - 1))}
-                                        className="w-full sm:w-auto px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest disabled:opacity-30 transition-all border"
+                                        className="w-full sm:w-auto px-8 py-3 rounded-xl font-black text-xs tracking-widest disabled:opacity-30 transition-all border"
                                         style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.textSecondary }}
                                     >
                                         {t('common.previous')}
                                     </button>
-                                    <span className="font-black text-xs uppercase tracking-tighter" style={{ color: colors.text }}>
+                                    <span className="font-black text-xs tracking-tighter" style={{ color: colors.text }}>
                                         Page <span style={{ color: colors.primary }}>{page}</span> <span className="mx-2 opacity-20" style={{ color: colors.textSecondary }}>/</span> {totalPages}
                                     </span>
                                     <button 
                                         disabled={page === totalPages}
                                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                        className="w-full sm:w-auto px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest disabled:opacity-30 transition-all border"
+                                        className="w-full sm:w-auto px-8 py-3 rounded-xl font-black text-xs tracking-widest disabled:opacity-30 transition-all border"
                                         style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.textSecondary }}
                                     >
                                         {t('common.next')}

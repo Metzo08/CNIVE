@@ -14,7 +14,7 @@ const Login: React.FC = () => {
             <div className="w-full max-w-md bg-slate-800 rounded-3xl border border-slate-700 p-10 shadow-2xl">
                 <div className="text-center mb-10">
                     <h1 className="text-3xl font-bold text-white mb-2">Connexion</h1>
-                    <p className="text-slate-400">Accédez à votre espace CNIVE</p>
+                    <p className="text-slate-400">Accédez à votre espace cnive</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -25,7 +25,7 @@ const Login: React.FC = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                            placeholder="votre@email.com"
+                            placeholder="Votre@email.com"
                             required
                         />
                     </div>
@@ -59,7 +59,7 @@ const Login: React.FC = () => {
                 </form>
 
                 <div className="mt-8 text-center text-slate-500 text-sm">
-                    Propulsé par <span className="text-slate-300 font-semibold">Sen-E-Carte</span>
+                    Propulsé par <span className="text-slate-300 font-semibold">Sen-e-carte</span>
                 </div>
             </div>
         </div>

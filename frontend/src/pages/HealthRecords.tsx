@@ -315,17 +315,17 @@ const HealthRecords: React.FC = () => {
                                     </div>
                                     <div className="min-w-0">
                                         <h3 className="font-black text-lg truncate pr-16 group-hover:text-primary-500 transition-colors" style={{ color: colors.text }}>{pupilName}</h3>
-                                        <p className="text-[10px] font-black uppercase tracking-widest mt-1" style={{ color: colors.textSecondary }}>ID: {item.pupil?.cnive_id || '---'}</p>
+                                        <p className="text-[10px] font-black tracking-widest mt-1" style={{ color: colors.textSecondary }}>ID: {item.pupil?.cnive_id || '---'}</p>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3 mb-4">
                                     <div className="p-3 rounded-2xl border" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
-                                        <p className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('health.blood_group')}</p>
+                                        <p className="text-[9px] font-black tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('health.blood_group')}</p>
                                         <p className="font-black text-lg" style={{ color: colors.primary }}>{item.blood_group || '---'}</p>
                                     </div>
                                     <div className="p-3 rounded-2xl border flex flex-col justify-center" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
-                                        <p className="text-[9px] font-black uppercase tracking-widest mb-2" style={{ color: colors.textSecondary }}>{t('health.cmu_status')}</p>
-                                        <span className={`px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border inline-block text-center ${
+                                        <p className="text-[9px] font-black tracking-widest mb-2" style={{ color: colors.textSecondary }}>{t('health.cmu_status')}</p>
+                                        <span className={`px-2 py-1.5 rounded-lg text-[9px] font-black  tracking-widest border inline-block text-center ${
                                             item.cmu_status === 'enrolled' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 
                                             item.cmu_status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 
                                             'bg-red-500/10 text-red-500 border-red-500/20'
@@ -352,7 +352,7 @@ const HealthRecords: React.FC = () => {
                                     </div>
                                     <div className="min-w-0">
                                         <h3 className="font-black text-lg truncate pr-16 group-hover:text-blue-500 transition-colors" style={{ color: colors.text }}>{pupilName}</h3>
-                                        <p className="text-[10px] font-black uppercase tracking-widest mt-1" style={{ color: colors.textSecondary }}>{new Date(item.administered_date).toLocaleDateString()}</p>
+                                        <p className="text-[10px] font-black tracking-widest mt-1" style={{ color: colors.textSecondary }}>{new Date(item.administered_date).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                                 <div className="p-4 rounded-2xl border mb-4" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
@@ -360,7 +360,7 @@ const HealthRecords: React.FC = () => {
                                         <div className="p-2 bg-blue-500/10 text-blue-500 rounded-xl"><Syringe size={16}/></div>
                                         <span className="font-black truncate" style={{ color: colors.text }}>{item.vaccine_name}</span>
                                     </div>
-                                    <span className="px-3 py-1 bg-blue-500 text-white rounded-lg font-black text-[10px] uppercase tracking-widest shadow-md shadow-blue-500/20 inline-block">
+                                    <span className="px-3 py-1 bg-blue-500 text-white rounded-lg font-black text-[10px] tracking-widest shadow-md shadow-blue-500/20 inline-block">
                                         {t('health.vaccination.dose_num', { num: item.dose_number })}
                                     </span>
                                 </div>
@@ -382,14 +382,14 @@ const HealthRecords: React.FC = () => {
                                     </div>
                                     <div className="min-w-0">
                                         <h3 className="font-black text-lg truncate pr-16 group-hover:text-emerald-500 transition-colors" style={{ color: colors.text }}>{pupilName}</h3>
-                                        <p className="text-[10px] font-black uppercase tracking-widest mt-1" style={{ color: colors.textSecondary }}>{new Date(item.consultation_date).toLocaleDateString()}</p>
+                                        <p className="text-[10px] font-black tracking-widest mt-1" style={{ color: colors.textSecondary }}>{new Date(item.consultation_date).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                                 <div className="p-4 rounded-2xl border mb-4" style={{ backgroundColor: colors.bg, borderColor: colors.border }}>
                                     <div className="flex items-start gap-3">
                                         <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl shrink-0"><Stethoscope size={16}/></div>
                                         <div>
-                                            <p className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('health.consultation.reason')}</p>
+                                            <p className="text-[9px] font-black tracking-widest mb-1" style={{ color: colors.textSecondary }}>{t('health.consultation.reason')}</p>
                                             <span className="font-black line-clamp-2 leading-snug" style={{ color: colors.text }}>{item.consultation_type}</span>
                                         </div>
                                     </div>
@@ -409,7 +409,7 @@ const HealthRecords: React.FC = () => {
     const inputClass = `w-full px-6 py-4 border rounded-2xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all ${
         mode === 'dark' ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'
     }`
-    const labelClass = "text-[10px] font-black uppercase tracking-widest mb-2 block"
+    const labelClass = "text-[10px] font-black  tracking-widest mb-2 block"
 
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-0 pb-20">
@@ -426,7 +426,7 @@ const HealthRecords: React.FC = () => {
                         else if (activeTab === 'vaccinations') setShowVaccinationModal(true)
                         else setShowConsultationModal(true)
                     }}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest transition-all shadow-xl shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2 md:gap-3 touch-target"
+                    className="bg-primary-600 hover:bg-primary-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs tracking-widest transition-all shadow-xl shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2 md:gap-3 touch-target"
                 >
                     <Plus size={16}/> {
                         activeTab === 'overview' ? formatLabel(t('health.new_record')) :
@@ -458,7 +458,7 @@ const HealthRecords: React.FC = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-black" style={{ color: colors.text }}>{p.first_name} {p.last_name}</p>
-                                                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.textSecondary }}>ID: {p.cnive_id}</p>
+                                                <p className="text-[10px] font-black tracking-widest" style={{ color: colors.textSecondary }}>ID: {p.cnive_id}</p>
                                             </div>
                                         </div>
                                     )
@@ -493,7 +493,7 @@ const HealthRecords: React.FC = () => {
                                 </div>
                                 {formData.cmu_status !== 'not_enrolled' && (
                                     <div>
-                                        <label className={labelClass} style={{ color: colors.textSecondary }}>Numéro CMU</label>
+                                        <label className={labelClass} style={{ color: colors.textSecondary }}>Numéro cmu</label>
                                         <input type="text" className={inputClass} value={formData.cmu_number || ''} onChange={e => setFormData({...formData, cmu_number: e.target.value})} placeholder="Numéro d'affiliation..." />
                                     </div>
                                 )}
@@ -504,8 +504,8 @@ const HealthRecords: React.FC = () => {
                             </form>
                         </div>
                         <div className="p-8 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
-                            <button type="submit" form="recordForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
-                            <button type="button" onClick={() => { setShowRecordModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
+                            <button type="submit" form="recordForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
+                            <button type="button" onClick={() => { setShowRecordModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
                         </div>
                     </div>
                 </div>,
@@ -533,7 +533,7 @@ const HealthRecords: React.FC = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-black" style={{ color: colors.text }}>{p.first_name} {p.last_name}</p>
-                                                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.textSecondary }}>ID: {p.cnive_id}</p>
+                                                <p className="text-[10px] font-black tracking-widest" style={{ color: colors.textSecondary }}>ID: {p.cnive_id}</p>
                                             </div>
                                         </div>
                                     )
@@ -570,8 +570,8 @@ const HealthRecords: React.FC = () => {
                             </form>
                         </div>
                         <div className="p-8 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
-                            <button type="submit" form="vaccForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
-                            <button type="button" onClick={() => { setShowVaccinationModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
+                            <button type="submit" form="vaccForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
+                            <button type="button" onClick={() => { setShowVaccinationModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
                         </div>
                     </div>
                 </div>,
@@ -599,7 +599,7 @@ const HealthRecords: React.FC = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-black" style={{ color: colors.text }}>{p.first_name} {p.last_name}</p>
-                                                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.textSecondary }}>ID: {p.cnive_id}</p>
+                                                <p className="text-[10px] font-black tracking-widest" style={{ color: colors.textSecondary }}>ID: {p.cnive_id}</p>
                                             </div>
                                         </div>
                                     )
@@ -641,8 +641,8 @@ const HealthRecords: React.FC = () => {
                             </form>
                         </div>
                         <div className="p-8 md:p-10 border-t shrink-0 flex gap-4" style={{ borderColor: colors.border }}>
-                            <button type="submit" form="consForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
-                            <button type="button" onClick={() => { setShowConsultationModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
+                            <button type="submit" form="consForm" className="flex-1 bg-primary-600 text-white py-4 rounded-2xl font-black text-xs tracking-widest shadow-lg shadow-primary-500/20 active:scale-95 transition-all">{t('common.save')}</button>
+                            <button type="button" onClick={() => { setShowConsultationModal(false); resetForm(); }} className="flex-1 py-4 rounded-2xl font-black text-xs tracking-widest active:scale-95 transition-all border" style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}>{t('common.cancel')}</button>
                         </div>
                     </div>
                 </div>,
@@ -654,7 +654,7 @@ const HealthRecords: React.FC = () => {
                 {healthCards.map((card, i) => (
                     <div key={i} className="p-4 md:p-6 lg:p-8 rounded-2xl md:rounded-[2.5rem] shadow-sm relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl group border" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                         <div className="absolute top-4 right-4 md:top-6 md:right-6 opacity-20 group-hover:scale-125 transition-transform" style={{ color: card.color }}>{card.icon}</div>
-                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1 md:mb-2 leading-tight" style={{ color: colors.textSecondary }}>{card.label}</p>
+                        <p className="text-[9px] md:text-[10px] font-black tracking-widest mb-1 md:mb-2 leading-tight" style={{ color: colors.textSecondary }}>{card.label}</p>
                         <div className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter" style={{ color: card.color }}>{card.value}</div>
                     </div>
                 ))}
@@ -671,7 +671,7 @@ const HealthRecords: React.FC = () => {
                         <button
                             key={tab.id}
                             onClick={() => { setActiveTab(tab.id); setPage(1); }}
-                            className="whitespace-nowrap px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 active:scale-95 border touch-target"
+                            className="whitespace-nowrap px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] tracking-widest transition-all flex items-center gap-2 active:scale-95 border touch-target"
                             style={
                                 activeTab === tab.id 
                                 ? { backgroundColor: colors.primary, color: '#ffffff', borderColor: colors.primary, boxShadow: `0 10px 15px -3px ${colors.primary}40` } 
