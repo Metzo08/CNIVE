@@ -25,7 +25,7 @@ async def get_drive_photo(drive_id: str):
     cache_file = UPLOAD_DIR / "drive_cache" / f"{drive_id}.jpg"
 
     if not cache_file.exists() or cache_file.stat().st_size == 0:
-        url = f"https://lh3.googleusercontent.com/d/{drive_id}"
+        url = f"https://drive.google.com/thumbnail?id={drive_id}&sz=w400"
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
         try:
             async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:

@@ -6,7 +6,7 @@ import {
     Users, Save, CheckCircle2, AlertTriangle, 
     RefreshCw, BookOpen, Layers
 } from 'lucide-react'
-import { getPupilPhotoUrl } from '../utils/imageUtils'
+import { getPupilPhotoUrl, handlePupilPhotoError } from '../utils/imageUtils'
 
 interface Pupil {
     id: string
@@ -230,18 +230,19 @@ export const FastClassEvaluationGrid: React.FC = () => {
                                     return (
                                         <tr key={p.id} className="hover:bg-white/5 transition-colors">
                                             <td className="py-3 font-bold text-white flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0 border border-slate-700">
+                                                <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0 border border-slate-700 relative flex items-center justify-center">
+                                                    <div className="w-full h-full flex items-center justify-center font-black text-[11px] text-white bg-slate-700 z-0">
+                                                        {p.first_name.charAt(0)}
+                                                    </div>
                                                     {p.photo_url ? (
                                                         <img 
                                                             src={getPupilPhotoUrl(p.photo_url)} 
                                                             alt={p.first_name} 
-                                                            className="w-full h-full object-cover" 
+                                                            className="w-full h-full object-cover absolute inset-0 z-10" 
+                                                            referrerPolicy="no-referrer"
+                                                            onError={(e) => handlePupilPhotoError(e, p.photo_url)}
                                                         />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center font-black text-[11px] text-white bg-slate-700">
-                                                            {p.first_name.charAt(0)}
-                                                        </div>
-                                                    )}
+                                                    ) : null}
                                                 </div>
                                                 <span className="truncate">{p.first_name} {p.last_name}</span>
                                             </td>

@@ -1,6 +1,6 @@
 import React from 'react'
-import { getPupilPhotoUrl } from '../utils/imageUtils'
-import { User, Phone, School as SchoolIcon, Shield, CheckCircle2, HeartPulse, GraduationCap, Users } from 'lucide-react'
+import { getPupilPhotoUrl, handlePupilPhotoError } from '../utils/imageUtils'
+import { User, Shield } from 'lucide-react'
 
 export interface PupilCardData {
     id?: string
@@ -218,19 +218,19 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                         alignItems: 'center',
                         justifyContent: 'center'
                     }}>
+                        <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b' }}>
+                            <User size={isPrint ? 18 : 28} />
+                            <span style={{ fontSize: isPrint ? '3.5pt' : '7px', fontWeight: 700, marginTop: '2px' }}>Photo</span>
+                        </div>
                         {card.photo_url ? (
                             <img 
                                 src={getPupilPhotoUrl(card.photo_url)} 
                                 alt={displayName}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                style={{ position: 'absolute', inset: 0, zIndex: 2, width: '100%', height: '100%', objectFit: 'cover' }}
                                 referrerPolicy="no-referrer"
-                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                onError={(e) => handlePupilPhotoError(e, card.photo_url)}
                             />
                         ) : null}
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b' }}>
-                            <User size={isPrint ? 18 : 28} />
-                            <span style={{ fontSize: isPrint ? '3.5pt' : '7px', fontWeight: 700, marginTop: '2px' }}>Photo</span>
-                        </div>
                     </div>
 
                     {/* Bloc informations personnelles */}
@@ -350,7 +350,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                 zIndex: 10
             }} />
 
-            {/* EN-TÊTE VERSO AVEC LES 3 LOGOS DEMANDÉS */}
+            {/* EN-TÊTE VERSO : UNIQUEMENT 2 LOGOS (1 À CHAQUE EXTRÉMITÉ) */}
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -362,60 +362,40 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                 paddingBottom: isPrint ? '1mm' : '6px',
                 marginTop: isPrint ? '0.5mm' : '2px'
             }}>
-                {/* 1. Extrême gauche : Logo officiel de NOUS CIMS */}
+                {/* Extrême gauche : Logo officiel de NOUS CIMS */}
                 <div style={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
                     <img 
                         src="/logo_nouscims.png" 
                         alt="Fondation Nous Cims" 
                         style={{ 
-                            height: isPrint ? '7mm' : '30px', 
-                            maxWidth: isPrint ? '18mm' : '75px',
+                            height: isPrint ? '7.5mm' : '32px', 
+                            maxWidth: isPrint ? '22mm' : '90px',
                             objectFit: 'contain'
                         }} 
                     />
                 </div>
 
-                {/* 2. Au milieu : Logo de la MSD de Pikine ET Logo de la SEN-CSU */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: isPrint ? '2.5mm' : '10px', justifyContent: 'center', flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <img 
-                            src="/logo_msd.png" 
-                            alt="MSD Pikine" 
-                            style={{ 
-                                height: isPrint ? '7.5mm' : '32px', 
-                                width: 'auto',
-                                objectFit: 'contain'
-                            }} 
-                        />
-                        <span style={{ fontSize: isPrint ? '4pt' : '6.5px', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>
-                            Msd pikine
-                        </span>
-                    </div>
-
-                    <div style={{ width: '1px', height: isPrint ? '6mm' : '22px', backgroundColor: '#cbd5e1' }} />
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <img 
-                            src="/logo_sencsu.png" 
-                            alt="SEN-CSU" 
-                            style={{ 
-                                height: isPrint ? '7.5mm' : '32px', 
-                                width: 'auto',
-                                objectFit: 'contain'
-                            }} 
-                        />
-                        <span style={{ fontSize: isPrint ? '4pt' : '6.5px', fontWeight: 900, color: '#047857', lineHeight: 1 }}>
-                            Sen-csu
-                        </span>
-                    </div>
+                {/* Centre sobre sans logo : Référence du pass digital */}
+                <div style={{ textAlign: 'center', flex: 1, padding: '0 6px' }}>
+                    <span style={{ fontSize: isPrint ? '4pt' : '7px', color: '#64748b', fontWeight: 700, display: 'block' }}>
+                        Couverture sanitaire universelle
+                    </span>
+                    <span style={{ fontSize: isPrint ? '4.8pt' : '8.5px', fontWeight: 900, color: '#00853F', fontFamily: 'monospace' }}>
+                        Pass digital #{displayCniveId.slice(-6)}
+                    </span>
                 </div>
 
-                {/* Badge Identifiant National */}
-                <div style={{ textAlign: 'right', flex: '0 0 auto' }}>
-                    <span style={{ fontSize: isPrint ? '3.5pt' : '6.5px', color: '#64748b', fontWeight: 700, display: 'block' }}>Pass digital</span>
-                    <span style={{ fontSize: isPrint ? '5pt' : '9px', fontWeight: 900, color: '#00853F', fontFamily: 'monospace' }}>
-                        #{displayCniveId.slice(-6)}
-                    </span>
+                {/* Extrême droite : Logo officiel SEN-CSU */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flex: '0 0 auto' }}>
+                    <img 
+                        src="/logo_sencsu.png" 
+                        alt="SEN-CSU" 
+                        style={{ 
+                            height: isPrint ? '7.5mm' : '32px', 
+                            maxWidth: isPrint ? '22mm' : '90px',
+                            objectFit: 'contain'
+                        }} 
+                    />
                 </div>
             </div>
 

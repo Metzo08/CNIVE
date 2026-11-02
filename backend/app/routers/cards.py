@@ -69,6 +69,7 @@ def list_cards(
                     else "Élève inconnu"
                 ),
                 "cnive_id": pupil.cnive_id if pupil else "N/A",
+                "photo_url": pupil.photo_url if pupil else None,
                 "qr_url": f"{base_url}{card.qr_token}",
                 "status": card.status.value if card.status else "PENDING",
                 "created_at": card.created_at.isoformat() if card.created_at else None,

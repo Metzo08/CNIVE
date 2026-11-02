@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { getPupilPhotoUrl } from '../utils/imageUtils'
+import { getPupilPhotoUrl, handlePupilPhotoError } from '../utils/imageUtils'
 
 interface Pupil {
     id: string
@@ -192,18 +192,18 @@ const PupilProfile: React.FC = () => {
                 
                 <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8 relative z-10">
                     <div className="w-28 h-28 md:w-36 md:h-36 rounded-3xl md:rounded-[2.5rem] bg-white p-1 shadow-2xl overflow-hidden shrink-0 relative flex items-center justify-center">
+                        <div className="w-full h-full bg-primary-100 rounded-[1.4rem] md:rounded-[2.2rem] flex items-center justify-center text-primary-600 text-4xl md:text-5xl font-black select-none relative z-0">
+                            {pupil.first_name?.[0]}{pupil.last_name?.[0]}
+                        </div>
                         {pupil.photo_url ? (
                             <img 
                                 src={getPupilPhotoUrl(pupil.photo_url)} 
-                                className="w-full h-full object-cover rounded-[1.4rem] md:rounded-[2.2rem] absolute inset-0" 
+                                className="w-full h-full object-cover rounded-[1.4rem] md:rounded-[2.2rem] absolute inset-0 z-10" 
                                 alt={`${pupil.first_name} ${pupil.last_name}`}
                                 referrerPolicy="no-referrer"
-                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                onError={(e) => handlePupilPhotoError(e, pupil.photo_url)}
                             />
                         ) : null}
-                        <div className="w-full h-full bg-primary-100 rounded-[1.4rem] md:rounded-[2.2rem] flex items-center justify-center text-primary-600 text-4xl md:text-5xl font-black select-none">
-                            {pupil.first_name?.[0]}{pupil.last_name?.[0]}
-                        </div>
                     </div>
                     
                     <div className="flex-1 min-w-0 text-center lg:text-left">

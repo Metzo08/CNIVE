@@ -6,7 +6,7 @@ import {
     Backpack, Stethoscope, CheckSquare, HeartHandshake, 
     RefreshCw, User, School, ShieldAlert
 } from 'lucide-react'
-import { getPupilPhotoUrl } from '../utils/imageUtils'
+import { getPupilPhotoUrl, handlePupilPhotoError } from '../utils/imageUtils'
 
 interface ScannedPupil {
     id: string
@@ -277,18 +277,19 @@ export const CardServiceScanner: React.FC = () => {
                                 <span className="font-black text-xs tracking-wider">Service validé !</span>
                             </div>
                             <div className="flex items-center gap-4 bg-emerald-950/30 p-3 rounded-xl border border-emerald-500/20">
-                                <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden flex-shrink-0 border border-emerald-500/30">
+                                <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden flex-shrink-0 border border-emerald-500/30 relative flex items-center justify-center">
+                                    <div className="w-full h-full flex items-center justify-center font-black text-white text-base bg-emerald-600 z-0">
+                                        {result.pupil.name.charAt(0)}
+                                    </div>
                                     {result.pupil.photo_url ? (
                                         <img 
                                             src={getPupilPhotoUrl(result.pupil.photo_url)} 
                                             alt={result.pupil.name} 
-                                            className="w-full h-full object-cover" 
+                                            className="w-full h-full object-cover absolute inset-0 z-10" 
+                                            referrerPolicy="no-referrer"
+                                            onError={(e) => handlePupilPhotoError(e, result.pupil.photo_url)}
                                         />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center font-black text-white text-base bg-emerald-600">
-                                            {result.pupil.name.charAt(0)}
-                                        </div>
-                                    )}
+                                    ) : null}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <h4 className="font-black text-sm text-white truncate">{result.pupil.name}</h4>

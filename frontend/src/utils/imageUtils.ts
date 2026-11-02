@@ -1,4 +1,11 @@
+import React from 'react';
 import { API_URL } from '../config';
+
+export const extractDriveId = (url?: string | null): string | null => {
+    if (!url) return null;
+    const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/uploads\/drive\/([a-zA-Z0-9_-]+)/);
+    return driveMatch ? driveMatch[1] : null;
+};
 
 /**
  * Resolves pupil photo URL reliably:
@@ -9,9 +16,9 @@ import { API_URL } from '../config';
 export const getPupilPhotoUrl = (url?: string | null): string | undefined => {
     if (!url) return undefined;
     
-    const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (driveMatch) {
-        return `${API_URL}/uploads/drive/${driveMatch[1]}`;
+    const driveId = extractDriveId(url);
+    if (driveId) {
+        return `${API_URL}/uploads/drive/${driveId}`;
     }
     
     if (url.startsWith('/uploads')) {
@@ -19,6 +26,37 @@ export const getPupilPhotoUrl = (url?: string | null): string | undefined => {
     }
     
     return url;
+};
+
+/**
+ * Resilient multi-stage fallback handler for pupil photos:
+ * 1. Backend local cache proxy (`/uploads/drive/{id}`)
+ * 2. Google Drive high-reliability thumbnail endpoint (`drive.google.com/thumbnail?id={id}&sz=w400`)
+ * 3. Google lh3 content CDN (`lh3.googleusercontent.com/d/{id}`)
+ * 4. Clean fallback to initials/placeholder icon
+ */
+export const handlePupilPhotoError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
+    originalUrl?: string | null
+) => {
+    const img = e.currentTarget;
+    const driveId = extractDriveId(originalUrl) || extractDriveId(img.src);
+    const stage = Number(img.dataset.fallbackStage || '0');
+
+    if (driveId) {
+        if (stage === 0) {
+            img.dataset.fallbackStage = '1';
+            img.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w400`;
+            return;
+        }
+        if (stage === 1) {
+            img.dataset.fallbackStage = '2';
+            img.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+            return;
+        }
+    }
+
+    img.style.display = 'none';
 };
 
 /**

@@ -4,7 +4,7 @@ import { ShieldCheck, Heart, School, AlertTriangle, Phone, Activity, Calendar, U
 import { useTranslation } from 'react-i18next'
 import apiClient from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import { getPupilPhotoUrl } from '../utils/imageUtils'
+import { getPupilPhotoUrl, handlePupilPhotoError } from '../utils/imageUtils'
 
 const PublicPupilProfile: React.FC = () => {
     const { id } = useParams()
@@ -130,18 +130,18 @@ const PublicPupilProfile: React.FC = () => {
                 </div>
                 <div style={{ position: 'absolute', bottom: '-50px', left: '50%', transform: 'translateX(-50%)' }}>
                     <div style={{ width: '100px', height: '100px', borderRadius: '50%', border: '4px solid #0f172a', overflow: 'hidden', backgroundColor: '#1e293b', boxShadow: '0 8px 20px rgba(0,0,0,0.4)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', position: 'relative', zIndex: 1 }}>
+                            <User size={50} />
+                        </div>
                         {pupil.photo_url ? (
                             <img 
                                 src={getPupilPhotoUrl(pupil.photo_url)} 
                                 alt="Profile" 
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, zIndex: 2 }} 
                                 referrerPolicy="no-referrer"
-                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                onError={(e) => handlePupilPhotoError(e, pupil.photo_url)}
                             />
                         ) : null}
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
-                            <User size={50} />
-                        </div>
                     </div>
                 </div>
             </div>

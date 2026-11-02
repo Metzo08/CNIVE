@@ -13,6 +13,7 @@ import L from 'leaflet'
 import { CreditCard, QrCode, Activity, Users, User, MapPin, Plus, History, BarChart3, Download, Printer, Eye, Smartphone, ShieldCheck, X, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react'
 import CardServiceScanner from '../components/CardServiceScanner'
 import PupilIdCard from '../components/PupilIdCard'
+import { getPupilPhotoUrl, handlePupilPhotoError } from '../utils/imageUtils'
 
 // Custom marker icon for Leaflet
 const createIcon = (color: string) => L.divIcon({
@@ -41,6 +42,7 @@ interface Card {
     pupil_id: string
     cnive_id: string
     pupil_name: string
+    photo_url?: string | null
     qr_url: string
     qr_image_base64: string
     status: string
@@ -180,8 +182,9 @@ const CardsManagement: React.FC = () => {
                         apiClient.get(`/health-records/pupil/${pupilParam}`).catch(() => ({ data: null }))
                     ])
                     setSelectedPupilDetails({
-                        ...detailRes.data,
                         ...pupilRes.data,
+                        ...detailRes.data,
+                        photo_url: detailRes.data.photo_url || pupilRes.data.photo_url,
                         health: healthRes.data
                     })
                     setShowDigitalCard(true)
@@ -636,6 +639,21 @@ const CardsManagement: React.FC = () => {
                                             style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: colors.primary }}
                                         />
                                     )}
+                                    <div className="w-11 h-11 rounded-2xl overflow-hidden shrink-0 relative flex items-center justify-center font-black text-sm text-white" style={{ backgroundColor: colors.primary }}>
+                                        <span className="select-none pointer-events-none z-0">
+                                            {(card.pupil_name || 'E').charAt(0).toUpperCase()}
+                                        </span>
+                                        {card.photo_url ? (
+                                            <img 
+                                                src={getPupilPhotoUrl(card.photo_url)} 
+                                                alt={card.pupil_name}
+                                                className="w-full h-full object-cover absolute inset-0 z-10"
+                                                loading="lazy"
+                                                referrerPolicy="no-referrer"
+                                                onError={(e) => handlePupilPhotoError(e, card.photo_url)}
+                                            />
+                                        ) : null}
+                                    </div>
                                     <div className="min-w-0">
                                         <button
                                             type="button"
@@ -660,8 +678,9 @@ const CardsManagement: React.FC = () => {
                                             ])
                                             
                                             setSelectedPupilDetails({
-                                                ...res.data,
                                                 ...pupilRes.data,
+                                                ...res.data,
+                                                photo_url: res.data.photo_url || pupilRes.data.photo_url,
                                                 health: healthRes.data
                                             })
                                             setShowDigitalCard(true)
