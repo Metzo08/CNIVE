@@ -13,6 +13,7 @@ import L from 'leaflet'
 import { CreditCard, QrCode, Activity, Users, User, MapPin, Plus, History, BarChart3, Download, Printer, Settings, Eye, Info, Smartphone, ShieldCheck, X, School as SchoolIcon, Phone, Heart, AlertTriangle, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react'
 import { getPupilPhotoUrl } from '../utils/imageUtils'
 import CardServiceScanner from '../components/CardServiceScanner'
+import PupilIdCard from '../components/PupilIdCard'
 
 // Custom marker icon for Leaflet
 const createIcon = (color: string) => L.divIcon({
@@ -105,6 +106,7 @@ const CardsManagement: React.FC = () => {
     const [showRecentScansModal, setShowRecentScansModal] = useState(false)
     const [showRolesModal, setShowRolesModal] = useState(false)
     const [showDigitalCard, setShowDigitalCard] = useState(false)
+    const [cardPreviewSide, setCardPreviewSide] = useState<'recto' | 'verso' | 'both'>('recto')
     const [selectedPupilDetails, setSelectedPupilDetails] = useState<any | null>(null)
     const [recentScans, setRecentScans] = useState<any[]>([])
     const [printingCard, setPrintingCard] = useState<any | null>(null)
@@ -662,153 +664,148 @@ const CardsManagement: React.FC = () => {
                 </div>
             )}
 
-            {/* Premium Digital ID Card Modal */}
+            {/* Premium Digital ID Card Modal — Format CMU-Élèves / MUTUALIS */}
             {showDigitalCard && selectedPupilDetails && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 3000, padding: '16px 24px', overflowY: 'auto' }} onClick={() => setShowDigitalCard(false)}>
-                    <div style={{ position: 'relative', maxWidth: '420px', width: '100%', borderRadius: '32px', marginTop: '16px', marginBottom: '16px' }} className="hide-scrollbar" onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setShowDigitalCard(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3001 }}><X size={20}/></button>
-                        
-                        {/* THE CARD */}
-                        <div style={{
-                            background: 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)',
-                            borderRadius: '32px',
-                            overflow: 'hidden',
-                            boxShadow: '0 50px 100px -20px rgba(0,0,0,0.5)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            position: 'relative'
-                        }}>
-                            {/* Decorative blur */}
-                            <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '250px', height: '250px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
-
-                            {/* Header */}
-                            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <ShieldCheck size={18} color="white" />
-                                    </div>
-                                    <div>
-                                        <h4 style={{ margin: 0, color: 'white', fontWeight: 900, fontSize: '0.95rem', letterSpacing: '1px' }}>CNIVE</h4>
-                                        <p style={{ margin: 0, color: '#64748b', fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase' }}>{t('common.republic_senegal')}</p>
-                                    </div>
-                                </div>
-                                <div style={{ padding: '4px 10px', borderRadius: '20px', backgroundColor: '#10b98120', color: '#10b981', fontSize: '0.6rem', fontWeight: 800, border: '1px solid #10b98140' }}>
-                                    {selectedPupilDetails.status === 'ACTIVE' ? t('common.valid') : t('common.invalid')}
-                                </div>
-                            </div>
-
-                            {/* ★ QR CODE EN PREMIER — bien visible dès l'ouverture ★ */}
-                            <div style={{ backgroundColor: '#ffffff', padding: '20px 24px', textAlign: 'center' }}>
-                                <p style={{ margin: '0 0 12px 0', fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                    Scanner ce QR code
-                                </p>
-                                <div style={{ display: 'inline-block', padding: '14px', backgroundColor: '#f8fafc', borderRadius: '20px', border: '2px solid #e2e8f0', marginBottom: '12px' }}>
-                                    <img src={`data:image/png;base64,${selectedPupilDetails.qr_image_base64}`} alt="QR Code" style={{ width: '160px', height: '160px', display: 'block' }} />
-                                </div>
-                                <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, color: '#6366f1', fontFamily: 'monospace', letterSpacing: '1px' }}>
-                                    {selectedPupilDetails.cnive_id}
+                <div 
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '20px', overflowY: 'auto' }} 
+                    onClick={() => setShowDigitalCard(false)}
+                >
+                    <div 
+                        style={{ position: 'relative', maxWidth: cardPreviewSide === 'both' ? '1040px' : '540px', width: '100%', borderRadius: '28px', backgroundColor: colors.card, border: `1px solid ${colors.border}40`, padding: '28px', boxShadow: '0 30px 60px rgba(0,0,0,0.5)', transition: 'all 0.3s ease' }} 
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Header modal */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: colors.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <CreditCard size={22} color="#00853F" />
+                                    Carte d'Élève • Modèle Mutualis CSU
+                                </h3>
+                                <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: colors.textSecondary, fontWeight: 600 }}>
+                                    Format horizontal ID-1 • {selectedPupilDetails.pupil_name || `${selectedPupilDetails.first_name || ''} ${selectedPupilDetails.last_name || ''}`} ({selectedPupilDetails.cnive_id})
                                 </p>
                             </div>
+                            <button 
+                                onClick={() => setShowDigitalCard(false)} 
+                                style={{ background: `${colors.border}30`, border: 'none', color: colors.text, cursor: 'pointer', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                                <X size={18}/>
+                            </button>
+                        </div>
 
-                            {/* Identity — compact row */}
-                            <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                                <div style={{ width: '72px', height: '72px', flexShrink: 0, borderRadius: '50%', border: '3px solid #4f46e5', overflow: 'hidden', backgroundColor: '#1e293b', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    {selectedPupilDetails.photo_url ? (
-                                        <img 
-                                            src={getPupilPhotoUrl(selectedPupilDetails.photo_url)} 
-                                            alt="Profile" 
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} 
-                                            referrerPolicy="no-referrer"
-                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                        />
-                                    ) : null}
-                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
-                                        <Users size={36} />
-                                    </div>
-                                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: '22px', height: '22px', backgroundColor: '#4f46e5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0f172a', zIndex: 2 }}>
-                                        <ShieldCheck size={12} color="white" />
-                                    </div>
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedPupilDetails.first_name} {selectedPupilDetails.last_name}</h2>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '8px' }}>
-                                        <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '8px 10px', borderRadius: '12px' }}>
-                                            <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '2px' }}>
-                                                <SchoolIcon size={10} /> <span style={{ fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase' }}>{t('common.school')}</span>
-                                            </div>
-                                            <p style={{ margin: 0, color: 'white', fontWeight: 700, fontSize: '0.7rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedPupilDetails.school_name || t('common.not_specified')}</p>
-                                        </div>
-                                        <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '8px 10px', borderRadius: '12px' }}>
-                                            <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '2px' }}>
-                                                <Phone size={10} /> <span style={{ fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase' }}>{t('common.tutor')}</span>
-                                            </div>
-                                            <p style={{ margin: 0, color: 'white', fontWeight: 700, fontSize: '0.7rem' }}>{selectedPupilDetails.tutor_phone || 'N/A'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Switcher Recto / Verso / Les deux */}
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', backgroundColor: colors.bg, padding: '6px', borderRadius: '16px', width: 'fit-content' }}>
+                            <button
+                                onClick={() => setCardPreviewSide('recto')}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 800,
+                                    fontSize: '0.8rem',
+                                    backgroundColor: cardPreviewSide === 'recto' ? colors.primary : 'transparent',
+                                    color: cardPreviewSide === 'recto' ? 'white' : colors.textSecondary,
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                📄 Recto (Face Avant)
+                            </button>
+                            <button
+                                onClick={() => setCardPreviewSide('verso')}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 800,
+                                    fontSize: '0.8rem',
+                                    backgroundColor: cardPreviewSide === 'verso' ? colors.primary : 'transparent',
+                                    color: cardPreviewSide === 'verso' ? 'white' : colors.textSecondary,
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                🔄 Verso (CSU & QR)
+                            </button>
+                            <button
+                                onClick={() => setCardPreviewSide('both')}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 800,
+                                    fontSize: '0.8rem',
+                                    backgroundColor: cardPreviewSide === 'both' ? colors.primary : 'transparent',
+                                    color: cardPreviewSide === 'both' ? 'white' : colors.textSecondary,
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                📑 Les Deux Faces
+                            </button>
+                        </div>
 
-                            {/* Health alert — compact */}
-                            {selectedPupilDetails.health && (
-                                <div style={{ padding: '0 24px 16px' }}>
-                                    <div style={{ backgroundColor: 'rgba(239,68,68,0.1)', padding: '10px 14px', borderRadius: '14px', border: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <Heart size={16} color="#ef4444" />
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1 }}>
-                                            <span style={{ color: '#ef4444', fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase' }}>{t('common.health')}</span>
-                                            <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 900 }}>{selectedPupilDetails.health.blood_group}</span>
-                                        </div>
-                                    </div>
+                        {/* Visualisation de la carte */}
+                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '24px' }}>
+                            {(cardPreviewSide === 'recto' || cardPreviewSide === 'both') && (
+                                <div style={{ flex: cardPreviewSide === 'both' ? '1 1 440px' : '1 1 100%', maxWidth: '480px' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                                        Face Avant — Recto (Identité & Scolarité)
+                                    </p>
+                                    <PupilIdCard card={selectedPupilDetails} side="recto" isPrint={false} />
                                 </div>
                             )}
+                            {(cardPreviewSide === 'verso' || cardPreviewSide === 'both') && (
+                                <div style={{ flex: cardPreviewSide === 'both' ? '1 1 440px' : '1 1 100%', maxWidth: '480px' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: colors.textSecondary, textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                                        Face Arrière — Verso (SEN-CSU & Niveaux d'accès)
+                                    </p>
+                                    <PupilIdCard card={selectedPupilDetails} side="verso" isPrint={false} />
+                                </div>
+                            )}
+                        </div>
 
-                            {/* Action Buttons */}
-                            <div style={{ padding: '0 24px 24px', display: 'flex', gap: '10px' }}>
-                                <button onClick={() => handlePrint(selectedPupilDetails.id)} style={{ flex: 1, padding: '14px', borderRadius: '14px', backgroundColor: '#4f46e5', color: 'white', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.9rem' }}>
-                                    <Printer size={16} /> {t('common.print')}
-                                </button>
-                                <button onClick={() => {
+                        {/* Actions */}
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', borderTop: `1px solid ${colors.border}20`, paddingTop: '18px', flexWrap: 'wrap' }}>
+                            <button 
+                                onClick={() => {
                                     setShowDigitalCard(false)
                                     apiClient.get(`/cards/analytics/${selectedPupilDetails.pupil_id}`).then(r => {
                                         setSelectedPupilAnalytics({ ...r.data, pupil_name: selectedPupilDetails.pupil_name })
                                         setShowAnalyticsModal(true)
                                     })
-                                }} style={{ padding: '14px 18px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Activity size={16} />
-                                </button>
-                            </div>
+                                }} 
+                                style={{ padding: '12px 18px', borderRadius: '14px', backgroundColor: `${colors.border}20`, color: colors.text, border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}
+                            >
+                                <Activity size={16} /> Historique & Scans
+                            </button>
+                            <button 
+                                onClick={() => handlePrint(selectedPupilDetails.id)} 
+                                style={{ padding: '12px 24px', borderRadius: '14px', backgroundColor: '#00853F', color: 'white', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', boxShadow: '0 4px 15px rgba(0, 133, 63, 0.3)' }}
+                            >
+                                <Printer size={16} /> Imprimer Recto-Verso (Format Standard)
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
 
-
-            {/* Individual Analytics Modal */}
-            {showAnalyticsModal && selectedPupilAnalytics && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '40px' }}>
-                    <div style={{ backgroundColor: colors.card, width: '100%', maxWidth: '600px', borderRadius: '32px', padding: '48px', position: 'relative', border: `1px solid ${colors.border}10` }}>
-                        <button onClick={() => setShowAnalyticsModal(false)} style={{ position: 'absolute', top: '32px', right: '32px', background: 'none', border: 'none', cursor: 'pointer', color: colors.textSecondary }}><X size={24}/></button>
-                        <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '8px' }}>{t('cards.tabs.overview')} : {selectedPupilAnalytics.pupil_name}</h2>
-                        <p style={{ color: colors.textSecondary, fontWeight: 500, marginBottom: '40px' }}>{t('cards.subtitle')}</p>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '40px' }}>
-                            <div style={{ padding: '24px', backgroundColor: colors.bg, borderRadius: '24px', textAlign: 'center' }}>
-                                <p style={{ margin: 0, fontSize: '2rem', fontWeight: 900, color: colors.primary }}>{selectedPupilAnalytics.total_scans}</p>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '0.7rem', fontWeight: 800, color: colors.textSecondary }}>{t('cards.stats.total_scans')}</p>
-                            </div>
-                            <div style={{ padding: '24px', backgroundColor: colors.bg, borderRadius: '24px', textAlign: 'center' }}>
-                                <p style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>{selectedPupilAnalytics.last_scan ? new Date(selectedPupilAnalytics.last_scan).toLocaleDateString(i18n.language === 'es' ? 'es-ES' : 'fr-FR') : '---'}</p>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '0.7rem', fontWeight: 800, color: colors.textSecondary }}>{t('dashboard.activity.now')}</p>
-                            </div>
+            {/* Scans Modal */}
+            {showRecentScansModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '24px' }}>
+                    <div style={{ maxWidth: '600px', width: '100%', backgroundColor: colors.card, borderRadius: '32px', padding: '40px', border: `1px solid ${colors.border}20` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Derniers scans enregistrés</h3>
+                            <button onClick={() => setShowRecentScansModal(false)} style={{ background: 'none', border: 'none', color: colors.textSecondary, cursor: 'pointer' }}><X size={20}/></button>
                         </div>
-
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '20px' }}>{t('audit.title')}</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto' }}>
-                            {selectedPupilAnalytics.logs.map((log: any, i: number) => (
-                                <div key={i} style={{ padding: '16px 20px', backgroundColor: colors.bg, borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '400px', overflowY: 'auto' }}>
+                            {recentScans.map((scan, i) => (
+                                <div key={i} style={{ padding: '16px', backgroundColor: colors.bg, borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
-                                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem' }}>{log.location || t('common.not_specified')}</p>
-                                        <p style={{ margin: 0, fontSize: '0.75rem', color: colors.textSecondary }}>{new Date(log.timestamp).toLocaleString(i18n.language === 'es' ? 'es-ES' : 'fr-FR')}</p>
+                                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem' }}>{scan.pupil_name}</p>
+                                        <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: colors.textSecondary }}>{scan.location_name} • {new Date(scan.scanned_at).toLocaleTimeString()}</p>
                                     </div>
-                                    <div style={{ padding: '6px 12px', borderRadius: '10px', backgroundColor: colors.primary + '15', color: colors.primary, fontSize: '0.7rem', fontWeight: 800 }}>{log.role}</div>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '4px 8px', borderRadius: '8px', backgroundColor: colors.primary + '15', color: colors.primary }}>{scan.service_type}</span>
                                 </div>
                             ))}
                         </div>
@@ -816,99 +813,62 @@ const CardsManagement: React.FC = () => {
                 </div>
             )}
 
-            {/* Print Area - Hidden on screen, visible on print */}
+            {/* Pupil Analytics Modal */}
+            {showAnalyticsModal && selectedPupilAnalytics && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '24px' }}>
+                    <div style={{ maxWidth: '640px', width: '100%', backgroundColor: colors.card, borderRadius: '32px', padding: '40px', border: `1px solid ${colors.border}20` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Activité de la carte : {selectedPupilAnalytics.pupil_name}</h3>
+                            <button onClick={() => setShowAnalyticsModal(false)} style={{ background: 'none', border: 'none', color: colors.textSecondary, cursor: 'pointer' }}><X size={20}/></button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                            <div style={{ padding: '20px', backgroundColor: colors.bg, borderRadius: '20px', textAlign: 'center' }}>
+                                <span style={{ fontSize: '1.8rem', fontWeight: 900, color: colors.primary }}>{selectedPupilAnalytics.total_scans}</span>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', fontWeight: 700, color: colors.textSecondary }}>Total des scans</p>
+                            </div>
+                            <div style={{ padding: '20px', backgroundColor: colors.bg, borderRadius: '20px', textAlign: 'center' }}>
+                                <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#10b981' }}>{selectedPupilAnalytics.active ? 'ACTIF' : 'INACTIF'}</span>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', fontWeight: 700, color: colors.textSecondary }}>Statut du pass</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Roles Info Modal */}
+            {showRolesModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '24px' }}>
+                    <div style={{ maxWidth: '640px', width: '100%', backgroundColor: colors.card, borderRadius: '32px', padding: '40px', border: `1px solid ${colors.border}20` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Rôles & Niveaux d'Accès Sécurisés</h3>
+                            <button onClick={() => setShowRolesModal(false)} style={{ background: 'none', border: 'none', color: colors.textSecondary, cursor: 'pointer' }}><X size={20}/></button>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
+                                <strong style={{ color: '#10b981' }}>🟢 Niveau Scolaire :</strong> Directeur d'école, Enseignant (Scolarité, présences, notes)
+                            </div>
+                            <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
+                                <strong style={{ color: '#0284c7' }}>🔵 Niveau Médical :</strong> Médecin, Agent de santé, Mutuelle de Santé (CSU, groupe sanguin, soins)
+                            </div>
+                            <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
+                                <strong style={{ color: '#f59e0b' }}>🟠 Niveau Social :</strong> Travailleur social, Relais communautaire (Score FEV, cantine, bourses)
+                            </div>
+                            <div style={{ padding: '14px', backgroundColor: colors.bg, borderRadius: '16px' }}>
+                                <strong style={{ color: '#8b5cf6' }}>🟣 Niveau Contrôle :</strong> Administrateur GTE, Inspection d'Académie (Sécurité & audit)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Print Area - Hidden on screen, visible on print (Format CMU-Élèves / MUTUALIS ISO ID-1) */}
             {printingCardsData.length > 0 && (
-                <div id="print-area" style={{ display: 'none', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div id="print-area" style={{ display: 'none', gap: '10mm', flexWrap: 'wrap', justifyContent: 'center', padding: '10mm 0' }}>
                     {printingCardsData.map((cardData, index) => (
-                        <React.Fragment key={index}>
-                            {/* RECTO (Front) */}
-                            <div style={{
-                                width: '85.6mm', height: '53.98mm', /* Format Carte de crédit standard */
-                                backgroundColor: '#ffffff',
-                                border: '1px solid #cbd5e1',
-                                borderRadius: '10px',
-                                padding: '12px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                fontFamily: 'sans-serif',
-                                color: '#0f172a',
-                                boxSizing: 'border-box',
-                                pageBreakInside: 'avoid',
-                                position: 'relative',
-                                overflow: 'hidden'
-                            }}>
-                                {/* Header with Nous Cims colors (Magenta) */}
-                                <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #E6007E', paddingBottom: '4px', marginBottom: '8px' }}>
-                                    <h1 style={{ margin: 0, fontSize: '10px', fontWeight: '900', color: '#E6007E', letterSpacing: '0.5px' }}>CNIVE SÉNÉGAL</h1>
-                                    <span style={{ fontSize: '7px', color: '#E6007E', fontWeight: 'bold' }}>PASS DIGITAL</span>
-                                </div>
-                                
-                                {/* Body */}
-                                <div style={{ display: 'flex', width: '100%', gap: '10px', flex: 1 }}>
-                                    {/* Photo Placeholder / Image */}
-                                    <div style={{ width: '22mm', height: '28mm', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                                        {cardData.photo_url ? (
-                                            <img 
-                                                src={getPupilPhotoUrl(cardData.photo_url)} 
-                                                alt="Élève" 
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} 
-                                                referrerPolicy="no-referrer"
-                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                            />
-                                        ) : null}
-                                        <User size={30} color="#94a3b8" />
-                                    </div>
-                                    
-                                    {/* Information */}
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                                        <h2 style={{ margin: '0 0 4px 0', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', lineHeight: '1.2', color: '#333333' }}>{cardData.pupil_name}</h2>
-                                        <p style={{ margin: '0 0 2px 0', fontSize: '8px', color: '#475569', display: 'flex', alignItems: 'center', gap: '3px' }}><SchoolIcon size={8} color="#E6007E" /> {cardData.school_name || 'École non spécifiée'}</p>
-                                        <p style={{ margin: '0 0 2px 0', fontSize: '8px', color: '#475569', display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={8} color="#E6007E" /> {cardData.address || 'Adresse non renseignée'}</p>
-                                        <p style={{ margin: '0', fontSize: '8px', color: '#475569', display: 'flex', alignItems: 'center', gap: '3px' }}><Phone size={8} color="#E6007E" /> Tuteur: {cardData.tutor_phone || 'Non renseigné'}</p>
-                                    </div>
-                                </div>
-
-                                {/* Footer Funding Acknowledgement */}
-                                <div style={{ position: 'absolute', bottom: '4px', left: '12px', right: '12px', textAlign: 'center' }}>
-                                    <p style={{ margin: 0, fontSize: '6px', color: '#64748b', fontStyle: 'italic' }}>Projet soutenu et financé par la Fondation nous cims</p>
-                                </div>
-                                {/* Footer Background Color Strip (Magenta accent) */}
-                                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '4px', backgroundColor: '#E6007E' }}></div>
-                            </div>
-
-                            {/* VERSO (Back) */}
-                            <div style={{
-                                width: '85.6mm', height: '53.98mm', /* Format Carte de crédit standard */
-                                backgroundColor: '#ffffff',
-                                border: '1px solid #cbd5e1',
-                                borderRadius: '10px',
-                                padding: '15px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontFamily: 'sans-serif',
-                                color: '#0f172a',
-                                boxSizing: 'border-box',
-                                pageBreakInside: 'avoid',
-                                position: 'relative'
-                            }}>
-                                <div style={{ marginBottom: '6px', textAlign: 'center' }}>
-                                    <p style={{ margin: 0, fontSize: '8px', fontWeight: 'bold', color: '#333333', textTransform: 'uppercase' }}>Identifiant National (CNIVE)</p>
-                                    <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#E6007E', fontWeight: '900', letterSpacing: '1px' }}>{cardData.cnive_id}</p>
-                                </div>
-
-                                <div style={{ width: '26mm', height: '26mm', backgroundColor: '#fff', padding: '2px', border: `2px solid #E6007E`, borderRadius: '4px' }}>
-                                    <img src={`data:image/png;base64,${cardData.qr_image_base64}`} alt="QR Code" style={{ width: '100%', height: '100%' }} />
-                                </div>
-
-                                <div style={{ marginTop: '8px', width: '100%', textAlign: 'center', backgroundColor: '#f8fafc', padding: '4px', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
-                                    <p style={{ margin: 0, fontSize: '6.5px', color: '#ef4444', fontWeight: 'bold' }}>⚠️ EN CAS D'URGENCE :</p>
-                                    <p style={{ margin: '1px 0 0 0', fontSize: '6.5px', color: '#475569' }}>Scannez ce QR Code pour accéder au dossier (groupe sanguin, allergies, contacts).</p>
-                                </div>
-                                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '4px', backgroundColor: '#E6007E' }}></div>
-                            </div>
-                        </React.Fragment>
+                        <div key={index} style={{ display: 'flex', gap: '8mm', marginBottom: '8mm', pageBreakInside: 'avoid' }}>
+                            <PupilIdCard card={cardData} side="recto" isPrint={true} />
+                            <PupilIdCard card={cardData} side="verso" isPrint={true} />
+                        </div>
                     ))}
                 </div>
             )}

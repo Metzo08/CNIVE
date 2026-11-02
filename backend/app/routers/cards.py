@@ -748,17 +748,36 @@ def get_card_details(
 
     return {
         "id": str(card.id),
+        "card_number": card.card_number or f"CARD-{card.id}",
         "pupil_id": str(card.pupil_id),
+        "first_name": pupil.first_name if pupil else "",
+        "last_name": pupil.last_name if pupil else "",
         "pupil_name": (
             f"{pupil.first_name} {pupil.last_name}" if pupil else "Élève inconnu"
         ),
+        "gender": pupil.gender if pupil else "M",
+        "birth_date": (
+            pupil.birth_date.strftime("%d/%m/%Y")
+            if (pupil and pupil.birth_date)
+            else "Non renseignée"
+        ),
+        "grade": pupil.grade if pupil else "CI",
         "cnive_id": pupil.cnive_id if pupil else "N/A",
         "photo_url": pupil.photo_url if pupil else None,
-        "address": pupil.address if pupil else "Non renseignée",
-        "tutor_phone": pupil.contact_parent1_phone
-        or pupil.contact_parent2_phone
-        or "Non renseigné",
-        "school_name": school.name if school else "Non spécifiée",
+        "address": pupil.address if pupil else "Pikine, Sénégal",
+        "city": school.city if (school and school.city) else "Pikine",
+        "tutor_name": (
+            pupil.contact_parent1_name
+            if (pupil and pupil.contact_parent1_name)
+            else "Tuteur légal"
+        ),
+        "tutor_phone": (
+            pupil.contact_parent1_phone
+            or pupil.contact_parent2_phone
+            or "Non renseigné"
+        ),
+        "school_name": school.name if school else "École non spécifiée",
+        "school_code": school.code if school else "",
         "qr_url": qr_url,
         "qr_image_base64": qr_data["image_base64"],
         "status": card.status.value if card.status else "ACTIVE",
