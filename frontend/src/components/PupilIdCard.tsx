@@ -167,7 +167,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                             letterSpacing: '0.4px',
                             lineHeight: 1.1
                         }}>
-                            Carte nationale de l'élève • mutualis
+                            Carte nationale de l'élève
                         </span>
                         <span style={{ 
                             fontSize: isPrint ? '4pt' : '7px', 
@@ -175,7 +175,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                             fontWeight: 800,
                             letterSpacing: '0.2px'
                         }}>
-                            Sen-é-carte / couverture sanitaire universelle
+                            Couverture sanitaire universelle
                         </span>
                     </div>
 
@@ -259,17 +259,6 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                                 }}>
                                     {displayCniveId}
                                 </span>
-                                <span style={{
-                                    fontSize: isPrint ? '4pt' : '7px',
-                                    fontWeight: 800,
-                                    backgroundColor: '#ecfdf5',
-                                    color: '#047857',
-                                    padding: '1px 4px',
-                                    borderRadius: '3px',
-                                    border: '0.5px solid #a7f3d0'
-                                }}>
-                                    Sen-é-carte
-                                </span>
                             </div>
                         </div>
 
@@ -322,7 +311,7 @@ export const PupilIdCard: React.FC<PupilIdCardProps> = ({ card, side = 'recto', 
                     zIndex: 2
                 }}>
                     <span style={{ fontSize: isPrint ? '4pt' : '7.5px', color: '#64748b', fontWeight: 600 }}>
-                        Zone modèle de pikine • année 2025 - 2026
+                        Zone modèle de pikine • année 2026 - 2027
                     </span>
                     <span style={{ fontSize: isPrint ? '4.2pt' : '7.5px', color: '#047857', fontWeight: 800 }}>
                         Pass scolaire et couverture santé

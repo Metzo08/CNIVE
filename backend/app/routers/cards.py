@@ -50,6 +50,7 @@ def list_cards(
 
     base_url = os.getenv("QR_BASE_URL", "https://cnive.senecarte.sn/q/")
 
+    schools_map = {s.id: s.name for s in db.query(models.School).all()}
     results = []
     for card in cards:
         # Auto-migration: generate token if missing
@@ -70,6 +71,8 @@ def list_cards(
                 ),
                 "cnive_id": pupil.cnive_id if pupil else "N/A",
                 "photo_url": pupil.photo_url if pupil else None,
+                "grade": pupil.grade if pupil else None,
+                "school_name": schools_map.get(pupil.school_id) if (pupil and pupil.school_id) else None,
                 "qr_url": f"{base_url}{card.qr_token}",
                 "status": card.status.value if card.status else "PENDING",
                 "created_at": card.created_at.isoformat() if card.created_at else None,

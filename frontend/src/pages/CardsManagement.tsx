@@ -43,6 +43,8 @@ interface Card {
     cnive_id: string
     pupil_name: string
     photo_url?: string | null
+    grade?: string | null
+    school_name?: string | null
     qr_url: string
     qr_image_base64: string
     status: string
@@ -623,23 +625,19 @@ const CardsManagement: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 mb-10">
                         {cards.map(card => (
-                            <div key={card.id} className="p-5 rounded-3xl border flex justify-between items-center transition-all gap-3" style={{ backgroundColor: selectedCardsToPrint.includes(card.id) ? colors.primary + '10' : colors.bg, borderColor: selectedCardsToPrint.includes(card.id) ? colors.primary : colors.border + '15' }}>
-                                <div className="flex items-center gap-3.5 min-w-0">
-                                    {(user?.role === 'GTE_ADMIN' || user?.role === 'SCHOOL_DIRECTOR') && (
-                                        <input 
-                                            type="checkbox" 
-                                            checked={selectedCardsToPrint.includes(card.id)}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setSelectedCardsToPrint(prev => [...prev, card.id]);
-                                                } else {
-                                                    setSelectedCardsToPrint(prev => prev.filter(id => id !== card.id));
-                                                }
-                                            }}
-                                            style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: colors.primary }}
-                                        />
-                                    )}
-                                    <div className="w-11 h-11 rounded-2xl overflow-hidden shrink-0 relative flex items-center justify-center font-black text-sm text-white" style={{ backgroundColor: colors.primary }}>
+                            <div 
+                                key={card.id} 
+                                className="p-5 rounded-3xl border flex flex-col justify-between gap-4 transition-all hover:shadow-md" 
+                                style={{ 
+                                    backgroundColor: selectedCardsToPrint.includes(card.id) ? colors.primary + '10' : colors.bg, 
+                                    borderColor: selectedCardsToPrint.includes(card.id) ? colors.primary : colors.border + '15' 
+                                }}
+                            >
+                                <div className="flex items-center gap-3.5 w-full min-w-0">
+                                    <div 
+                                        className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 relative flex items-center justify-center font-black text-base text-white shadow-sm" 
+                                        style={{ backgroundColor: colors.primary }}
+                                    >
                                         <span className="select-none pointer-events-none z-0">
                                             {(card.pupil_name || 'E').charAt(0).toUpperCase()}
                                         </span>
@@ -654,43 +652,92 @@ const CardsManagement: React.FC = () => {
                                             />
                                         ) : null}
                                     </div>
-                                    <div className="min-w-0">
+                                    <div className="flex-1 min-w-0">
                                         <button
                                             type="button"
                                             onClick={() => navigate(`/pupils/${card.pupil_id}`)}
-                                            className="m-0 text-base font-extrabold text-left hover:underline truncate block max-w-full"
+                                            className="m-0 text-base font-extrabold text-left hover:underline truncate block w-full leading-snug cursor-pointer bg-transparent border-0 p-0"
                                             style={{ color: colors.text }}
-                                            title="Voir le dossier de l'élève"
+                                            title={card.pupil_name}
                                         >
                                             {card.pupil_name}
                                         </button>
-                                        <p className="mt-1 mb-0 text-xs font-semibold" style={{ color: colors.textSecondary }}>{card.cnive_id}</p>
+                                        <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                                            <span 
+                                                className="inline-block px-2.5 py-0.5 rounded-lg text-[11px] font-mono font-bold whitespace-nowrap" 
+                                                style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}
+                                            >
+                                                {card.cnive_id}
+                                            </span>
+                                            {card.grade && (
+                                                <span 
+                                                    className="inline-block px-2 py-0.5 rounded-lg text-[11px] font-bold whitespace-nowrap"
+                                                    style={{ backgroundColor: `${colors.border}20`, color: colors.textSecondary }}
+                                                >
+                                                    {card.grade}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {card.school_name && (
+                                            <p className="mt-1 mb-0 text-[11px] font-semibold truncate" style={{ color: colors.textSecondary }}>
+                                                {card.school_name}
+                                            </p>
+                                        )}
                                     </div>
+                                    {(user?.role === 'GTE_ADMIN' || user?.role === 'SCHOOL_DIRECTOR') && (
+                                        <input 
+                                            type="checkbox" 
+                                            checked={selectedCardsToPrint.includes(card.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedCardsToPrint(prev => [...prev, card.id]);
+                                                } else {
+                                                    setSelectedCardsToPrint(prev => prev.filter(id => id !== card.id));
+                                                }
+                                            }}
+                                            className="shrink-0"
+                                            style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: colors.primary }}
+                                        />
+                                    )}
                                 </div>
-                                <div className="flex gap-2 shrink-0">
-                                    <button onClick={async () => {
-                                        setLoading(true)
-                                        try {
-                                            const [res, pupilRes, healthRes] = await Promise.all([
-                                                apiClient.get(`/cards/details/${card.id}`),
-                                                apiClient.get(`/pupils/${card.pupil_id}`),
-                                                apiClient.get(`/health-records/pupil/${card.pupil_id}`).catch(() => ({ data: null }))
-                                            ])
-                                            
-                                            setSelectedPupilDetails({
-                                                ...pupilRes.data,
-                                                ...res.data,
-                                                photo_url: res.data.photo_url || pupilRes.data.photo_url,
-                                                health: healthRes.data
-                                            })
-                                            setShowDigitalCard(true)
-                                        } catch (err) {
-                                            console.error(err)
-                                        } finally {
-                                            setLoading(false)
-                                        }
-                                    }} className="w-11 h-11 rounded-2xl flex items-center justify-center cursor-pointer" style={{ backgroundColor: colors.card, color: colors.primary }} title={t('common.view')}><Eye size={20}/></button>
-                                    <button onClick={() => handlePrint(card.id)} className="w-11 h-11 rounded-2xl flex items-center justify-center text-white cursor-pointer" style={{ backgroundColor: colors.primary }} title={t('common.print')}><Printer size={20}/></button>
+                                <div className="flex items-center gap-2.5 pt-3 border-t w-full" style={{ borderColor: `${colors.border}15` }}>
+                                    <button 
+                                        onClick={async () => {
+                                            setLoading(true)
+                                            try {
+                                                const [res, pupilRes, healthRes] = await Promise.all([
+                                                    apiClient.get(`/cards/details/${card.id}`),
+                                                    apiClient.get(`/pupils/${card.pupil_id}`),
+                                                    apiClient.get(`/health-records/pupil/${card.pupil_id}`).catch(() => ({ data: null }))
+                                                ])
+                                                
+                                                setSelectedPupilDetails({
+                                                    ...pupilRes.data,
+                                                    ...res.data,
+                                                    photo_url: res.data.photo_url || pupilRes.data.photo_url,
+                                                    health: healthRes.data
+                                                })
+                                                setShowDigitalCard(true)
+                                            } catch (err) {
+                                                console.error(err)
+                                            } finally {
+                                                setLoading(false)
+                                            }
+                                        }} 
+                                        className="flex-1 h-10 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all hover:opacity-90" 
+                                        style={{ backgroundColor: colors.card, color: colors.primary, border: `1px solid ${colors.border}20` }} 
+                                        title={t('common.view')}
+                                    >
+                                        <Eye size={16}/> <span>Voir la carte</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => handlePrint(card.id)} 
+                                        className="flex-1 h-10 px-3 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 cursor-pointer transition-all hover:opacity-90" 
+                                        style={{ backgroundColor: colors.primary }} 
+                                        title={t('common.print')}
+                                    >
+                                        <Printer size={16}/> <span>Imprimer</span>
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -755,7 +802,7 @@ const CardsManagement: React.FC = () => {
                             <div>
                                 <h3 className="m-0 text-lg md:text-xl font-black flex items-center gap-2" style={{ color: colors.text }}>
                                     <CreditCard size={22} color="#00853F" />
-                                    Carte d'élève • modèle mutualis csu
+                                    Carte nationale de l'élève
                                 </h3>
                                 <p className="mt-1 mb-0 text-xs font-semibold" style={{ color: colors.textSecondary }}>
                                     Format horizontal id-1 • {selectedPupilDetails.pupil_name || `${selectedPupilDetails.first_name || ''} ${selectedPupilDetails.last_name || ''}`} ({selectedPupilDetails.cnive_id})
